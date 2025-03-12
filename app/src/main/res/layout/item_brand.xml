@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/productBrandLayout"
+    android:layout_width="match_parent"
+    android:layout_height="100sp"
+    android:orientation="horizontal"
+    android:background="@drawable/border_primary_rect"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:layout_margin="5sp">
+
+    <ImageView
+        android:id="@+id/brandImage"
+        android:layout_width="80sp"
+        android:layout_height="80sp"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:src="@drawable/product_logo"
+        android:scaleType="fitCenter"/>
+
+</LinearLayout>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="170sp"
+    android:orientation="horizontal"
+    android:background="@drawable/border_primary"
+    android:padding="12sp"
+    android:gravity="start"
+    android:layout_marginTop="10sp">
+
+    <LinearLayout
+        android:layout_width="0sp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Order No."
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvOrderNo"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ordered."
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvOrderDate"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Payment Status"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvPaymentStatus"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Fulfillment Status"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvFulfillmentStatus"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Units"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvUnits"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SKUs"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvSkus"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0sp"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Total Paid"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/tvTotalPaid"
+                android:layout_width="0sp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Option Name"
+                android:textSize="12sp"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="end"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iconArrow"
+        android:layout_width="30sp"
+        android:layout_height="30sp"
+        android:layout_marginStart="10sp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_arrow_right"
+        app:tint="@color/colorPrimaryDark" />
+</LinearLayout>

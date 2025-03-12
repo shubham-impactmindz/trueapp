@@ -1,0 +1,388 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="vertical"
+    tools:context=".ui.component.login.RegisterFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+    <!-- Email Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/companyNameInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled"
+        android:layout_marginTop="32sp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/companyNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter your company name"
+            android:background="@drawable/border_primary"
+            android:inputType="textPersonName"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Invoice Address Inputs -->
+    <TextView
+        android:id="@+id/invoiceAddressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/companyNameInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Invoice Address"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:fontFamily="@font/roboto_bold"
+        android:layout_marginTop="20sp">
+
+    </TextView>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/address1InputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/invoiceAddressText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/address1Input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter invoice address line 1"
+            android:background="@drawable/border_primary"
+            android:inputType="textPostalAddress"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/address2InputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/address1InputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/address2Input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter invoice address line 2"
+            android:background="@drawable/border_primary"
+            android:inputType="textPostalAddress"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/cityInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/address2InputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/cityInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter invoice address city"
+            android:background="@drawable/border_primary"
+            android:inputType="textPostalAddress"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/countryInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/cityInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/countryInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter invoice address country"
+            android:background="@drawable/border_primary"
+            android:inputType="textPostalAddress"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/postCodeInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/countryInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/postCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter invoice address postcode"
+            android:background="@drawable/border_primary"
+            android:inputType="number"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <TextView
+        android:id="@+id/mobileNumberAddressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/postCodeInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Mobile Number"
+        android:textColor="@color/black"
+        android:layout_marginTop="20sp"
+        android:textSize="14sp"
+        android:fontFamily="@font/roboto_bold">
+
+    </TextView>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/mobileNumberInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/mobileNumberAddressText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/mobileNumberInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter your mobile number"
+            android:background="@drawable/border_primary"
+            android:inputType="number"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <TextView
+        android:id="@+id/loginDetailsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/mobileNumberInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Login Details"
+        android:textColor="@color/black"
+        android:layout_marginTop="20sp"
+        android:textSize="14sp"
+        android:fontFamily="@font/roboto_bold">
+
+    </TextView>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailAddressInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/loginDetailsText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailAddressInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter your email"
+            android:background="@drawable/border_primary"
+            android:inputType="textEmailAddress"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/emailAddressInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter your password"
+            android:background="@drawable/border_primary"
+            android:inputType="textPassword"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/reenterPasswordInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/passwordInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/reenterPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please re-enter your password"
+            android:background="@drawable/border_primary"
+            android:inputType="textPassword"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/repCodeInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="60sp"
+        app:layout_constraintTop_toBottomOf="@id/reenterPasswordInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        app:boxStrokeWidth="0sp"
+        app:boxStrokeWidthFocused="0sp"
+        app:boxStrokeColor="@color/colorPrimaryDark"
+        app:boxBackgroundMode="filled">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/repCodeInput"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Please enter rep code"
+            android:background="@drawable/border_primary"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:textColorHint="@color/tabUnselectedColor"
+            android:fontFamily="@font/roboto_regular"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+    <!-- Login Button -->
+    <TextView
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:text="REGISTER"
+        app:layout_constraintTop_toBottomOf="@id/repCodeInputLayout"
+        android:background="@drawable/border_solid_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16sp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:fontFamily="@font/roboto_bold"/>
+
+    <!-- Terms and Conditions (Single TextView with Rich Text) -->
+    <TextView
+        android:id="@+id/termsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@color/black"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:lineSpacingExtra="4sp"
+        app:layout_constraintTop_toBottomOf="@id/btnLogin"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12sp"
+        android:padding="8sp"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

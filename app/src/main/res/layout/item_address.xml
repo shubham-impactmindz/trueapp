@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linearAddress"
+    android:layout_width="match_parent"
+    android:layout_height="60sp"
+    android:orientation="horizontal"
+    android:background="@drawable/border_primary"
+    android:gravity="center_vertical"
+    android:padding="5sp"
+    android:layout_marginLeft="10sp"
+    android:layout_marginRight="10sp"
+    android:layout_marginTop="10sp">
+
+    <ImageView
+        android:id="@+id/iconNotifications"
+        android:layout_width="25sp"
+        android:layout_height="25sp"
+        android:src="@drawable/ic_company"/>
+
+    <TextView
+        android:id="@+id/tvNotifications"
+        android:layout_width="0sp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="10sp"
+        android:text="Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL7 0LH"
+        android:textSize="13sp"
+        android:fontFamily="@font/roboto_regular"
+        android:textColor="@color/black"/>
+
+    <ImageView
+        android:id="@+id/iconArrow"
+        android:layout_width="25sp"
+        android:layout_height="25sp"
+        android:src="@drawable/ic_arrow_right"
+        app:tint="@color/colorPrimaryDark" />
+</LinearLayout>

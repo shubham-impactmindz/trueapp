@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".TrueWebApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.TrueWebApp"
+        tools:targetApi="31">
+        <activity
+            android:name=".ui.component.main.cart.CartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.cart.PaymentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.cart.OrderSuccessActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.cart.CheckOutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.dashboard.ReferralActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.dashboard.OrderDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.dashboard.OrdersListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.dashboard.NotificationDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.AddAddressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.EditAddressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.CompanyAddressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.WalletActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.NotificationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.ServicesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.RepDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.login.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.SplashActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
