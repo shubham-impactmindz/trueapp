@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.component.main.account.AddCardActivity">
+
+    <RelativeLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height60"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/backLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:gravity="center">
+
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin5"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Back"
+                android:textSize="@dimen/headingTextSize"
+                android:textColor="@color/colorPrimaryDark">
+
+            </TextView>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Card"
+            android:layout_centerInParent="true"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="@dimen/mainHeadingTextSize"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:layout_marginStart="@dimen/margin8"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/cardPaymentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="@dimen/margin20"
+        android:layout_marginEnd="@dimen/margin20"
+        android:layout_marginTop="@dimen/margin20"
+        android:background="@drawable/border_primary"
+        android:elevation="@dimen/elevation10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/paymentMethodRadioGroup"
+        android:padding="@dimen/padding16">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cardholderName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Cardholder Name"
+                android:textSize="@dimen/baseTextSize"
+                android:textColorHint="@color/tabUnselectedColor"
+                android:fontFamily="@font/roboto_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            android:layout_marginTop="@dimen/margin8">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cardNumber"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Card Number"
+                android:textSize="@dimen/baseTextSize"
+                android:textColorHint="@color/tabUnselectedColor"
+                android:fontFamily="@font/roboto_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0sp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                android:layout_marginRight="@dimen/margin5"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                android:layout_marginTop="@dimen/margin8">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/expires"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/border_primary"
+                    android:inputType="number"
+                    android:hint="Expires"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColorHint="@color/tabUnselectedColor"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0sp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                android:layout_marginLeft="@dimen/margin5"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                android:layout_marginTop="@dimen/margin8">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/cvv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/border_primary"
+                    android:inputType="number"
+                    android:hint="CVV"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColorHint="@color/tabUnselectedColor"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            android:layout_marginTop="@dimen/margin8"
+            app:boxBackgroundMode="filled">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/postalCodeInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Postal Code"
+                android:textSize="@dimen/baseTextSize"
+                android:textColorHint="@color/tabUnselectedColor"
+                android:fontFamily="@font/roboto_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/completePaymentButton"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height40"
+            android:text="Save Card"
+            android:background="@drawable/border_solid_secondary"
+            android:textColor="@color/white"
+            android:layout_marginTop="@dimen/margin20"
+            android:textSize="@dimen/buttonTextSize"
+            android:gravity="center"
+            android:fontFamily="@font/roboto_bold"/>
+    </LinearLayout>
+
+</LinearLayout>

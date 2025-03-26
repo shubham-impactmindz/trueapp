@@ -32,7 +32,7 @@
             android:layout_marginStart="8dp"
             android:text="Rewards"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold" />
     </LinearLayout>
 
@@ -62,9 +62,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 app:cardCornerRadius="4dp"
                 app:cardElevation="4dp">
 
@@ -96,7 +96,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Bronze"
-                                android:textSize="18sp"
+                                android:textSize="@dimen/mainHeadingTextSize"
                                 android:textStyle="bold"
                                 android:textColor="@color/black" />
 
@@ -104,7 +104,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="ENTRY"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/baseTextSize"
                                 android:textColor="@color/lightGrey" />
                         </LinearLayout>
                     </LinearLayout>
@@ -114,7 +114,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Earn 500 points to achieve this tier with exclusive rewards and benefits."
-                        android:textSize="16sp"
+                        android:textSize="@dimen/headingTextSize"
                         android:textColor="@color/black" />
 
                     <ProgressBar
@@ -132,7 +132,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/smallTextSize"
                         android:textColor="@color/lightGrey"
                         android:text="Earn 1500 more points to reach Silver" />
 
@@ -141,7 +141,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Reward bonus point +50 points"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -149,7 +149,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Free shipping up to $30 Use the code at checkout for free shipping."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -157,19 +157,18 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Tier bonus points Earn 5.00% more points for &quot;Place an order&quot;."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="50sp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10sp"
+                        android:layout_height="@dimen/height40"
+                        android:layout_marginTop="@dimen/margin10"
                         android:background="@drawable/border_solid_secondary"
-                        android:text="CLAIM"
+                        android:text="Claim"
                         android:gravity="center"
                         android:fontFamily="@font/roboto_bold"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/buttonTextSize"
                         android:textColor="@color/white" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -177,9 +176,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 app:cardCornerRadius="4dp"
                 app:cardElevation="4dp">
 
@@ -211,7 +210,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Silver"
-                                android:textSize="18sp"
+                                android:textSize="@dimen/mainHeadingTextSize"
                                 android:textStyle="bold"
                                 android:textColor="@color/black" />
 
@@ -219,7 +218,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="MID"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/baseTextSize"
                                 android:textColor="@color/lightGrey" />
                         </LinearLayout>
                     </LinearLayout>
@@ -229,7 +228,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Earn 2000 points to achieve this tier with exclusive rewards and benefits."
-                        android:textSize="16sp"
+                        android:textSize="@dimen/headingTextSize"
                         android:textColor="@color/black" />
 
                     <ProgressBar
@@ -247,7 +246,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/smallTextSize"
                         android:textColor="@color/lightGrey"
                         android:text="Earn 3000 more points to reach Gold" />
 
@@ -256,7 +255,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Reward bonus point +100 points"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -264,7 +263,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Free shipping up to $50 Use the code at checkout for free shipping."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -272,19 +271,18 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Tier bonus points Earn 10.00% more points for &quot;Place an order&quot;."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="50sp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10sp"
+                        android:layout_height="@dimen/height40"
+                        android:layout_marginTop="@dimen/margin10"
                         android:background="@drawable/border_solid_secondary"
-                        android:text="CLAIM"
+                        android:text="Claim"
                         android:gravity="center"
                         android:fontFamily="@font/roboto_bold"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/buttonTextSize"
                         android:textColor="@color/white" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -292,9 +290,9 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 android:layout_marginBottom="10sp"
                 app:cardCornerRadius="4dp"
                 app:cardElevation="4dp">
@@ -327,7 +325,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Gold"
-                                android:textSize="18sp"
+                                android:textSize="@dimen/mainHeadingTextSize"
                                 android:textStyle="bold"
                                 android:textColor="@color/black" />
 
@@ -335,7 +333,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="HIGH"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/baseTextSize"
                                 android:textColor="@color/lightGrey" />
                         </LinearLayout>
                     </LinearLayout>
@@ -345,7 +343,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Earn 5000 points to achieve this tier with exclusive rewards and benefits."
-                        android:textSize="16sp"
+                        android:textSize="@dimen/headingTextSize"
                         android:textColor="@color/black" />
 
                     <ProgressBar
@@ -363,7 +361,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textSize="12sp"
+                        android:textSize="@dimen/smallTextSize"
                         android:textColor="@color/lightGrey"
                         android:text="No more tiers" />
 
@@ -372,7 +370,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Reward bonus point +150 points"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -380,7 +378,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Free shipping up to $100 Use the code at checkout for free shipping."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
@@ -388,19 +386,18 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Tier bonus points Earn 15.00% more points for &quot;Place an order&quot;."
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:textColor="@color/black" />
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="50sp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="10sp"
+                        android:layout_height="@dimen/height40"
+                        android:layout_marginTop="@dimen/margin10"
                         android:background="@drawable/border_solid_secondary"
-                        android:text="CLAIM"
+                        android:text="Claim"
                         android:gravity="center"
                         android:fontFamily="@font/roboto_bold"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/buttonTextSize"
                         android:textColor="@color/white" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

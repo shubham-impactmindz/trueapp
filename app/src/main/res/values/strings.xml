@@ -19,7 +19,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="services_display_solutions"><![CDATA[Services & Display Solutions]]></string>
-    <string name="company_address">Company Address</string>
+    <string name="company_address">My Address</string>
     <string name="my_rep_details">My Rep Details</string>
     <string name="profile">Profile</string>
     <string name="wallet">Wallet</string>
@@ -71,5 +71,8 @@
     <string name="order_success_message">Your order has been placed successfully. Thank you for shopping with us!</string>
     <string name="continue_shopping">Continue Shopping</string>
     <string name="delete_account">Delete Account</string>
+    <string name="offers_discounts"><![CDATA[OFFERS &\nDISCOUNTS]]></string>
+    <string name="my_orders">My Orders</string>
+    <string name="payment_options">Payment Options</string>
 
 </resources>

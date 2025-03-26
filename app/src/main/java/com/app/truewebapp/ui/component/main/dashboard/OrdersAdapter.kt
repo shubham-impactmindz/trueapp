@@ -1,11 +1,13 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
+import com.app.truewebapp.ui.component.main.cart.CartActivity
 
 class OrdersAdapter(private val options: List<OrderOption>, private val listener: (OrderOption) -> Unit) :
     RecyclerView.Adapter<OrdersAdapter.ViewHolder>() {
@@ -18,6 +20,7 @@ class OrdersAdapter(private val options: List<OrderOption>, private val listener
         val textUnit: TextView = view.findViewById(R.id.tvUnits)
         val textSku: TextView = view.findViewById(R.id.tvSkus)
         val textTotalPaid: TextView = view.findViewById(R.id.tvTotalPaid)
+        val textReorderItems: TextView = view.findViewById(R.id.textReorderItems)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,6 +38,11 @@ class OrdersAdapter(private val options: List<OrderOption>, private val listener
         holder.textSku.text = option.skus
         holder.textTotalPaid.text = option.totalPaid
         holder.itemView.setOnClickListener { listener(option) }
+
+        holder.textReorderItems.setOnClickListener {
+            val intent = Intent(holder.itemView.context, CartActivity::class.java)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = options.size

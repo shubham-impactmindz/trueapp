@@ -25,5 +25,5 @@ class NotificationsAdapter(private val options: List<NotificationOption>, privat
         holder.itemView.setOnClickListener { listener(option) }
     }
 
-    override fun getItemCount(): Int = options.size
+    override fun getItemCount(): Int = 2
 }

@@ -39,6 +39,10 @@ class ShopCategoryAdapter(
             Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY).toString()
         holder.tvProduct.text = title
 
+        if (title == "Deals & Offers"){
+            holder.linearCategory.setBackgroundResource(R.drawable.border_solid_secondary)
+        }
+
         val subCategoryAdapter = SubCategoryAdapter(productAdapterListener, option?.subCats)
         holder.subCategoryRecyclerView.adapter = subCategoryAdapter
         holder.subCategoryRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)

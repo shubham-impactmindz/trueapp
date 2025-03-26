@@ -24,7 +24,7 @@
     <ImageView
         android:id="@+id/iconProduct"
         android:layout_width="50sp"
-        android:layout_height="50sp"
+        android:layout_height="@dimen/height50"
         android:src="@drawable/ic_lays"/>
 
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="0sp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="10sp"
+        android:layout_marginStart="@dimen/margin10"
         android:text="Lays [India's Magic Masala / 100gms]"
         android:textSize="13sp"
         android:fontFamily="@font/roboto_regular"
@@ -42,7 +42,7 @@
         android:id="@+id/tvQuantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
+        android:layout_marginStart="@dimen/margin10"
         android:text="60"
         android:textSize="13sp"
         android:fontFamily="@font/roboto_regular"
@@ -52,7 +52,7 @@
         android:id="@+id/tvPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
+        android:layout_marginStart="@dimen/margin10"
         android:text="@string/wallet_balance"
         android:textSize="13sp"
         android:fontFamily="@font/roboto_bold"

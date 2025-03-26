@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.truewebapp.databinding.ActivityServicesBinding
+import com.app.truewebapp.ui.component.main.dashboard.NotificationOption
 
 class ServicesActivity : AppCompatActivity() {
     lateinit var binding:ActivityServicesBinding
@@ -17,9 +18,15 @@ class ServicesActivity : AppCompatActivity() {
         binding.backLayout.setOnClickListener {
             finish()
         }
+
+        val options = listOf(
+            NotificationOption("Basic POS"),
+            NotificationOption("Advanced POS"),
+            NotificationOption("Premium POS"),
+        )
         binding.servicesRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        servicesAdapter = ServicesAdapter()
+        servicesAdapter = ServicesAdapter(options)
         binding.servicesRecyclerView.adapter = servicesAdapter
     }
 }

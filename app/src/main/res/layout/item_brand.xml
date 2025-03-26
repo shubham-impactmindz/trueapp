@@ -14,7 +14,7 @@
         android:layout_width="80sp"
         android:layout_height="80sp"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        android:textSize="@dimen/baseTextSize"
         android:src="@drawable/product_logo"
         android:scaleType="fitCenter"/>
 

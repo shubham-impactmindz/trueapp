@@ -10,12 +10,12 @@
     <RelativeLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         android:gravity="center_vertical"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:padding="5sp"
-        android:elevation="10sp"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -29,17 +29,17 @@
 
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="24sp"
-                android:layout_height="24sp"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
                 android:src="@drawable/ic_back" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5sp"
+                android:layout_marginStart="@dimen/margin5"
                 android:fontFamily="@font/roboto_bold"
                 android:text="Back"
-                android:textSize="16sp"
+                android:textSize="@dimen/headingTextSize"
                 android:textColor="@color/colorPrimaryDark">
 
             </TextView>
@@ -51,11 +51,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            android:text="@string/services_display_solutions"
+            android:text="Services"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
-            android:fontFamily="@font/roboto_bold" />
+            android:textSize="@dimen/mainHeadingTextSize" />
     </RelativeLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -69,13 +69,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
+            android:layout_marginTop="@dimen/margin10"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/bannerImage"
                 android:layout_width="match_parent"
-                android:layout_height="120sp"
+                android:layout_height="@dimen/height120"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_banner" />
 
@@ -84,8 +84,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="true"
-                android:layout_marginTop="20sp"
-                android:layout_marginBottom="20sp" />
+                android:layout_marginTop="@dimen/margin20"
+                android:layout_marginBottom="@dimen/margin20" />
 
         </LinearLayout>
 

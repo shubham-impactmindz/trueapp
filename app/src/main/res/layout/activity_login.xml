@@ -5,14 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16sp"
+    android:padding="@dimen/padding16"
     tools:context=".ui.component.login.LoginActivity">
 
     <!-- App Logo -->
     <ImageView
         android:id="@+id/logo"
         android:layout_width="wrap_content"
-        android:layout_height="50sp"
+        android:layout_height="@dimen/height50"
         android:src="@drawable/ic_splash_icon"
         android:contentDescription="App Logo"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,7 +23,7 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="50sp"
+        android:layout_height="@dimen/height50"
         android:background="@drawable/tab_color_selector"
         app:tabGravity="fill"
         app:tabMode="fixed"

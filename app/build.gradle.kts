@@ -74,6 +74,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.6")
     implementation("com.airbnb.android:lottie:6.0.0")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.tbuonomo:dotsindicator:4.3")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     //noinspection KaptUsageInsteadOfKsp
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 

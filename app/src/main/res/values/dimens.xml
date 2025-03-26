@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="mainHeadingTextSize">18sp</dimen>
+    <dimen name="headingTextSize">16sp</dimen>
+    <dimen name="baseTextSize">14sp</dimen>
+    <dimen name="buttonTextSize">14sp</dimen>
+    <dimen name="smallTextSize">12sp</dimen>
+    <dimen name="margin1">1sp</dimen>
+    <dimen name="margin2">2sp</dimen>
+    <dimen name="margin3">3sp</dimen>
+    <dimen name="margin4">4sp</dimen>
+    <dimen name="margin5">5sp</dimen>
+    <dimen name="margin8">8sp</dimen>
+    <dimen name="margin10">10sp</dimen>
+    <dimen name="margin15">15sp</dimen>
+    <dimen name="margin20">20sp</dimen>
+    <dimen name="margin30">30sp</dimen>
+    <dimen name="padding8">8sp</dimen>
+    <dimen name="padding10">10sp</dimen>
+    <dimen name="padding12">12sp</dimen>
+    <dimen name="padding16">16sp</dimen>
+    <dimen name="elevation10">10sp</dimen>
+    <dimen name="elevation20">20sp</dimen>
+    <dimen name="imageHeight15">15sp</dimen>
+    <dimen name="imageWidth15">15sp</dimen>
+    <dimen name="imageHeight20">20sp</dimen>
+    <dimen name="imageWidth20">20sp</dimen>
+    <dimen name="imageHeight24">24sp</dimen>
+    <dimen name="imageWidth24">24sp</dimen>
+    <dimen name="height40">50sp</dimen>
+    <dimen name="height50">50sp</dimen>
+    <dimen name="height60">50sp</dimen>
+    <dimen name="height120">120sp</dimen>
+    <dimen name="height140">140sp</dimen>
+    <dimen name="width2">2sp</dimen>
+</resources>

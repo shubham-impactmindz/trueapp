@@ -6,14 +6,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_marginTop="5sp"
-    android:layout_marginLeft="10sp"
-    android:layout_marginRight="10sp"
+    android:layout_marginLeft="@dimen/margin10"
+    android:layout_marginRight="@dimen/margin10"
     android:gravity="center_vertical">
 
     <LinearLayout
         android:id="@+id/linearCategory"
         android:layout_width="match_parent"
-        android:layout_height="50sp"
+        android:layout_height="@dimen/height50"
         android:background="@drawable/border_solid_primary"
         android:gravity="center_vertical">
 
@@ -23,18 +23,18 @@
         android:layout_width="0sp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="10sp"
+        android:layout_marginStart="@dimen/margin10"
         android:text="@string/deals_offers"
-        android:textSize="16sp"
+        android:textSize="@dimen/headingTextSize"
         android:fontFamily="@font/roboto_bold"
         android:textColor="@color/white"/>
 
 
     <ImageView
         android:id="@+id/iconArrowDown"
-        android:layout_width="24sp"
-        android:layout_height="24sp"
-        android:layout_marginEnd="10sp"
+        android:layout_width="@dimen/imageWidth24"
+        android:layout_height="@dimen/imageHeight24"
+        android:layout_marginEnd="@dimen/margin10"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_arrow_down"
         app:tint="@color/white" />
@@ -42,9 +42,9 @@
     <ImageView
         android:visibility="gone"
         android:id="@+id/iconArrowUp"
-        android:layout_width="24sp"
-        android:layout_height="24sp"
-        android:layout_marginEnd="10sp"
+        android:layout_width="@dimen/imageWidth24"
+        android:layout_height="@dimen/imageHeight24"
+        android:layout_marginEnd="@dimen/margin10"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_arrow_up"
         app:tint="@color/white" />

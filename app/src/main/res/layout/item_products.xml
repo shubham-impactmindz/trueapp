@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginRight="2sp"
-    android:layout_marginLeft="2sp"
-    android:layout_marginBottom="2sp"
-    android:layout_marginTop="2sp"
-    android:background="@drawable/border_primary_rect"
+    android:layout_marginRight="5sp"
+    android:layout_marginLeft="5sp"
+    android:layout_marginBottom="5sp"
+    android:layout_marginTop="5sp"
+    app:cardCornerRadius="@dimen/padding10"
     android:gravity="center_vertical">
 
     <LinearLayout
@@ -17,33 +17,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="5sp"
+        android:padding="@dimen/margin5"
         android:gravity="center_vertical">
 
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80sp">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:text="SALE"
                 android:textSize="13sp"
                 android:fontFamily="@font/roboto_bold"
                 android:textColor="@color/colorSecondary"/>
-
-            <!-- com.app.truewebapp.ui.component.main.shop.Product Image -->
-            <ImageView
-                android:id="@+id/imgProduct"
-                android:layout_width="80sp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_lays" />
-
-
 
             <!-- Favorite Button -->
             <ImageView
@@ -56,18 +48,129 @@
                 android:src="@drawable/ic_favourite"
                 app:tint="@color/colorPrimaryDark"
                 android:background="@drawable/circle_background"
-                android:padding="5sp"/>
+                android:padding="@dimen/margin5"/>
 
             <ImageView
                 android:id="@+id/btnFavorite"
                 android:layout_width="30sp"
                 android:layout_height="30sp"
-                android:layout_gravity="top|end"
+                android:layout_gravity="end|center"
                 android:layout_margin="5sp"
                 android:src="@drawable/ic_favourite_unselected"
                 app:tint="@color/colorPrimaryDark"
                 android:background="@drawable/circle_background"
-                android:padding="5sp"/>
+                android:padding="@dimen/margin5"/>
+
+
+        </LinearLayout>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="100sp">
+
+
+
+            <ImageView
+                android:id="@+id/imgProduct"
+                android:layout_width="100sp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_lays" />
+
+
+
+            <LinearLayout
+                android:id="@+id/btnAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="bottom"
+                android:gravity="end">
+
+
+
+                <ImageView
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_gravity="end|center"
+                    android:src="@drawable/ic_add"
+                    app:tint="@color/white"
+                    android:padding="@dimen/padding8"
+                    android:gravity="end|center"
+                    android:background="@drawable/circle_background_secondary"/>
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal">
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5">
+            </LinearLayout>
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/llCartSign"
+                android:layout_width="0dp"
+                android:layout_height="30sp"
+                android:layout_weight="1"
+                android:gravity="end|center"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/border_solid_secondary">
+
+
+                    <ImageView
+                        android:id="@+id/btnMinus"
+                        android:layout_width="0sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_minus"
+                        app:tint="@color/white"
+                        android:padding="@dimen/padding8">
+                    </ImageView>
+
+                    <TextView
+                        android:id="@+id/textNoOfItems"
+                        android:layout_width="0sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="@dimen/headingTextSize"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/roboto_bold">
+                    </TextView>
+
+                    <ImageView
+                        android:id="@+id/btnAddMore"
+                        android:layout_width="0sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/white"
+                        android:padding="@dimen/padding8">
+                    </ImageView>
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            </LinearLayout>
+
         </FrameLayout>
 
         <LinearLayout
@@ -97,7 +200,7 @@
                 android:gravity="start"
                 android:layout_gravity="center"
                 android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
-                android:textSize="12sp"
+                android:textSize="@dimen/smallTextSize"
                 android:layout_marginTop="2sp"
                 android:maxLines="2"
                 android:fontFamily="@font/roboto_regular"
@@ -108,7 +211,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="38sp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="5sp"
                 android:orientation="horizontal"
                 android:layout_gravity="center"
@@ -118,7 +221,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:layout_gravity="end"
                     android:gravity="center_vertical">
 
@@ -132,107 +235,51 @@
                         android:gravity="end"
                         android:text="@string/wallet_balance"
                         android:textColor="@color/black"
-                        android:textSize="14sp" />
+                        android:textSize="@dimen/baseTextSize" />
 
                     <TextView
                         android:id="@+id/comparePrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="end"
-                        android:layout_gravity="start"
                         android:text="£3.50"
                         android:textSize="11sp"
+                        android:layout_marginStart="@dimen/margin5"
                         android:fontFamily="@font/roboto_regular"
                         android:textColor="@color/textGrey" />
 
                 </LinearLayout>
 
 
-
-                <LinearLayout
-                    android:id="@+id/btnAdd"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_gravity="end"
-                    android:gravity="end">
+            </LinearLayout>
 
 
-
-                <ImageView
-                    android:layout_width="30sp"
-                    android:layout_height="30sp"
-                    android:layout_gravity="end|center"
-                    android:src="@drawable/ic_add"
-                    app:tint="@color/white"
-                    android:padding="8sp"
-                    android:gravity="end|center"
-                    android:background="@drawable/circle_background_secondary"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/margin30"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/margin5"
+                android:background="@drawable/border_solid_secondary_opacity"
+                android:gravity="center_vertical">
 
 
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvOffer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="center_vertical"
+                    android:text="Buy 2, Get 1 Free"
+                    android:padding="@dimen/margin2"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/smallTextSize" />
 
-                <LinearLayout
-                    android:visibility="gone"
-                    android:id="@+id/llCartSign"
-                    android:layout_width="0dp"
-                    android:layout_height="30sp"
-                    android:layout_weight="1"
-                    android:gravity="end|center"
-                    android:layout_marginStart="10sp"
-                    android:layout_gravity="end|center"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/border_solid_grey">
-
-
-                    <ImageView
-                        android:id="@+id/btnMinus"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_minus"
-                        app:tint="@color/colorPrimaryDark"
-                        android:padding="8sp">
-                    </ImageView>
-
-                    <TextView
-                        android:id="@+id/textNoOfItems"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="1"
-                        android:textSize="16sp"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:fontFamily="@font/roboto_bold">
-                    </TextView>
-
-                    <ImageView
-                        android:id="@+id/btnAddMore"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/colorPrimaryDark"
-                        android:padding="8sp">
-                    </ImageView>
-
-
-                    </LinearLayout>
-
-                </LinearLayout>
             </LinearLayout>
 
 
 
         </LinearLayout>
-
-
-
     </LinearLayout>
 
-</LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -10,12 +10,12 @@
     <RelativeLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         android:gravity="center_vertical"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:padding="5sp"
-        android:elevation="10sp"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -29,17 +29,17 @@
 
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="24sp"
-                android:layout_height="24sp"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
                 android:src="@drawable/ic_back" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5sp"
+                android:layout_marginStart="@dimen/margin5"
                 android:fontFamily="@font/roboto_bold"
                 android:text="Back"
-                android:textSize="16sp"
+                android:textSize="@dimen/headingTextSize"
                 android:textColor="@color/colorPrimaryDark">
 
             </TextView>
@@ -53,10 +53,9 @@
             android:text="Add Address"
             android:layout_centerInParent="true"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
-            android:gravity="center"
-            android:layout_marginStart="8sp"/>
+            android:gravity="center"/>
     </RelativeLayout>
 
     <ScrollView
@@ -73,23 +72,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
+            android:layout_marginTop="@dimen/margin10"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/bannerImage"
                 android:layout_width="match_parent"
-                android:layout_height="120sp"
+                android:layout_height="@dimen/height120"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_banner"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/companyNameInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -102,7 +101,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter your company name"
                     android:inputType="textPersonName"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -110,10 +109,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/address1InputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginTop="10sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -126,7 +125,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter invoice address line 1"
                     android:inputType="textPostalAddress"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -134,10 +133,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/address2InputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -150,7 +149,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter invoice address line 2"
                     android:inputType="textPostalAddress"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -158,10 +157,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/cityInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -174,7 +173,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter invoice address city"
                     android:inputType="textPostalAddress"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -182,10 +181,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/countryInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -198,7 +197,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter invoice address country"
                     android:inputType="textPostalAddress"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -206,10 +205,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/postCodeInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="60sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="10sp"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
@@ -222,7 +221,7 @@
                     android:background="@drawable/border_primary"
                     android:hint="Please enter invoice address postcode"
                     android:inputType="number"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -230,27 +229,27 @@
             <LinearLayout
                 android:id="@+id/saveLayout"
                 android:layout_width="match_parent"
-                android:layout_height="50sp"
-                android:layout_marginTop="20sp"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginBottom="20sp"
+                android:layout_height="@dimen/height40"
+                android:layout_marginTop="@dimen/margin20"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginBottom="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:background="@drawable/border_solid_secondary">
 
                 <ImageView
-                    android:layout_width="20sp"
-                    android:layout_height="20sp"
+                    android:layout_width="@dimen/imageWidth20"
+                    android:layout_height="@dimen/imageHeight20"
                     android:src="@drawable/ic_checked" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Save"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
-                    android:layout_marginStart="5sp"
+                    android:layout_marginStart="@dimen/margin5"
                     android:textColor="@color/white"
                     android:gravity="center"/>
 

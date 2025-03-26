@@ -10,12 +10,12 @@
     <LinearLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         android:gravity="center_vertical"
         android:background="@color/white"
-        android:elevation="10sp"
+        android:elevation="@dimen/elevation10"
         android:orientation="horizontal"
-        android:padding="16sp"
+        android:padding="@dimen/padding16"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -25,19 +25,18 @@
 
 
         <ImageView
-            android:layout_width="24sp"
-            android:layout_height="24sp"
-            android:src="@drawable/ic_cart_unselected"
+            android:layout_width="@dimen/imageWidth24"
+            android:layout_height="@dimen/imageHeight24"
             app:tint="@color/colorPrimaryDark" />
 
         <TextView
             android:id="@+id/tvHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8sp"
+            android:layout_marginStart="@dimen/margin8"
             android:text="@string/cart"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold" />
 
 
@@ -50,8 +49,8 @@
         android:gravity="end"
         android:orientation="horizontal">
         <ImageView
-            android:layout_width="24sp"
-            android:layout_height="24sp"
+            android:layout_width="@dimen/imageWidth24"
+            android:layout_height="@dimen/imageHeight24"
             android:src="@drawable/ic_shopping_bag"
             app:tint="@color/colorPrimaryDark" />
     </LinearLayout>
@@ -61,10 +60,10 @@
     <ImageView
         android:id="@+id/bannerImage"
         android:layout_width="match_parent"
-        android:layout_height="120sp"
+        android:layout_height="@dimen/height120"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_banner"
-        android:layout_marginTop="10sp"
+        android:layout_marginTop="@dimen/margin10"
         app:layout_constraintTop_toBottomOf="@id/headerLayout"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -83,7 +82,7 @@
         android:layout_height="wrap_content"
         app:cardElevation="20sp"
         android:orientation="vertical"
-        app:contentPadding="16sp"
+        app:contentPadding="@dimen/padding16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -104,48 +103,48 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5 Units"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
                 <View
-                    android:layout_width="2sp"
+                    android:layout_width="@dimen/width2"
                     android:layout_height="match_parent"
                     android:background="@color/black"
-                    android:layout_marginStart="5sp"
-                    android:layout_marginEnd="5sp" />
+                    android:layout_marginStart="@dimen/margin5"
+                    android:layout_marginEnd="@dimen/margin5" />
 
                 <TextView
                     android:id="@+id/textSKU"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1 SKUs"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
                 <View
-                    android:layout_width="2sp"
+                    android:layout_width="@dimen/width2"
                     android:layout_height="match_parent"
                     android:background="@color/black"
-                    android:layout_marginStart="5sp"
-                    android:layout_marginEnd="5sp" />
+                    android:layout_marginStart="@dimen/margin5"
+                    android:layout_marginEnd="@dimen/margin5" />
 
                 <TextView
                     android:id="@+id/textTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="£24.25"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
                 <View
-                    android:layout_width="2sp"
+                    android:layout_width="@dimen/width2"
                     android:layout_height="match_parent"
                     android:background="@color/black"
-                    android:layout_marginStart="5sp"
-                    android:layout_marginEnd="5sp" />
+                    android:layout_marginStart="@dimen/margin5"
+                    android:layout_marginEnd="@dimen/margin5" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -153,17 +152,17 @@
                     android:gravity="center">
 
                     <ImageView
-                        android:layout_width="15sp"
-                        android:layout_height="15sp"
+                        android:layout_width="@dimen/imageWidth15"
+                        android:layout_height="@dimen/imageHeight15"
                         android:src="@drawable/ic_wallet" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5sp"
+                        android:layout_marginStart="@dimen/margin5"
                         android:text="@string/wallet_balance"
                         android:textColor="@color/colorPrimaryDark"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/headingTextSize"
                         android:fontFamily="@font/roboto_bold" />
 
                 </LinearLayout>
@@ -174,21 +173,21 @@
                 android:id="@+id/textDelivery"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10sp"
+                android:layout_marginTop="@dimen/margin10"
                 android:gravity="center"
                 android:text="Spend £225.75 more for FREE delivery"
                 android:textColor="@color/lightGrey"
-                android:textSize="16sp"
+                android:textSize="@dimen/headingTextSize"
                 android:fontFamily="@font/roboto_bold" />
 
             <LinearLayout
                 android:id="@+id/checkoutLayout"
                 android:layout_width="match_parent"
-                android:layout_height="50sp"
+                android:layout_height="@dimen/height40"
                 android:layout_gravity="center"
-                android:layout_marginLeft="10sp"
-                android:layout_marginTop="10sp"
-                android:layout_marginRight="10sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
                 android:background="@drawable/border_solid_secondary"
                 android:gravity="center">
 
@@ -198,9 +197,8 @@
                     android:gravity="center"
                     android:text="Checkout"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:fontFamily="@font/roboto_bold"
-                    android:layout_marginStart="2sp" />
+                    android:textSize="@dimen/buttonTextSize"
+                    android:fontFamily="@font/roboto_bold" />
 
             </LinearLayout>
         </LinearLayout>

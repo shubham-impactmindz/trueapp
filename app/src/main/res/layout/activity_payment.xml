@@ -11,11 +11,11 @@
     <RelativeLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         android:gravity="center_vertical"
         android:background="@color/white"
-        android:padding="5sp"
-        android:elevation="10sp"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -29,17 +29,17 @@
 
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="24sp"
-                android:layout_height="24sp"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
                 android:src="@drawable/ic_back" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5sp"
+                android:layout_marginStart="@dimen/margin5"
                 android:fontFamily="@font/roboto_bold"
                 android:text="Back"
-                android:textSize="16sp"
+                android:textSize="@dimen/headingTextSize"
                 android:textColor="@color/colorPrimaryDark">
 
             </TextView>
@@ -55,7 +55,7 @@
             android:gravity="center"
             android:text="Payment - #D469377"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp" />
+            android:textSize="@dimen/mainHeadingTextSize" />
     </RelativeLayout>
 
     <TextView
@@ -64,10 +64,10 @@
         android:layout_height="wrap_content"
         android:text="Select Payment Method"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="@dimen/headingTextSize"
         android:fontFamily="@font/roboto_bold"
-        android:layout_marginTop="20sp"
-        android:layout_marginStart="10sp"
+        android:layout_marginTop="@dimen/margin20"
+        android:layout_marginStart="@dimen/margin10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerLayout" />
 
@@ -76,9 +76,9 @@
         android:id="@+id/paymentMethodRadioGroup"
         android:layout_width="0sp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
-        android:layout_marginEnd="10sp"
-        android:layout_marginTop="10sp"
+        android:layout_marginStart="@dimen/margin10"
+        android:layout_marginEnd="@dimen/margin10"
+        android:layout_marginTop="@dimen/margin10"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/paymentMethodsTitle">
@@ -89,9 +89,9 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="Pay by Bank\nQuick and easy, plus receive extra wallet credit."
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:fontFamily="@font/roboto_regular"
-            android:padding="10sp"/>
+            android:padding="@dimen/padding10"/>
 
         <LinearLayout
             android:id="@+id/bankPaymentLayout"
@@ -99,39 +99,39 @@
             android:layout_height="wrap_content"
             android:background="@drawable/border_primary"
             android:orientation="vertical"
-            android:elevation="10sp"
-            android:padding="16sp">
+            android:elevation="@dimen/elevation10"
+            android:padding="@dimen/padding16">
 
             <TextView
                 android:id="@+id/bankPaymentButton"
                 android:layout_width="match_parent"
-                android:layout_height="50sp"
+                android:layout_height="@dimen/height50"
                 android:text="Pay by bank to receive £1.00 credit"
                 android:background="@drawable/border_solid_primary"
                 android:textColor="@color/white"
                 android:gravity="center"
                 android:fontFamily="@font/roboto_bold"
-                android:textSize="16sp"/>
+                android:textSize="@dimen/headingTextSize"/>
 
             <Spinner
                 android:id="@+id/bankSpinner"
                 android:layout_width="match_parent"
-                android:layout_height="50sp"
-                android:layout_marginTop="10sp"
+                android:layout_height="@dimen/height50"
+                android:layout_marginTop="@dimen/margin10"
                 android:background="@drawable/border_primary"
-                android:padding="10sp"/>
+                android:padding="@dimen/padding10"/>
 
             <TextView
                 android:id="@+id/authorizePaymentButton"
                 android:layout_width="match_parent"
-                android:layout_height="50sp"
+                android:layout_height="@dimen/height40"
                 android:text="Authorize Payment - £183.00"
                 android:background="@drawable/border_solid_secondary"
                 android:textColor="@color/white"
                 android:gravity="center"
-                android:layout_marginTop="10sp"
+                android:layout_marginTop="@dimen/margin10"
                 android:fontFamily="@font/roboto_bold"
-                android:textSize="16sp"/>
+                android:textSize="@dimen/buttonTextSize"/>
         </LinearLayout>
 
         <RadioButton
@@ -139,9 +139,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Pay by Card"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:fontFamily="@font/roboto_regular"
-            android:padding="10sp" />
+            android:padding="@dimen/padding10" />
     </RadioGroup>
 
     <!-- Card Payment UI -->
@@ -150,19 +150,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginStart="20sp"
-        android:layout_marginEnd="20sp"
+        android:layout_marginStart="@dimen/margin20"
+        android:layout_marginEnd="@dimen/margin20"
         android:background="@drawable/border_primary"
-        android:elevation="10sp"
+        android:elevation="@dimen/elevation10"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/paymentMethodRadioGroup"
-        android:padding="16sp">
+        android:padding="@dimen/padding16">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="60sp"
+            android:layout_height="@dimen/height60"
             app:boxStrokeWidth="0sp"
             app:boxStrokeWidthFocused="0sp"
             app:boxStrokeColor="@color/colorPrimaryDark"
@@ -173,33 +173,33 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/border_primary"
                 android:hint="Cardholder Name"
-                android:textSize="14sp"
+                android:textSize="@dimen/baseTextSize"
                 android:textColorHint="@color/tabUnselectedColor"
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="60sp"
+            android:layout_height="@dimen/height60"
             app:boxStrokeWidth="0sp"
             app:boxStrokeWidthFocused="0sp"
             app:boxStrokeColor="@color/colorPrimaryDark"
             app:boxBackgroundMode="filled"
-            android:layout_marginTop="8sp">
+            android:layout_marginTop="@dimen/margin8">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/cardNumber"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/border_primary"
                 android:hint="Card Number"
-                android:textSize="14sp"
+                android:textSize="@dimen/baseTextSize"
                 android:textColorHint="@color/tabUnselectedColor"
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60sp"
+            android:layout_height="@dimen/height60"
             android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputLayout
@@ -208,10 +208,10 @@
                 android:layout_weight="1"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
-                android:layout_marginRight="5sp"
+                android:layout_marginRight="@dimen/margin5"
                 app:boxStrokeColor="@color/colorPrimaryDark"
                 app:boxBackgroundMode="filled"
-                android:layout_marginTop="8sp">
+                android:layout_marginTop="@dimen/margin8">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/expires"
                     android:layout_width="match_parent"
@@ -219,7 +219,7 @@
                     android:background="@drawable/border_primary"
                     android:inputType="number"
                     android:hint="Expires"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -230,10 +230,10 @@
                 android:layout_weight="1"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
-                android:layout_marginLeft="5sp"
+                android:layout_marginLeft="@dimen/margin5"
                 app:boxStrokeColor="@color/colorPrimaryDark"
                 app:boxBackgroundMode="filled"
-                android:layout_marginTop="8sp">
+                android:layout_marginTop="@dimen/margin8">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cvv"
                     android:layout_width="match_parent"
@@ -241,7 +241,7 @@
                     android:background="@drawable/border_primary"
                     android:inputType="number"
                     android:hint="CVV"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:textColorHint="@color/tabUnselectedColor"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -251,12 +251,12 @@
         <TextView
             android:id="@+id/completePaymentButton"
             android:layout_width="match_parent"
-            android:layout_height="50sp"
+            android:layout_height="@dimen/height40"
             android:text="Complete Payment"
             android:background="@drawable/border_solid_secondary"
             android:textColor="@color/white"
-            android:layout_marginTop="20sp"
-            android:textSize="16sp"
+            android:layout_marginTop="@dimen/margin20"
+            android:textSize="@dimen/buttonTextSize"
             android:gravity="center"
             android:fontFamily="@font/roboto_bold"/>
     </LinearLayout>

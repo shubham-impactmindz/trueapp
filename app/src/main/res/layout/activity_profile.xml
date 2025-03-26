@@ -10,12 +10,12 @@
     <RelativeLayout
         android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         android:gravity="center_vertical"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:padding="5sp"
-        android:elevation="10sp"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
@@ -29,17 +29,17 @@
 
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="24sp"
-                android:layout_height="24sp"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
                 android:src="@drawable/ic_back" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="5sp"
+                android:layout_marginStart="@dimen/margin5"
                 android:fontFamily="@font/roboto_bold"
                 android:text="Back"
-                android:textSize="16sp"
+                android:textSize="@dimen/headingTextSize"
                 android:textColor="@color/colorPrimaryDark">
 
             </TextView>
@@ -53,10 +53,10 @@
             android:text="@string/profile"
             android:layout_centerInParent="true"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            android:layout_marginStart="8sp"/>
+            android:layout_marginStart="@dimen/margin8"/>
     </RelativeLayout>
 
     <ScrollView
@@ -73,13 +73,13 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10sp"
+            android:layout_marginTop="@dimen/margin10"
             android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/bannerImage"
                 android:layout_width="match_parent"
-                android:layout_height="120sp"
+                android:layout_height="@dimen/height120"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_banner"/>
 
@@ -88,9 +88,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center_vertical">
 
                 <FrameLayout
@@ -121,9 +121,9 @@
                     android:layout_width="0sp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="20sp"
+                    android:layout_marginStart="@dimen/margin20"
                     android:text="Ajaz Ahmed"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
             </LinearLayout>
@@ -133,9 +133,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -143,7 +143,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Company Name"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
 
@@ -151,7 +151,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="ImpactMindz Solutions"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>
@@ -162,9 +162,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -172,7 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Company Address"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
 
@@ -180,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Sector 22, Chandigarh"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>
@@ -191,9 +191,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -201,7 +201,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Phone Number"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
 
@@ -209,7 +209,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="9888870996"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>
@@ -220,9 +220,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -230,7 +230,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Email"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
 
@@ -238,7 +238,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="gshubham81@gmail.com"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>
@@ -249,9 +249,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginLeft="10sp"
-                android:layout_marginRight="10sp"
-                android:layout_marginTop="20sp"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin20"
                 android:gravity="center"
                 android:layout_gravity="center">
 
@@ -259,7 +259,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Rep Code"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
 
@@ -267,7 +267,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="BQ345678"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>

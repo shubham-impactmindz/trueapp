@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:orientation="vertical"
-        android:padding="16sp"
+        android:padding="@dimen/padding16"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Products"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
             android:layout_marginBottom="8sp"/>
 
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Stock"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
             android:layout_marginBottom="8sp"/>
 
@@ -79,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Brands"
-            android:textSize="18sp"
+            android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
             android:layout_marginBottom="8sp"/>
 

@@ -42,8 +42,16 @@ class AccountFragment : Fragment() {
             val intent = Intent(context, RepDetailActivity::class.java)
             startActivity(intent)
         }
+        binding.myOrdersLayout.setOnClickListener {
+            val intent = Intent(context, MyOrdersActivity::class.java)
+            startActivity(intent)
+        }
         binding.companyAddressLayout.setOnClickListener {
             val intent = Intent(context, CompanyAddressActivity::class.java)
+            startActivity(intent)
+        }
+        binding.paymentOptionLayout.setOnClickListener {
+            val intent = Intent(context, PaymentOptionsActivity::class.java)
             startActivity(intent)
         }
         binding.servicesLayout.setOnClickListener {

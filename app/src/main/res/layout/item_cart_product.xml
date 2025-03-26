@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginRight="10sp"
-    android:layout_marginLeft="10sp"
+    android:layout_marginRight="@dimen/margin10"
+    android:layout_marginLeft="@dimen/margin10"
     android:layout_marginBottom="5sp"
     android:layout_marginTop="5sp"
-    android:padding="5sp"
+    android:padding="@dimen/margin5"
     android:background="@drawable/border_primary"
     android:gravity="center_vertical">
 
@@ -47,9 +47,9 @@
                         android:id="@+id/tvProduct"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10sp"
+                        android:layout_marginStart="@dimen/margin10"
                         android:text="Cheetos Crunchy Flamin' Hot 8oz (226g) Flav"
-                        android:textSize="14sp"
+                        android:textSize="@dimen/baseTextSize"
                         android:maxLines="2"
                         android:fontFamily="@font/roboto_regular"
                         android:textColor="@color/black"/>
@@ -61,8 +61,8 @@
                         android:layout_height="match_parent"
                         android:orientation="horizontal"
                         android:layout_gravity="start"
-                        android:layout_marginStart="10sp"
-                        android:layout_marginTop="10sp"
+                        android:layout_marginStart="@dimen/margin10"
+                        android:layout_marginTop="@dimen/margin10"
                         android:gravity="center">
 
                         <LinearLayout
@@ -79,16 +79,16 @@
                                 android:gravity="center_vertical"
                                 android:text="@string/wallet_balance"
                                 android:textColor="@color/black"
-                                android:textSize="18sp" />
+                                android:textSize="@dimen/mainHeadingTextSize" />
 
                             <TextView
                                 android:id="@+id/comparePrice"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
-                                android:layout_marginStart="10sp"
+                                android:layout_marginStart="@dimen/margin10"
                                 android:text="£3.50"
-                                android:textSize="14sp"
+                                android:textSize="@dimen/baseTextSize"
                                 android:fontFamily="@font/roboto_regular"
                                 android:textColor="@color/textGrey" />
 
@@ -116,7 +116,7 @@
                                     android:layout_height="match_parent"
                                     android:src="@drawable/ic_minus"
                                     app:tint="@color/colorPrimaryDark"
-                                    android:padding="8sp">
+                                    android:padding="@dimen/padding8">
                                 </ImageView>
 
                                 <TextView
@@ -125,7 +125,7 @@
                                     android:layout_height="match_parent"
                                     android:gravity="center"
                                     android:text="1"
-                                    android:textSize="16sp"
+                                    android:textSize="@dimen/headingTextSize"
                                     android:textColor="@color/colorPrimaryDark"
                                     android:fontFamily="@font/roboto_bold">
                                 </TextView>
@@ -136,7 +136,7 @@
                                     android:layout_height="match_parent"
                                     android:src="@drawable/ic_add"
                                     app:tint="@color/colorPrimaryDark"
-                                    android:padding="8sp">
+                                    android:padding="@dimen/padding8">
                                 </ImageView>
 
 
@@ -150,7 +150,7 @@
                             android:layout_width="25sp"
                             android:layout_height="25sp"
                             android:gravity="end"
-                            android:layout_marginStart="20sp"
+                            android:layout_marginStart="@dimen/margin20"
                             android:orientation="horizontal">
 
                             <ImageView
@@ -159,7 +159,7 @@
                                 android:layout_height="match_parent"
                                 android:src="@drawable/ic_delete"
                                 app:tint="@color/colorSecondary"
-                                android:layout_marginStart="20sp"
+                                android:layout_marginStart="@dimen/margin20"
                                 android:padding="4sp"/>
 
 
@@ -188,7 +188,7 @@
                     android:src="@drawable/ic_favourite"
                     app:tint="@color/colorPrimaryDark"
                     android:background="@drawable/circle_background"
-                    android:padding="5sp"/>
+                    android:padding="@dimen/margin5"/>
 
                 <ImageView
                     android:id="@+id/btnFavorite"
@@ -197,7 +197,7 @@
                     android:src="@drawable/ic_favourite_unselected"
                     app:tint="@color/colorPrimaryDark"
                     android:background="@drawable/circle_background"
-                    android:padding="5sp"/>
+                    android:padding="@dimen/margin5"/>
 
             </LinearLayout>
         </FrameLayout>

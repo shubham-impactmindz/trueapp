@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:cardElevation="10sp">
+        app:cardElevation="@dimen/elevation10">
 
 
     <com.google.android.material.tabs.TabLayout

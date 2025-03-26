@@ -18,7 +18,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/companyNameInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +35,7 @@
             android:hint="Please enter your company name"
             android:background="@drawable/border_primary"
             android:inputType="textPersonName"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -50,9 +50,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Invoice Address"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        android:textSize="@dimen/baseTextSize"
         android:fontFamily="@font/roboto_bold"
-        android:layout_marginTop="20sp">
+        android:layout_marginTop="@dimen/margin20">
 
     </TextView>
 
@@ -60,7 +60,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/address1InputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/invoiceAddressText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,7 +77,7 @@
             android:hint="Please enter invoice address line 1"
             android:background="@drawable/border_primary"
             android:inputType="textPostalAddress"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -86,7 +86,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/address2InputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/address1InputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -103,7 +103,7 @@
             android:hint="Please enter invoice address line 2"
             android:background="@drawable/border_primary"
             android:inputType="textPostalAddress"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -112,7 +112,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/cityInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/address2InputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -129,7 +129,7 @@
             android:hint="Please enter invoice address city"
             android:background="@drawable/border_primary"
             android:inputType="textPostalAddress"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -138,7 +138,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/countryInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/cityInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -155,7 +155,7 @@
             android:hint="Please enter invoice address country"
             android:background="@drawable/border_primary"
             android:inputType="textPostalAddress"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -164,7 +164,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/postCodeInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/countryInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -181,7 +181,7 @@
             android:hint="Please enter invoice address postcode"
             android:background="@drawable/border_primary"
             android:inputType="number"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -196,8 +196,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Mobile Number"
         android:textColor="@color/black"
-        android:layout_marginTop="20sp"
-        android:textSize="14sp"
+        android:layout_marginTop="@dimen/margin20"
+        android:textSize="@dimen/baseTextSize"
         android:fontFamily="@font/roboto_bold">
 
     </TextView>
@@ -206,7 +206,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/mobileNumberInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/mobileNumberAddressText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -223,7 +223,7 @@
             android:hint="Please enter your mobile number"
             android:background="@drawable/border_primary"
             android:inputType="number"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -238,8 +238,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Login Details"
         android:textColor="@color/black"
-        android:layout_marginTop="20sp"
-        android:textSize="14sp"
+        android:layout_marginTop="@dimen/margin20"
+        android:textSize="@dimen/baseTextSize"
         android:fontFamily="@font/roboto_bold">
 
     </TextView>
@@ -247,7 +247,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/emailAddressInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/loginDetailsText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -264,7 +264,7 @@
             android:hint="Please enter your email"
             android:background="@drawable/border_primary"
             android:inputType="textEmailAddress"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -273,7 +273,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/passwordInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/emailAddressInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -290,7 +290,7 @@
             android:hint="Please enter your password"
             android:background="@drawable/border_primary"
             android:inputType="textPassword"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -299,7 +299,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/reenterPasswordInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/passwordInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -316,7 +316,7 @@
             android:hint="Please re-enter your password"
             android:background="@drawable/border_primary"
             android:inputType="textPassword"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -325,7 +325,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/repCodeInputLayout"
         android:layout_width="match_parent"
-        android:layout_height="60sp"
+        android:layout_height="@dimen/height60"
         app:layout_constraintTop_toBottomOf="@id/reenterPasswordInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -342,7 +342,7 @@
             android:hint="Please enter rep code"
             android:background="@drawable/border_primary"
             android:inputType="text"
-            android:textSize="14sp"
+            android:textSize="@dimen/baseTextSize"
             android:textColorHint="@color/tabUnselectedColor"
             android:fontFamily="@font/roboto_regular"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -354,7 +354,7 @@
     <TextView
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
-        android:layout_height="50sp"
+        android:layout_height="@dimen/height40"
         android:text="REGISTER"
         app:layout_constraintTop_toBottomOf="@id/repCodeInputLayout"
         android:background="@drawable/border_solid_secondary"
@@ -362,7 +362,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16sp"
         android:textColor="@color/white"
-        android:textSize="14sp"
+        android:textSize="@dimen/buttonTextSize"
         android:gravity="center"
         android:fontFamily="@font/roboto_bold"/>
 
@@ -371,7 +371,7 @@
         android:id="@+id/termsTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="@dimen/baseTextSize"
         android:textColor="@color/black"
         android:textAlignment="center"
         android:gravity="center"
@@ -380,7 +380,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="12sp"
-        android:padding="8sp"/>
+        android:padding="@dimen/padding8"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

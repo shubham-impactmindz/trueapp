@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.shop
 
+import NonScrollingBannerAdapter
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.app.truewebapp.R
 import com.app.truewebapp.databinding.FragmentShopBinding
 import com.app.truewebapp.ui.component.main.cart.CartActivity
 import com.app.truewebapp.utils.JsonUtils
@@ -19,6 +21,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     lateinit var binding: FragmentShopBinding
     private lateinit var adapter: ShopCategoryAdapter
     private var filterOverlay: View? = null
+    private var nonScrollingBannerAdapter: NonScrollingBannerAdapter? = null
     private val viewModel: ShopViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -34,6 +37,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         setupShopUI()
         observeCartUpdates()
+        setUpNonScrollingBannerAdapter()
         binding.filterButton.setOnClickListener {
             showFilterOverlay()
         }
@@ -53,6 +57,28 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val brandsAdapter = BrandsAdapter()
         brandsRecyclerView.layoutManager = GridLayoutManager(context, 3) // 3 columns
         brandsRecyclerView.adapter = brandsAdapter
+    }
+
+
+    private fun setUpNonScrollingBannerAdapter() {
+
+        // List of banner images
+        val banners: MutableList<Int> = ArrayList()
+        banners.add(R.drawable.sale)
+        banners.add(R.drawable.sale2)
+        banners.add(R.drawable.sale3)
+
+        // Setup ViewPager with adapter
+
+        // Setup ViewPager with adapter
+        nonScrollingBannerAdapter = NonScrollingBannerAdapter(banners)
+        binding.viewPagerNonScrolling.adapter = nonScrollingBannerAdapter
+
+
+        // Set up smooth scrolling without large jumps
+        binding.viewPagerNonScrolling.offscreenPageLimit = 1
+        binding.viewPagerNonScrolling.setCurrentItem(0, false)
+
     }
 
     private fun showFilterOverlay() {

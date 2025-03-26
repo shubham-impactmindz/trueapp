@@ -16,6 +16,12 @@
         android:theme="@style/Theme.TrueWebApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.component.main.account.AddCardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.PaymentOptionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.component.main.cart.CartActivity"
             android:exported="false" />
         <activity
@@ -41,6 +47,9 @@
             android:exported="false" />
         <activity
             android:name=".ui.component.main.account.AddAddressActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.component.main.account.MyOrdersActivity"
             android:exported="false" />
         <activity
             android:name=".ui.component.main.account.EditAddressActivity"
@@ -74,6 +83,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.component.SplashActivity"
+            android:theme="@style/Theme.MySplash"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>

@@ -24,23 +24,28 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             when (position) {
                 0 -> {
-                    tab.text = "Dashboard"
-                    tab.setIcon(R.drawable.ic_dashboard)
+                    tab.text = "Home"
+                    tab.setIcon(R.drawable.ic_home)
                 }
                 1 -> {
-                    tab.text = "Shop"
-                    tab.setIcon(R.drawable.ic_shop)
+                    tab.text = "Browse"
+                    tab.setIcon(R.drawable.ic_browse)
                 }
                 2 -> {
+                    tab.text = "Wallet"
+                    tab.setIcon(R.drawable.ic_wallet)
+                }
+                3 -> {
                     tab.text = "Rewards"
                     tab.setIcon(R.drawable.ic_rewards)
                 }
-                3 -> {
+                4 -> {
                     tab.text = "Account"
                     tab.setIcon(R.drawable.ic_account)
                 }
             }
         }.attach()
+        binding.viewPager.isUserInputEnabled = false
     }
 
     override fun switchToShopTab() {
