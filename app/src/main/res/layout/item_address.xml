@@ -14,21 +14,24 @@
     android:layout_marginTop="@dimen/margin10">
 
     <ImageView
-        android:id="@+id/iconNotifications"
         android:layout_width="25sp"
         android:layout_height="25sp"
         android:src="@drawable/ic_company"/>
 
     <TextView
-        android:id="@+id/tvNotifications"
-        android:layout_width="0sp"
+        android:id="@+id/tvAddress"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/margin10"
         android:text="Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL7 0LH"
         android:textSize="13sp"
+        android:maxLines="2"
+        android:ellipsize="end"
         android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/black"/>
+        android:textColor="@color/black"
+        android:breakStrategy="simple" />
+
 
     <ImageView
         android:id="@+id/iconArrow"

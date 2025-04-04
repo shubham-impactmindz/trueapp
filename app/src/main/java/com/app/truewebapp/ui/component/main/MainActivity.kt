@@ -32,12 +32,12 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
                     tab.setIcon(R.drawable.ic_browse)
                 }
                 2 -> {
-                    tab.text = "Wallet"
-                    tab.setIcon(R.drawable.ic_wallet)
+                    tab.text = "Cart"
+                    tab.setIcon(R.drawable.ic_cart)
                 }
                 3 -> {
-                    tab.text = "Rewards"
-                    tab.setIcon(R.drawable.ic_rewards)
+                    tab.text = "Wallet"
+                    tab.setIcon(R.drawable.ic_wallet)
                 }
                 4 -> {
                     tab.text = "Account"

@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit
 
 class SubCategoryAdapter(
     private val productAdapterListener: ProductAdapterListener,
-    private val subCats: List<SubCat>?
+    private val subCats: List<SubCat>?,
+    private val images: List<Int>
 ) : RecyclerView.Adapter<SubCategoryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -26,6 +27,7 @@ class SubCategoryAdapter(
         val linearSubCategory: RelativeLayout = view.findViewById(R.id.linearSubCategory)
         val iconArrowDown: ImageView = view.findViewById(R.id.iconArrowDown)
         val iconArrowUp: ImageView = view.findViewById(R.id.iconArrowUp)
+        val iconBrand: ImageView = view.findViewById(R.id.iconBrand)
         val tvProduct: TextView = view.findViewById(R.id.tvProduct)
         val tvCountdownTimer: TextView = view.findViewById(R.id.tvCountdownTimer)
         val countdownContainer: LinearLayout = view.findViewById(R.id.countdownContainer)
@@ -50,6 +52,7 @@ class SubCategoryAdapter(
         title =
             Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY).toString()
         holder.tvProduct.text = title
+        holder.iconBrand.setImageResource(images[position])
         val productsAdapter = ProductsAdapter(productAdapterListener, option?.products, option?.title)
         holder.productsRecycler.adapter = productsAdapter
         holder.productsRecycler.layoutManager = GridLayoutManager(holder.itemView.context, 2)

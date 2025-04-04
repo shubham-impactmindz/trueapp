@@ -8,9 +8,49 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="@dimen/elevation10">
 
-    <ImageView
-        android:id="@+id/imageView"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"/>
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"/>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/margin5">
+
+
+            <ImageView
+                android:layout_width="25sp"
+                android:layout_height="25sp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/colorPrimaryDark"
+                android:padding="@dimen/margin5"
+                android:layout_marginEnd="@dimen/margin5"
+                android:background="@drawable/bg_circle_light_grey">
+
+            </ImageView>
+
+            <ImageView
+                android:layout_width="25sp"
+                android:layout_height="25sp"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/colorPrimaryDark"
+                android:padding="@dimen/margin5"
+                android:layout_gravity="end|bottom"
+                android:background="@drawable/bg_circle_light_grey">
+
+            </ImageView>
+
+
+        </LinearLayout>
+
+
+
+    </FrameLayout>
 </androidx.cardview.widget.CardView>

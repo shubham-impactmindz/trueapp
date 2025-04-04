@@ -1,8 +1,10 @@
 package com.app.truewebapp.ui.component.main.shop
 
-import NonScrollingBannerAdapter
+import BannerAdapter
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.CompositePageTransformer
+import androidx.viewpager2.widget.MarginPageTransformer
 import com.app.truewebapp.R
 import com.app.truewebapp.databinding.FragmentShopBinding
 import com.app.truewebapp.ui.component.main.cart.CartActivity
@@ -21,8 +25,11 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     lateinit var binding: FragmentShopBinding
     private lateinit var adapter: ShopCategoryAdapter
     private var filterOverlay: View? = null
-    private var nonScrollingBannerAdapter: NonScrollingBannerAdapter? = null
+    private var bannerAdapter: BannerAdapter? = null
     private val viewModel: ShopViewModel by activityViewModels()
+    private val handler = Handler(Looper.getMainLooper())
+    private var autoScrollRunnable: Runnable? = null
+    private val AUTO_SCROLL_DELAY: Long = 3000 //
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,20 +71,41 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // List of banner images
         val banners: MutableList<Int> = ArrayList()
-        banners.add(R.drawable.sale)
-        banners.add(R.drawable.sale2)
-        banners.add(R.drawable.sale3)
+        banners.add(R.drawable.bannersmall6)
+        banners.add(R.drawable.bannersmall2)
+        banners.add(R.drawable.bannersmall3)
+        banners.add(R.drawable.bannersmall1)
+        banners.add(R.drawable.bannersmall5)
+        banners.add(R.drawable.bannersmall4)
 
         // Setup ViewPager with adapter
-
-        // Setup ViewPager with adapter
-        nonScrollingBannerAdapter = NonScrollingBannerAdapter(banners)
-        binding.viewPagerNonScrolling.adapter = nonScrollingBannerAdapter
+        bannerAdapter = BannerAdapter(banners)
+        binding.viewPager.adapter = bannerAdapter
+        binding.dotsIndicator.setViewPager2(binding.viewPager)
 
 
         // Set up smooth scrolling without large jumps
-        binding.viewPagerNonScrolling.offscreenPageLimit = 1
-        binding.viewPagerNonScrolling.setCurrentItem(0, false)
+        binding.viewPager.offscreenPageLimit = 1
+        binding.viewPager.setCurrentItem(0, false)
+
+        val pageTransformer = CompositePageTransformer().apply {
+            addTransformer(MarginPageTransformer(30)) // Adds margin between items
+            addTransformer { page, position ->
+                val scaleFactor = 0.85f + (1 - kotlin.math.abs(position)) * 0.15f
+                page.scaleY = scaleFactor
+            }
+        }
+        binding.viewPager.setPageTransformer(pageTransformer)
+
+        // Optimized Auto-Scroll Logic
+        autoScrollRunnable = object : Runnable {
+            override fun run() {
+                val nextItem = (binding.viewPager.currentItem + 1) % banners.size
+                binding.viewPager.setCurrentItem(nextItem, true)
+                handler.postDelayed(this, AUTO_SCROLL_DELAY)
+            }
+        }
+        handler.postDelayed(autoScrollRunnable!!, AUTO_SCROLL_DELAY)
 
     }
 
@@ -118,16 +146,22 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val categoryList = JsonUtils.loadCategoriesFromAsset(requireContext())
 
         if (categoryList != null && !categoryList.categories.isNullOrEmpty()) {
-            Log.d("setupShopUI", "Categories Loaded: ${categoryList.categories.size}") // 🔴 Log number of categories
+            Log.d(
+                "setupShopUI",
+                "Categories Loaded: ${categoryList.categories.size}"
+            ) // 🔴 Log number of categories
+            val images = listOf(
+                R.drawable.category1, R.drawable.category2,
+                R.drawable.category3, R.drawable.category4,
+                R.drawable.category5, R.drawable.category6,
 
-            adapter = ShopCategoryAdapter(this, categoryList)
+                )
+            adapter = ShopCategoryAdapter(this, categoryList, images)
             binding.shopCategoryRecycler.adapter = adapter
         } else {
-            Log.e("setupShopUI", "com.app.truewebapp.ui.component.main.shop.Category list is null or empty")
+            Log.e("setupShopUI", "Category list is null or empty")
         }
     }
-
-
 
 
     private fun observeCartUpdates() {

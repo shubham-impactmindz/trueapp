@@ -14,7 +14,8 @@ import com.app.truewebapp.R
 
 class ShopCategoryAdapter(
     private val productAdapterListener: ProductAdapterListener,
-    private val options: CategoryListModel
+    private val options: CategoryListModel,
+    private val images: List<Int>
 ) : RecyclerView.Adapter<ShopCategoryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -43,7 +44,7 @@ class ShopCategoryAdapter(
             holder.linearCategory.setBackgroundResource(R.drawable.border_solid_secondary)
         }
 
-        val subCategoryAdapter = SubCategoryAdapter(productAdapterListener, option?.subCats)
+        val subCategoryAdapter = SubCategoryAdapter(productAdapterListener, option?.subCats,images)
         holder.subCategoryRecyclerView.adapter = subCategoryAdapter
         holder.subCategoryRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
 

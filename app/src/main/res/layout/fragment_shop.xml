@@ -166,11 +166,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height120">
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewPagerNonScrolling"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false" />
+                    android:layout_height="match_parent">
+
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPager"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false" />
+
+                    <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
+                        android:visibility="gone"
+                        android:id="@+id/dotsIndicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|center"
+                        android:layout_marginBottom="@dimen/margin20"
+                        app:dotsColor="@color/colorSecondary"
+                        app:dotsSize="10sp"
+                        app:progressMode="true"
+                        app:selectedDotColor="@color/colorSecondary" />
+
+                </FrameLayout>
+
 
 
 
