@@ -119,24 +119,26 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/referralNameInputLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/height60"
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10"
                 android:layout_marginTop="@dimen/margin20"
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/referralNameInput"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="@drawable/border_primary"
-                    android:hint="Enter referrals name..."
+                    android:hint="Enter referrals name"
                     android:inputType="textPersonName"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -150,17 +152,19 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/referralNumberInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/border_primary"
-                    android:hint="Enter referrals mobile phone number..."
+                    android:hint="Enter referrals mobile phone number"
                     android:inputType="textPersonName"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -174,17 +178,19 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/referralCityInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/border_primary"
-                    android:hint="Enter referrals town / city..."
+                    android:hint="Enter referrals town/city"
                     android:inputType="textPersonName"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 

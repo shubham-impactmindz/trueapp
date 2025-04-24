@@ -1518,7 +1518,7 @@
     },
     {
       "id": 214,
-      "title": "Groceries",
+      "title": "Food & Groceries",
       "categoryImage": false,
       "new": false,
       "hot": false,
@@ -1875,7 +1875,7 @@
     },
     {
       "id": 248,
-      "title": "Snacks",
+      "title": "Snacks & Chips",
       "categoryImage": false,
       "new": false,
       "hot": false,
@@ -3728,7 +3728,7 @@
     },
     {
       "id": 147,
-      "title": "Age Verification Solutions",
+      "title": "Toys & Games",
       "categoryImage": false,
       "new": false,
       "hot": false,
@@ -3743,7 +3743,7 @@
       "subCats": [
         {
           "id": 148,
-          "title": "MyCheckr Age Verification",
+          "title": "Puzzle Games",
           "categoryImage": "https://trade-vapesupplier-co-uk-category-images.s3.eu-west-2.amazonaws.com/148.png?1741757070",
           "new": false,
           "hot": true,

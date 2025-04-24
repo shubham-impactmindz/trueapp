@@ -19,17 +19,22 @@
         app:boxStrokeWidth="0sp"
         app:boxStrokeWidthFocused="0sp"
         app:boxStrokeColor="@color/colorPrimaryDark"
-        app:boxBackgroundMode="filled">
+        app:boxBackgroundMode="filled"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/border_primary"
-            android:hint="Please enter your email"
+            android:hint="Email"
             android:textSize="@dimen/baseTextSize"
-            android:textColorHint="@color/tabUnselectedColor"
+            android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
             android:fontFamily="@font/roboto_regular"
+            android:drawableTint="@color/colorPrimaryDark"
+            android:drawableStart="@drawable/email"
+            android:drawablePadding="@dimen/padding10"
             android:inputType="textEmailAddress"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -45,17 +50,22 @@
         app:boxStrokeWidth="0sp"
         app:boxStrokeWidthFocused="0sp"
         app:boxStrokeColor="@color/colorPrimaryDark"
-        app:boxBackgroundMode="filled">
+        app:boxBackgroundMode="filled"
+        app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordInput"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:hint="Please enter your password"
-            android:textColorHint="@color/tabUnselectedColor"
+            android:hint="Password"
+            android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
             android:textSize="@dimen/baseTextSize"
             android:fontFamily="@font/roboto_regular"
             android:background="@drawable/border_primary"
+            android:drawableTint="@color/colorPrimaryDark"
+            android:drawableStart="@drawable/password"
+            android:drawablePadding="@dimen/padding10"
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 

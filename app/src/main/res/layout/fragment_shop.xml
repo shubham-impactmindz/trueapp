@@ -28,7 +28,7 @@
             <ImageView
                 android:layout_width="@dimen/imageWidth24"
                 android:layout_height="@dimen/imageHeight24"
-                android:src="@drawable/ic_browse"
+                android:src="@drawable/ic_menu"
                 app:tint="@color/colorPrimaryDark" />
 
             <TextView
@@ -72,7 +72,7 @@
                     android:layout_width="28sp"
                     android:layout_height="28sp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_shopping_bag"
+                    android:src="@drawable/ic_cart_unselected"
                     app:tint="@color/colorPrimaryDark" />
 
                 <!-- Badge for Cart Count + Amount -->
@@ -99,7 +99,7 @@
     <LinearLayout
         android:id="@+id/searchLayout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height60"
+        android:layout_height="60sp"
         android:gravity="center|start"
         android:orientation="horizontal"
         android:elevation="@dimen/elevation10"
@@ -110,10 +110,11 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/searchInputLayout"
             android:layout_width="0sp"
-            android:layout_height="40sp"
+            android:layout_height="50sp"
             android:layout_weight="1"
+            android:background="@drawable/border_light_grey"
             android:layout_marginLeft="@dimen/margin10"
-            android:layout_marginRight="@dimen/margin10"
+            android:layout_marginRight="4dp"
             app:boxCornerRadiusBottomEnd="8sp"
             app:boxCornerRadiusBottomStart="8sp"
             app:boxCornerRadiusTopEnd="8sp"
@@ -123,7 +124,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/searchInput"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height60"
+                android:layout_height="60sp"
+                android:background="@color/backgroundIcons"
                 android:layout_gravity="center_vertical"
                 android:drawablePadding="10sp"
                 android:drawableStart="@drawable/ic_search"
@@ -132,8 +134,8 @@
                 android:hint="Search for products..."
                 android:inputType="text"
                 android:padding="@dimen/padding10"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black"
+                android:textColor="@color/colorPrimaryDark"
+                android:textColorHint="@color/colorPrimaryDark"
                 android:textSize="@dimen/baseTextSize"
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -163,8 +165,9 @@
 
 
             <LinearLayout
+                android:id="@+id/layoutBanner"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height120">
+                android:layout_height="125sp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -209,7 +212,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10sp"
-                    android:text="Products"
+                    android:text="All Brands"
                     android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
@@ -217,7 +220,6 @@
                 <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/height50"
-                    android:layout_marginBottom="10sp"
                     android:orientation="horizontal">
 
                     <RadioButton
@@ -243,6 +245,7 @@
                 </RadioGroup>
 
                 <TextView
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10sp"
@@ -252,6 +255,7 @@
                     android:fontFamily="@font/roboto_bold" />
 
                 <RadioGroup
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10sp"
@@ -280,6 +284,7 @@
                 </RadioGroup>
 
                 <TextView
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10sp"

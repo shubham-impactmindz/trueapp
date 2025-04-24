@@ -89,7 +89,7 @@
                 android:layout_marginStart="@dimen/margin10"
                 android:layout_marginEnd="@dimen/margin10"
                 android:text="Meltz Dubai Chocolate - STOCK UP TODAY!"
-                android:textSize="@dimen/mainHeadingTextSize"
+                android:textSize="@dimen/headingTextSize"
                 android:fontFamily="@font/roboto_bold"
                 android:layout_marginTop="@dimen/margin20"
                 android:textColor="@color/black"/>
@@ -101,7 +101,7 @@
                 android:layout_marginEnd="@dimen/margin10"
                 android:text="@string/notification_text"
                 android:textSize="@dimen/headingTextSize"
-                android:fontFamily="@font/roboto_medium"
+                android:fontFamily="@font/roboto_regular"
                 android:layout_marginTop="@dimen/margin10"
                 android:textColor="@color/black"/>
 

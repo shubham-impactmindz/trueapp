@@ -159,7 +159,8 @@
                     android:background="@drawable/border_primary"
                     android:inputType="text"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -315,7 +316,7 @@
                                 android:id="@+id/tvAddress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL70LH"
+                                android:text="6, Park Lane, Manchester, M45 7PB"
                                 android:textSize="13sp"
                                 android:gravity="end"
                                 android:fontFamily="@font/roboto_regular"
@@ -543,7 +544,8 @@
                     app:boxStrokeWidth="0sp"
                     app:boxStrokeWidthFocused="0sp"
                     app:boxStrokeColor="@color/colorPrimaryDark"
-                    app:boxBackgroundMode="filled">
+                    app:boxBackgroundMode="filled"
+                    app:hintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/couponInput"
@@ -553,7 +555,8 @@
                         android:background="@drawable/border_primary"
                         android:inputType="text"
                         android:textSize="@dimen/baseTextSize"
-                        android:textColorHint="@color/tabUnselectedColor"
+                        android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                         android:fontFamily="@font/roboto_regular"
                         android:paddingEnd="60dp" />
 

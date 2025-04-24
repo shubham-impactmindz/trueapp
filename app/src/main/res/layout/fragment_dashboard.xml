@@ -12,15 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="60sp"
         android:background="@color/white"
-        android:elevation="@dimen/elevation10"
         android:gravity="center"
         android:orientation="horizontal"
-        android:padding="@dimen/padding16"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="40sp"
-            android:layout_height="40sp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:src="@drawable/ic_logo_red_blue" />
 
         <TextView
@@ -49,88 +47,102 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin10"
             android:orientation="vertical">
 
-
             <LinearLayout
-                android:id="@+id/shopFavLayout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height40"
-                android:background="@color/searchGrey"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_gradient">
+
 
                 <LinearLayout
-                    android:id="@+id/shopLayout"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:gravity="center_vertical|end"
+                    android:id="@+id/shopFavLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/height40"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth20"
-                        android:layout_height="@dimen/imageHeight20"
-                        android:src="@drawable/ic_browse"
-                        app:tint="@color/colorPrimaryDark" />
+                    <LinearLayout
+                        android:id="@+id/shopLayout"
+                        android:layout_width="0sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="Browse"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="@dimen/buttonTextSize" />
+                        <ImageView
+                            android:layout_width="25sp"
+                            android:layout_height="25sp"
+                            android:src="@drawable/ic_menu"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:fontFamily="@font/roboto_regular"
+                            android:text="Browse"
+                            android:textColor="@color/white"
+                            android:textSize="17sp" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:layout_marginTop="12sp"
+                        android:layout_marginBottom="12sp">
+
+                    </View>
+
+                    <LinearLayout
+                        android:id="@+id/favLayout"
+                        android:layout_width="0sp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="25sp"
+                            android:layout_height="25sp"
+                            android:src="@drawable/ic_wishlist"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:fontFamily="@font/roboto_regular"
+                            android:text="Wishlist"
+                            android:textColor="@color/white"
+                            android:textSize="17sp"/>
+
+                    </LinearLayout>
+
 
                 </LinearLayout>
 
                 <View
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="@color/colorPrimaryDark">
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/white">
 
                 </View>
-
-                <LinearLayout
-                    android:id="@+id/favLayout"
-                    android:layout_width="0sp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_weight="1"
-                    android:gravity="start|center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth20"
-                        android:layout_height="@dimen/imageHeight20"
-                        android:src="@drawable/ic_favourite"
-                        app:tint="@color/colorPrimaryDark" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="Favourites"
-                        android:textColor="@color/colorPrimaryDark"
-                        android:textSize="@dimen/buttonTextSize" />
-
-                </LinearLayout>
-
-
-            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvRoundImages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin10"
+                android:layout_marginBottom="@dimen/margin10"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
                 android:scrollbars="none" />
+
+            </LinearLayout>
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -144,23 +156,13 @@
                     android:layout_height="180sp"
                     android:clipToPadding="false" />
 
-                <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
-                    android:visibility="gone"
-                    android:id="@+id/dotsIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center"
-                    android:layout_marginBottom="@dimen/margin20"
-                    app:dotsColor="@color/colorSecondary"
-                    app:dotsSize="10sp"
-                    app:progressMode="true"
-                    app:selectedDotColor="@color/colorSecondary" />
+
 
             </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height140">
+                android:layout_height="125sp">
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/viewPagerNonScrolling"
@@ -170,6 +172,17 @@
 
 
             </LinearLayout>
+
+            <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
+                android:id="@+id/dotsIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_marginBottom="@dimen/margin20"
+                app:dotsColor="@color/lightGrey"
+                app:dotsSize="10sp"
+                app:progressMode="true"
+                app:selectedDotColor="@color/colorPrimaryDark" />
 
 
 
@@ -360,7 +373,7 @@
                     android:layout_marginTop="@dimen/margin10"
                     android:layout_marginRight="@dimen/margin10"
                     android:fontFamily="@font/roboto_bold"
-                    android:text="DRINKS"
+                    android:text="NEW PRODUCTS"
                     android:textColor="@color/black"
                     android:textSize="@dimen/headingTextSize" />
 
@@ -414,7 +427,7 @@
                     android:layout_marginTop="@dimen/margin10"
                     android:layout_marginRight="@dimen/margin10"
                     android:fontFamily="@font/roboto_bold"
-                    android:text="NUTRITION"
+                    android:text="TOP SELLER"
                     android:textColor="@color/black"
                     android:textSize="@dimen/headingTextSize" />
 

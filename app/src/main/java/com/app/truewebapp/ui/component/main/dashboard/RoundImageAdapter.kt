@@ -22,7 +22,7 @@ class RoundImageAdapter(private val images: List<Int>) :
         // Adjust item width dynamically based on screen size
         val displayMetrics = parent.context.resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
-        val itemWidth = (screenWidth / 4.5).toInt() // Dividing by 4.5 for padding effect
+        val itemWidth = (screenWidth / 5.2).toInt() // Dividing by 4.5 for padding effect
 
         view.layoutParams = ViewGroup.LayoutParams(itemWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
 

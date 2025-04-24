@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.airbnb.lottie.LottieAnimationView
 import com.app.truewebapp.R
 import com.app.truewebapp.utils.GlideApp
 
@@ -30,6 +31,7 @@ class ProductsAdapter(
         val comparePrice: TextView = view.findViewById(R.id.comparePrice)
         val textBrand: TextView = view.findViewById(R.id.textBrand)
         val textTitle: TextView = view.findViewById(R.id.textTitle)
+        val lottieCheckmark: LottieAnimationView = view.findViewById(R.id.lottieCheckmark)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -76,6 +78,11 @@ class ProductsAdapter(
                 holder.btnAdd.visibility = View.VISIBLE
                 listener.onAddToCartClicked(count, productName)
             }
+        }
+        if (position == 1 || position == 3) {
+            holder.lottieCheckmark.setAnimation(R.raw.sale) // R.raw.sale -> sale.json
+        } else {
+            holder.lottieCheckmark.setAnimation(R.raw.flash_deals) // R.raw.black_friday -> black_friday.json
         }
     }
 

@@ -107,7 +107,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="A A"
+                        android:text="R S"
                         android:textColor="@color/white"
                         android:fontFamily="@font/roboto_bold"
                         android:textSize="20sp"
@@ -122,7 +122,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="@dimen/margin20"
-                    android:text="Ajaz Ahmed"
+                    android:text="Rony Singh"
                     android:textSize="@dimen/headingTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"/>
@@ -150,7 +150,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="ImpactMindz Solutions"
+                    android:text="Trueweb Pro Limited"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
@@ -179,7 +179,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Sector 22, Chandigarh"
+                    android:text="6, Park Lane, Manchester, M45 7PB"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
@@ -208,7 +208,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="9888870996"
+                    android:text="07447437071"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"
@@ -237,7 +237,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="gshubham81@gmail.com"
+                    android:text="info@truewebpro.co.uk"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_medium"
                     android:layout_marginTop="5sp"

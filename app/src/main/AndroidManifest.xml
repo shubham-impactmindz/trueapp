@@ -16,6 +16,9 @@
         android:theme="@style/Theme.TrueWebApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.component.main.account.RewardsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.component.main.account.AddCardActivity"
             android:exported="false" />
         <activity
@@ -83,9 +86,9 @@
             android:exported="false" />
         <activity
             android:name=".ui.component.SplashActivity"
-            android:theme="@style/Theme.MySplash"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MySplash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

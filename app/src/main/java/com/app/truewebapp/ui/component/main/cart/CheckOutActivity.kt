@@ -38,16 +38,16 @@ class CheckOutActivity : AppCompatActivity() {
     private fun fetchDeliveryMethodsFromAPI(): List<String> {
         // Replace with your actual API call
         return listOf(
-            "Next Working Day Delivery - Estimated: Tomorrow (£5.00)",
-            "Standard Delivery - Estimated: 2-4 Working Days (£3.00)"
+            "Next Working Day Delivery (1-2 Working Days)- £7.99",
+            "Standard Delivery (2-3 Working Days)- £4.99"
         )
     }
 
     private fun fetchDispatchAddressesFromAPI(): List<String> {
         // Replace with your actual API call
         return listOf(
-            "Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL7 OLH",
-            "Another Address, Some Street, Some City, Some Postcode"
+            "6, Park Lane, Manchester, M45 7PB",
+            "6, Park Lane, Manchester, M45 7PB"
         )
     }
 

@@ -15,7 +15,7 @@ class NonScrollingBannerDrinksAdapter(private val products: List<Product>?,priva
     inner class BannerViewHolder(val binding: ItemDashboardProductsBinding) : RecyclerView.ViewHolder(binding.root) {
         private var count = 0 // Maintain count state per item
 
-        fun bind(option: Product?) {
+        fun bind(option: Product?, position: Int) {
             binding.textBrand.text = title ?: "Unknown Brand"
             binding.textTitle.text = option?.title ?: "No Title"
 
@@ -52,6 +52,12 @@ class NonScrollingBannerDrinksAdapter(private val products: List<Product>?,priva
                     binding.btnAdd.visibility = View.VISIBLE
                 }
             }
+
+            if (position == 1 || position == 3) {
+                binding.lottieCheckmark.setAnimation(R.raw.sale) // R.raw.sale -> sale.json
+            } else {
+                binding.lottieCheckmark.setAnimation(R.raw.flash_deals) // R.raw.black_friday -> black_friday.json
+            }
         }
     }
 
@@ -73,7 +79,7 @@ class NonScrollingBannerDrinksAdapter(private val products: List<Product>?,priva
     override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
         val option = products?.get(position)
         Log.d("setupShopUI", "Products Loaded: $option")
-        holder.bind(option)
+        holder.bind(option, position)
     }
 
     override fun getItemCount(): Int = products?.size ?: 0

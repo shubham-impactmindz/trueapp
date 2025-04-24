@@ -29,8 +29,8 @@
     <string name="logout">Logout</string>
     <string name="account">Account</string>
     <string name="dashboard">Dashboard</string>
-    <string name="referral_rewards">Referral Rewards</string>
-    <string name="refer_a_retailer_to_earn_rewards">Refer a Retailer to earn Rewards</string>
+    <string name="referral_rewards">Referral Rewards Program</string>
+    <string name="refer_a_retailer_to_earn_rewards">Refer a Retailer to Earn Rewards</string>
     <string name="credit_in_your_wallet">£ 2.50 credit in your wallet</string>
     <string name="recent_notifications">Recent Notifications</string>
     <string name="view_all_orders">View All Orders</string>

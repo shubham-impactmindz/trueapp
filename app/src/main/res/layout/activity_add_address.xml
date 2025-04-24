@@ -92,7 +92,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/companyNameInput"
@@ -102,7 +103,8 @@
                     android:hint="Please enter your company name"
                     android:inputType="textPersonName"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -116,7 +118,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/address1Input"
@@ -126,7 +129,8 @@
                     android:hint="Please enter invoice address line 1"
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -140,7 +144,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/address2Input"
@@ -150,7 +155,8 @@
                     android:hint="Please enter invoice address line 2"
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -164,7 +170,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/cityInput"
@@ -174,7 +181,8 @@
                     android:hint="Please enter invoice address city"
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -188,7 +196,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/countryInput"
@@ -198,7 +207,8 @@
                     android:hint="Please enter invoice address country"
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -212,7 +222,8 @@
                 app:boxStrokeWidth="0sp"
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
-                app:boxBackgroundMode="filled">
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/postCodeInput"
@@ -222,7 +233,8 @@
                     android:hint="Please enter invoice address postcode"
                     android:inputType="number"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 

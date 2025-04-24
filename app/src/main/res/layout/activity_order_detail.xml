@@ -234,7 +234,7 @@
                                 android:id="@+id/tvAddress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL70LH"
+                                android:text="6, Park Lane, Manchester, M45 7PB"
                                 android:textSize="13sp"
                                 android:gravity="end"
                                 android:fontFamily="@font/roboto_regular"

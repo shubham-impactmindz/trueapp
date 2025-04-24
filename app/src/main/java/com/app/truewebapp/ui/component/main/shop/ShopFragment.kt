@@ -5,10 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -59,11 +63,57 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             showFilterOverlay()
         }
 
+
+        val images = listOf(
+            R.drawable.image1, R.drawable.image2,
+            R.drawable.image3, R.drawable.image4,
+            R.drawable.image5, R.drawable.image6,
+            R.drawable.image7, R.drawable.image8,
+            R.drawable.image9, R.drawable.image10,
+            R.drawable.image11, R.drawable.image12,
+            R.drawable.category1, R.drawable.category2,
+            R.drawable.category3, R.drawable.category4,
+            R.drawable.category5, R.drawable.category6,
+
+            )
         // Setup Brands RecyclerView
         val brandsRecyclerView = binding.brandsRecyclerView
-        val brandsAdapter = BrandsAdapter()
-        brandsRecyclerView.layoutManager = GridLayoutManager(context, 3) // 3 columns
+        val brandsAdapter = BrandsAdapter(images)
+        brandsRecyclerView.layoutManager = GridLayoutManager(context, 5) // 3 columns
         brandsRecyclerView.adapter = brandsAdapter
+
+        val closeIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_close)
+        val searchIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
+
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) {
+                    // Show only search icon on the start
+                    binding.searchInput.setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, null, null)
+                } else {
+                    // Show search icon on start, close icon on end
+                    binding.searchInput.setCompoundDrawablesWithIntrinsicBounds(searchIcon, null, closeIcon, null)
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        binding.searchInput.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = binding.searchInput.compoundDrawables[2]
+                if (drawableEnd != null) {
+                    val drawableWidth = drawableEnd.bounds.width()
+                    val touchAreaStart = binding.searchInput.width - binding.searchInput.paddingEnd - drawableWidth
+                    if (event.x > touchAreaStart) {
+                        binding.searchInput.text?.clear()
+                        return@setOnTouchListener true
+                    }
+                }
+            }
+            false
+        }
     }
 
 
@@ -71,6 +121,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // List of banner images
         val banners: MutableList<Int> = ArrayList()
+        banners.add(R.drawable.bannersmall7)
         banners.add(R.drawable.bannersmall6)
         banners.add(R.drawable.bannersmall2)
         banners.add(R.drawable.bannersmall3)
@@ -107,15 +158,26 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
         handler.postDelayed(autoScrollRunnable!!, AUTO_SCROLL_DELAY)
 
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
     }
 
     private fun showFilterOverlay() {
         if (binding.filterLayout.visibility == View.VISIBLE) {
             binding.filterLayout.visibility = View.GONE
             binding.shopCategoryRecycler.visibility = View.VISIBLE
+            binding.layoutBanner.visibility = View.VISIBLE
         } else {
             binding.filterLayout.visibility = View.VISIBLE
             binding.shopCategoryRecycler.visibility = View.GONE
+            binding.layoutBanner.visibility = View.GONE
         }
 //        if (filterOverlay == null) {
 //            filterOverlay = LayoutInflater.from(context).inflate(R.layout.filter_overlay, binding.root, false)

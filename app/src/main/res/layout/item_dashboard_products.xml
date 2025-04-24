@@ -21,13 +21,25 @@
         android:gravity="center_vertical">
 
 
-        <LinearLayout
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieCheckmark"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                app:lottie_autoPlay="true"
+                android:gravity="start"
+                app:lottie_loop="true"
+                android:layout_centerVertical="true"
+                app:lottie_rawRes="@raw/sale" />
+
             <TextView
+                android:visibility="gone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -44,9 +56,10 @@
                 android:layout_width="30sp"
                 android:layout_height="30sp"
                 android:layout_gravity="top|end"
-                android:layout_margin="5sp"
+                android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_favourite"
                 app:tint="@color/colorPrimaryDark"
+                android:layout_centerVertical="true"
                 android:background="@drawable/circle_background"
                 android:padding="@dimen/margin5"/>
 
@@ -54,15 +67,17 @@
                 android:id="@+id/btnFavorite"
                 android:layout_width="30sp"
                 android:layout_height="30sp"
-                android:layout_gravity="end|center"
-                android:layout_margin="5sp"
+                android:layout_weight="1"
+                android:layout_gravity="top|end"
+                android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_favourite_unselected"
                 app:tint="@color/colorPrimaryDark"
+                android:layout_centerVertical="true"
                 android:background="@drawable/circle_background"
                 android:padding="@dimen/margin5"/>
 
 
-        </LinearLayout>
+        </RelativeLayout>
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="100sp">
@@ -215,7 +230,7 @@
                 android:layout_marginTop="5sp"
                 android:orientation="horizontal"
                 android:layout_gravity="center"
-                android:gravity="center_vertical">
+                android:gravity="center">
 
 
                 <LinearLayout
@@ -256,7 +271,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/margin30"
+                android:layout_height="20sp"
                 android:orientation="horizontal"
                 android:layout_marginTop="@dimen/margin5"
                 android:background="@drawable/border_solid_secondary_opacity"
@@ -271,7 +286,7 @@
                     android:fontFamily="@font/roboto_bold"
                     android:gravity="center_vertical"
                     android:text="Buy 2, Get 1 Free"
-                    android:padding="@dimen/margin2"
+                    android:paddingStart="5sp"
                     android:textColor="@color/black"
                     android:textSize="@dimen/smallTextSize" />
 

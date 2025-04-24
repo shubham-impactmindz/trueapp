@@ -166,7 +166,8 @@
             app:boxStrokeWidth="0sp"
             app:boxStrokeWidthFocused="0sp"
             app:boxStrokeColor="@color/colorPrimaryDark"
-            app:boxBackgroundMode="filled">
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/cardholderName"
                 android:layout_width="match_parent"
@@ -174,7 +175,8 @@
                 android:background="@drawable/border_primary"
                 android:hint="Cardholder Name"
                 android:textSize="@dimen/baseTextSize"
-                android:textColorHint="@color/tabUnselectedColor"
+                android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -193,7 +195,8 @@
                 android:background="@drawable/border_primary"
                 android:hint="Card Number"
                 android:textSize="@dimen/baseTextSize"
-                android:textColorHint="@color/tabUnselectedColor"
+                android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -220,7 +223,8 @@
                     android:inputType="number"
                     android:hint="Expires"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -242,7 +246,8 @@
                     android:inputType="number"
                     android:hint="CVV"
                     android:textSize="@dimen/baseTextSize"
-                    android:textColorHint="@color/tabUnselectedColor"
+                    android:padding="10sp"
+            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 

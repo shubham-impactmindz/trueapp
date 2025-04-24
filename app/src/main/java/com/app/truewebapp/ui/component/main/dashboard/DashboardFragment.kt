@@ -111,7 +111,6 @@ class DashboardFragment : Fragment() {
         // Setup ViewPager with adapter
         bannerAdapter = BannerAdapter(banners)
         binding.viewPager.adapter = bannerAdapter
-        binding.dotsIndicator.attachTo(binding.viewPager)
 
 
         // Set up smooth scrolling without large jumps
@@ -142,6 +141,7 @@ class DashboardFragment : Fragment() {
 
         // List of banner images
         val banners: MutableList<Int> = ArrayList()
+        banners.add(R.drawable.bannersmall7)
         banners.add(R.drawable.bannersmall6)
         banners.add(R.drawable.bannersmall2)
         banners.add(R.drawable.bannersmall3)
@@ -155,6 +155,7 @@ class DashboardFragment : Fragment() {
         nonScrollingBannerAdapter = NonScrollingBannerAdapter(banners)
         binding.viewPagerNonScrolling.adapter = nonScrollingBannerAdapter
 
+        binding.dotsIndicator.attachTo(binding.viewPagerNonScrolling)
 
         // Set up smooth scrolling without large jumps
         binding.viewPagerNonScrolling.offscreenPageLimit = 1

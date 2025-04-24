@@ -25,23 +25,23 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
             when (position) {
                 0 -> {
                     tab.text = "Home"
-                    tab.setIcon(R.drawable.ic_home)
+                    tab.setIcon(R.drawable.ic_home_unselected)
                 }
                 1 -> {
                     tab.text = "Browse"
-                    tab.setIcon(R.drawable.ic_browse)
+                    tab.setIcon(R.drawable.ic_menu)
                 }
                 2 -> {
                     tab.text = "Cart"
-                    tab.setIcon(R.drawable.ic_cart)
+                    tab.setIcon(R.drawable.ic_cart_unselected)
                 }
                 3 -> {
                     tab.text = "Wallet"
-                    tab.setIcon(R.drawable.ic_wallet)
+                    tab.setIcon(R.drawable.ic_wallet_unselected)
                 }
                 4 -> {
                     tab.text = "Account"
-                    tab.setIcon(R.drawable.ic_account)
+                    tab.setIcon(R.drawable.ic_account_unselected)
                 }
             }
         }.attach()

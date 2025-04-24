@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/margin10"
-        android:text="Immyz Ltd, 78 Stockport Road, Ashton-under-Lyne, Greater Manchester, OL7 0LH"
+        android:text="6, Park Lane, Manchester, M45 7PB"
         android:textSize="13sp"
         android:maxLines="2"
         android:ellipsize="end"

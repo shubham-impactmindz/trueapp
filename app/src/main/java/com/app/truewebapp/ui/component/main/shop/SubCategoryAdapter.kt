@@ -14,6 +14,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import java.util.concurrent.TimeUnit
 
 class SubCategoryAdapter(
@@ -52,7 +54,11 @@ class SubCategoryAdapter(
         title =
             Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY).toString()
         holder.tvProduct.text = title
-        holder.iconBrand.setImageResource(images[position])
+        val imageResource = images[position % images.size] // Ensure index is within bounds if images.size < subCats.size
+        Glide.with(holder.itemView.context)
+            .load(imageResource)
+            .transform(RoundedCorners(25)) // rounded corner
+            .into(holder.iconBrand)
         val productsAdapter = ProductsAdapter(productAdapterListener, option?.products, option?.title)
         holder.productsRecycler.adapter = productsAdapter
         holder.productsRecycler.layoutManager = GridLayoutManager(holder.itemView.context, 2)

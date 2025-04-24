@@ -28,7 +28,7 @@
             android:layout_width="@dimen/imageWidth24"
             android:layout_height="@dimen/imageHeight24"
             app:tint="@color/colorPrimaryDark"
-            android:src="@drawable/ic_cart"/>
+            android:src="@drawable/ic_cart_unselected"/>
 
         <TextView
             android:id="@+id/tvHeader"
@@ -91,7 +91,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5 Units"
-                    android:textSize="@dimen/headingTextSize"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
@@ -107,7 +107,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1 SKUs"
-                    android:textSize="@dimen/headingTextSize"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
@@ -123,7 +123,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="£24.25"
-                    android:textSize="@dimen/headingTextSize"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
@@ -150,7 +150,7 @@
                         android:layout_marginStart="@dimen/margin5"
                         android:text="@string/wallet_balance"
                         android:textColor="@color/colorPrimaryDark"
-                        android:textSize="@dimen/headingTextSize"
+                        android:textSize="@dimen/buttonTextSize"
                         android:fontFamily="@font/roboto_bold" />
 
                 </LinearLayout>
@@ -165,7 +165,7 @@
                 android:gravity="center"
                 android:text="Spend £225.75 more for FREE delivery"
                 android:textColor="@color/lightGrey"
-                android:textSize="@dimen/headingTextSize"
+                android:textSize="@dimen/buttonTextSize"
                 android:fontFamily="@font/roboto_bold" />
 
             <LinearLayout

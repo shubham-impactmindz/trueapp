@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/productBrandLayout"
     android:layout_width="match_parent"
-    android:layout_height="100sp"
+    android:layout_height="60sp"
     android:orientation="horizontal"
-    android:background="@drawable/border_primary_rect"
+    android:background="@drawable/border_imageview"
     android:gravity="center"
+    app:cardCornerRadius="@dimen/margin10"
+    android:elevation="@dimen/elevation10"
     android:layout_gravity="center"
     android:layout_margin="5sp">
 
-    <ImageView
-        android:id="@+id/brandImage"
-        android:layout_width="80sp"
-        android:layout_height="80sp"
-        android:textColor="@color/black"
-        android:textSize="@dimen/baseTextSize"
-        android:src="@drawable/product_logo"
-        android:scaleType="fitCenter"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/brandImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/margin1"
+            android:src="@drawable/product_logo"
+            android:scaleType="fitXY"/>
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/selectedTick"
+            android:layout_width="@dimen/imageWidth15"
+            android:layout_height="@dimen/imageHeight15"
+            android:layout_margin="@dimen/margin5"
+            android:src="@drawable/ic_tick"
+            android:background="@drawable/bg_circle_light_grey"
+            android:layout_gravity="end"
+            android:scaleType="fitXY"/>
+
+    </FrameLayout>
+
+
+</androidx.cardview.widget.CardView>
