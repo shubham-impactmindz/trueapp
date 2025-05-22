@@ -49,7 +49,7 @@
             android:layout_centerInParent="true"
             android:layout_marginStart="@dimen/margin10"
             android:layout_toEndOf="@+id/cardBrand"
-            android:fontFamily="@font/roboto_regular"
+            android:fontFamily="@font/roboto_bold"
             android:maxLength="25"
             android:singleLine="true"
             android:text="Chips"
@@ -60,15 +60,30 @@
             android:id="@+id/tvHot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin10"
-            android:text="HOT"
             android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/margin10"
             android:layout_toEndOf="@+id/tvProduct"
             android:background="@drawable/border_solid_secondary"
-            android:textSize="@dimen/smallTextSize"
-            android:fontFamily="@font/roboto_regular"
+            android:fontFamily="@font/roboto_bold"
             android:padding="@dimen/margin4"
-            android:textColor="@color/white"/>
+            android:text="HOT"
+            android:textColor="@color/white"
+            android:textSize="@dimen/smallTextSize" />
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tvTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/margin10"
+            android:layout_toEndOf="@+id/tvHot"
+            android:background="@drawable/border_solid_green"
+            android:fontFamily="@font/roboto_bold"
+            android:padding="@dimen/margin4"
+            android:text="HOT"
+            android:textColor="@color/white"
+            android:textSize="@dimen/smallTextSize" />
 
 
         <LinearLayout
@@ -149,7 +164,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Days : Hours : Minutes"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/roboto_medium"
                 android:layout_marginTop="4dp"/>
@@ -164,7 +179,8 @@
         android:id="@+id/productsRecycler"
         android:layout_marginTop="5sp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false">
     </androidx.recyclerview.widget.RecyclerView>
 
 </LinearLayout>

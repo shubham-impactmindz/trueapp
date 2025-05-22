@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import com.app.truewebapp.R
 import com.app.truewebapp.databinding.FragmentAccountBinding
 import com.app.truewebapp.ui.component.login.LoginActivity
+import com.app.truewebapp.ui.component.login.WebViewActivity
 
 class AccountFragment : Fragment() {
     lateinit var binding: FragmentAccountBinding
@@ -78,6 +79,16 @@ class AccountFragment : Fragment() {
             val intent = Intent(context, ChangePasswordActivity::class.java)
             startActivity(intent)
         }
+        binding.termsLayout.setOnClickListener {
+            val intent = Intent(requireContext(), WebViewActivity::class.java)
+            intent.putExtra("title", "Terms and Conditions")
+            startActivity(intent)
+        }
+        binding.privacyLayout.setOnClickListener {
+            val intent = Intent(requireContext(), WebViewActivity::class.java)
+            intent.putExtra("title", "Privacy Policy")
+            startActivity(intent)
+        }
         binding.logoutLayout.setOnClickListener {
             showCustomLogoutDialog()
         }
@@ -131,6 +142,12 @@ class AccountFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun showToast(message: String) {
+        requireActivity().runOnUiThread {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun performLogout() {

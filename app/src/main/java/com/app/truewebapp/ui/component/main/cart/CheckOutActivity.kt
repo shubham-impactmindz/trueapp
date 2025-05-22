@@ -38,8 +38,8 @@ class CheckOutActivity : AppCompatActivity() {
     private fun fetchDeliveryMethodsFromAPI(): List<String> {
         // Replace with your actual API call
         return listOf(
-            "Next Working Day Delivery (1-2 Working Days)- £7.99",
-            "Standard Delivery (2-3 Working Days)- £4.99"
+            "Next Day Delivery (1-2 Days)- £7.99",
+            "Standard Delivery (2-3 Days)- £4.99"
         )
     }
 

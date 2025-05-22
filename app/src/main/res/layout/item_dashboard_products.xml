@@ -89,8 +89,7 @@
                 android:layout_width="100sp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_lays" />
+                android:scaleType="fitCenter"/>
 
 
 

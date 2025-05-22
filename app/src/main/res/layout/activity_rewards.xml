@@ -86,61 +86,100 @@
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardViewReferral"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height60"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10"
-                app:cardBackgroundColor="@color/colorSecondary"
+                app:cardBackgroundColor="@color/white"
                 android:layout_marginTop="@dimen/margin20"
                 app:cardCornerRadius="4dp"
                 app:cardElevation="4dp">
 
-            <LinearLayout
-                android:id="@+id/referralSection"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/height60"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <LinearLayout
+                        android:id="@+id/referralSection"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="5sp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical">
+
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/margin10"
+                                android:layout_marginRight="@dimen/margin10"
+                                android:fontFamily="@font/roboto_medium"
+                                android:text="@string/referral_rewards"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="@dimen/mainHeadingTextSize" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/margin10"
+                                android:layout_marginRight="@dimen/margin10"
+                                android:fontFamily="@font/roboto_medium"
+                                android:text="@string/refer_a_retailer_to_earn_rewards"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="@dimen/headingTextSize" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/margin10"
+                                android:layout_marginRight="@dimen/margin10"
+                                android:fontFamily="@font/roboto_medium"
+                                android:text="Get £10 voucher for you and your friend when you uses the referral link to sign up and place and complete order with us."
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="@dimen/baseTextSize" />
+
+
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="@dimen/imageWidth24"
+                            android:layout_height="@dimen/imageHeight24"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:src="@drawable/ic_rewards"
+                            app:tint="@color/colorPrimaryDark">
+
+                        </ImageView>
+
+                    </LinearLayout>
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/margin10"
-                        android:layout_marginRight="@dimen/margin10"
+                        android:id="@+id/buttonSend"
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/height40"
+                        android:background="@drawable/border_solid_secondary"
                         android:fontFamily="@font/roboto_medium"
-                        android:text="@string/referral_rewards"
+                        android:text="Send Referral"
                         android:textColor="@color/white"
+                        android:padding="5sp"
+                        android:layout_marginTop="@dimen/margin5"
+                        android:layout_marginStart="@dimen/margin10"
+                        android:layout_marginEnd="@dimen/margin10"
+                        android:layout_marginBottom="@dimen/margin5"
                         android:textSize="@dimen/headingTextSize" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/margin10"
-                        android:layout_marginRight="@dimen/margin10"
-                        android:fontFamily="@font/roboto_medium"
-                        android:text="@string/refer_a_retailer_to_earn_rewards"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/baseTextSize" />
 
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="@dimen/imageWidth24"
-                    android:layout_height="@dimen/imageHeight24"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:src="@drawable/ic_rewards"
-                    app:tint="@color/white">
 
-                </ImageView>
-            </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

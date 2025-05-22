@@ -24,8 +24,7 @@
     <ImageView
         android:id="@+id/iconProduct"
         android:layout_width="50sp"
-        android:layout_height="@dimen/height50"
-        android:src="@drawable/ic_lays"/>
+        android:layout_height="@dimen/height50"/>
 
     <TextView
         android:id="@+id/tvProduct"

@@ -4,6 +4,8 @@ package com.app.truewebapp
 //User@123
 
 const val SHARED_PREF_NAME="true-web_pref"
+const val BASE_URL = "https://goappadmin.zapto.org"
+const val SOMETHING_WENT_WRONG = "Something went wrong please try again later!"
 internal interface httpCodes {
     companion object {
       const val STATUS_OK = 200

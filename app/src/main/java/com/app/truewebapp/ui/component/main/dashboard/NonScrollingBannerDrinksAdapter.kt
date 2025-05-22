@@ -22,8 +22,8 @@ class NonScrollingBannerDrinksAdapter(private val products: List<Product>?,priva
             // Load image using Glide
             GlideApp.with(binding.imgProduct.context)
                 .load(option?.img)
-                .placeholder(R.drawable.ic_lays)
-                .error(R.drawable.ic_lays)
+                .placeholder(R.drawable.ic_logo_red_blue)
+                .error(R.drawable.ic_logo_red_blue)
                 .into(binding.imgProduct)
 
             // Strike-through effect for compare price

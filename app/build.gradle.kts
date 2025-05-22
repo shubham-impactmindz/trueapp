@@ -76,6 +76,8 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.tbuonomo:dotsindicator:4.3")
     implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     //noinspection KaptUsageInsteadOfKsp
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 

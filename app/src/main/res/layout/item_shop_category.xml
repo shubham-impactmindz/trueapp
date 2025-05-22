@@ -6,15 +6,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_marginTop="5sp"
-    android:layout_marginLeft="@dimen/margin10"
-    android:layout_marginRight="@dimen/margin10"
     android:gravity="center_vertical">
 
     <LinearLayout
         android:id="@+id/linearCategory"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height50"
-        android:background="@drawable/border_solid_primary"
+        android:background="@drawable/border_solid_light_red"
         android:gravity="center_vertical">
 
 
@@ -24,10 +22,12 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/margin10"
-        android:text="@string/deals_offers"
-        android:textSize="@dimen/headingTextSize"
         android:fontFamily="@font/roboto_bold"
-        android:textColor="@color/white"/>
+        android:maxLength="25"
+        android:singleLine="true"
+        android:text="Chips"
+        android:textColor="@color/colorSecondary"
+        android:textSize="@dimen/headingTextSize"/>
 
 
     <ImageView
@@ -37,7 +37,7 @@
         android:layout_marginEnd="@dimen/margin10"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_arrow_down"
-        app:tint="@color/white" />
+        app:tint="@color/colorSecondary" />
 
     <ImageView
         android:visibility="gone"
@@ -47,7 +47,7 @@
         android:layout_marginEnd="@dimen/margin10"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_arrow_up"
-        app:tint="@color/white" />
+        app:tint="@color/colorSecondary" />
 
     </LinearLayout>
 
@@ -55,7 +55,8 @@
         android:visibility="gone"
         android:id="@+id/subCategoryRecycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false">
 
     </androidx.recyclerview.widget.RecyclerView>
 

@@ -1,6 +1,6 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
-import BannerAdapter
+import DashboardBannerAdapter
 import NonScrollingBannerAdapter
 import NonScrollingBannerDealsAdapter
 import NonScrollingBannerDrinksAdapter
@@ -27,7 +27,7 @@ class DashboardFragment : Fragment() {
     lateinit var binding: FragmentDashboardBinding
     private lateinit var notificationsAdapter: NotificationsAdapter
     private var tabSwitcher: TabSwitcher? = null
-    private var bannerAdapter: BannerAdapter? = null
+    private var bannerAdapter: DashboardBannerAdapter? = null
     private var roundImageAdapter: RoundImageAdapter? = null
     private var nonScrollingBannerAdapter: NonScrollingBannerAdapter? = null
     private var nonScrollingBannerDealsAdapter: NonScrollingBannerDealsAdapter? = null
@@ -109,7 +109,7 @@ class DashboardFragment : Fragment() {
         banners.add(R.drawable.banner8)
 
         // Setup ViewPager with adapter
-        bannerAdapter = BannerAdapter(banners)
+        bannerAdapter = DashboardBannerAdapter(banners)
         binding.viewPager.adapter = bannerAdapter
 
 

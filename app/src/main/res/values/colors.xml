@@ -14,10 +14,11 @@
     <color name="tabUnselectedColor">#EEEEEE</color>
     <color name="colorPrimaryDark">#032B5F</color>
     <color name="ic_launcher_background">#FFFFFF</color>
-    <color name="colorPrimaryDarkOpacity">#80032B5F</color>
+    <color name="colorPrimaryDarkOpacity">#4D032B5F</color>
     <color name="colorPrimary">#3EA9F5</color>
     <color name="colorSecondary">#BB0000</color>
     <color name="colorSecondaryOpacity">#33BB0000</color>
+    <color name="colorGreen">#008000</color>
     <color name="textGrey">#686B76</color>
     <color name="borderGrey">#434343</color>
     <color name="searchGrey">#E5E5EA</color>

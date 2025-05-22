@@ -57,7 +57,7 @@
                 android:layout_gravity="top|end"
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_favourite"
-                app:tint="@color/colorPrimaryDark"
+                app:tint="@color/colorSecondary"
                 android:layout_centerVertical="true"
                 android:background="@drawable/circle_background"
                 android:padding="@dimen/margin5"/>
@@ -85,11 +85,10 @@
 
             <ImageView
                 android:id="@+id/imgProduct"
-                android:layout_width="100sp"
-                android:layout_height="match_parent"
+                android:layout_width="120sp"
+                android:layout_height="100sp"
                 android:layout_gravity="center"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_lays" />
+                android:scaleType="fitXY"/>
 
 
 
@@ -97,7 +96,6 @@
                 android:id="@+id/btnAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="bottom"
                 android:gravity="end">
 
@@ -222,6 +220,21 @@
             </TextView>
 
 
+            <TextView
+                android:id="@+id/textFlavour"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:layout_gravity="center"
+                android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
+                android:textSize="@dimen/smallTextSize"
+                android:layout_marginTop="2sp"
+                android:maxLines="2"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black">
+            </TextView>
+
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -269,6 +282,7 @@
 
 
             <LinearLayout
+                android:id="@+id/llOffer"
                 android:layout_width="match_parent"
                 android:layout_height="20sp"
                 android:orientation="horizontal"

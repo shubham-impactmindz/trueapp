@@ -112,7 +112,7 @@
                         android:layout_width="25sp"
                         android:layout_height="25sp"
                         android:src="@drawable/ic_wallet_unselected"
-                        app:tint="@color/colorPrimaryDark">
+                        app:tint="@color/colorSecondary">
 
                     </ImageView>
 
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12sp"
                         android:text="@string/wallet_balance"
-                        android:textColor="@color/black"
+                        android:textColor="@color/colorSecondary"
                         android:textSize="20sp"
                         android:fontFamily="@font/roboto_bold"/>
 
@@ -129,7 +129,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" Credit"
-                        android:textColor="@color/colorPrimaryDark"
+                        android:textColor="@color/colorSecondary"
                         android:textSize="20sp"
                         android:fontFamily="@font/roboto_bold"/>
 

@@ -6,9 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="60sp"
     android:orientation="horizontal"
-    android:background="@drawable/border_imageview"
     android:gravity="center"
+    app:cardBackgroundColor="@color/colorPrimaryDark"
     app:cardCornerRadius="@dimen/margin10"
+    android:layout_marginTop="@dimen/margin3"
+    android:background="@drawable/border_imageview"
     android:elevation="@dimen/elevation10"
     android:layout_gravity="center"
     android:layout_margin="5sp">

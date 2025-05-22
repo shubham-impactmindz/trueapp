@@ -1,88 +1,159 @@
 package com.app.truewebapp.ui.component.main.shop
 
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
+import com.app.truewebapp.data.dto.browse.Category
 
 class ShopCategoryAdapter(
     private val productAdapterListener: ProductAdapterListener,
-    private val options: CategoryListModel,
-    private val images: List<Int>
-) : RecyclerView.Adapter<ShopCategoryAdapter.ViewHolder>() {
+    categories: List<Category>,
+    private val cdnURL: String
+) : RecyclerView.Adapter<ShopCategoryAdapter.CategoryViewHolder>() {
 
-    // ⬇️ Now we track multiple expanded items
-    private val expandedPositions = mutableSetOf<Int>()
+    private val expandedMap = mutableMapOf<String, Boolean>()
+    private var categoryList: MutableList<Category> = categories.toMutableList()
+    private val subCategoryAdapters = mutableMapOf<Int, SubCategoryAdapter>()
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val subCategoryRecyclerView: RecyclerView = view.findViewById(R.id.subCategoryRecycler)
+    inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val subCategoryRecyclerView: RecyclerView = view.findViewById(R.id.subCategoryRecycler)
         val linearCategory: LinearLayout = view.findViewById(R.id.linearCategory)
-        val iconArrowDown: ImageView = view.findViewById(R.id.iconArrowDown)
-        val iconArrowUp: ImageView = view.findViewById(R.id.iconArrowUp)
-        val tvProduct: TextView = view.findViewById(R.id.tvProduct)
-    }
+        private val iconArrowDown: ImageView = view.findViewById(R.id.iconArrowDown)
+        private val iconArrowUp: ImageView = view.findViewById(R.id.iconArrowUp)
+        private val tvProduct: TextView = view.findViewById(R.id.tvProduct)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_shop_category, parent, false)
-        return ViewHolder(view)
-    }
+        fun bind(
+            position: Int,
+            category: Category,
+            isExpanded: Boolean,
+            toggleExpand: (String) -> Unit // Changed toggleExpand to accept String (catId)
+        ) {
+            val title = Html.fromHtml(category.mcat_name, Html.FROM_HTML_MODE_LEGACY).toString()
+            tvProduct.text = title
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val option = options.categories?.get(position)
-        var title = option?.title ?: ""
+            linearCategory.setBackgroundResource(
+                if (title.equals("Deals & Offers", ignoreCase = true))
+                    R.drawable.border_solid_secondary
+                else
+                    R.drawable.border_solid_light_red
+            )
 
-        title = Html.fromHtml(title, Html.FROM_HTML_MODE_LEGACY).toString()
-        holder.tvProduct.text = title
-
-        // Apply background color only to "Deals & Offers"
-        if (title == "Deals & Offers") {
-            holder.linearCategory.setBackgroundResource(R.drawable.border_solid_secondary)
-        } else {
-            holder.linearCategory.setBackgroundResource(R.drawable.border_solid_primary) // Set default background
-        }
-
-        val subCategoryAdapter = SubCategoryAdapter(productAdapterListener, option?.subCats, images)
-        holder.subCategoryRecyclerView.adapter = subCategoryAdapter
-        holder.subCategoryRecyclerView.layoutManager = LinearLayoutManager(holder.itemView.context)
-        holder.subCategoryRecyclerView.setHasFixedSize(true)
-
-        val isExpanded = expandedPositions.contains(position)
-        holder.subCategoryRecyclerView.visibility = if (isExpanded) View.VISIBLE else View.GONE
-        holder.iconArrowDown.visibility = if (isExpanded) View.GONE else View.VISIBLE
-        holder.iconArrowUp.visibility = if (isExpanded) View.VISIBLE else View.GONE
-
-        holder.linearCategory.setOnClickListener {
-            if (expandedPositions.contains(position)) {
-                expandedPositions.remove(position)
-            } else {
-                expandedPositions.add(position)
+            val adapter = subCategoryAdapters.getOrPut(position) {
+                SubCategoryAdapter(productAdapterListener, cdnURL).apply {
+                    updateSubCategoriesPreserveExpansion(category.subcategories)
+                }
             }
-            notifyItemChanged(position)
 
-            if (!isExpanded) {
-                holder.itemView.post {
-                    holder.itemView.requestLayout()
-                    holder.itemView.invalidate()
+            if (subCategoryRecyclerView.adapter != adapter) {
+                subCategoryRecyclerView.adapter = adapter
+                subCategoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+                subCategoryRecyclerView.setHasFixedSize(true)
+            } else {
+                adapter.updateSubCategoriesPreserveExpansion(category.subcategories)
+            }
 
-                    holder.itemView.postDelayed({
-                        var parentView: View? = holder.itemView
-                        while (parentView?.parent != null && parentView.parent !is androidx.core.widget.NestedScrollView) {
-                            parentView = parentView.parent as? View
-                        }
+            updateExpansionUI(isExpanded)
 
-                        val nestedScrollView = parentView?.parent as? androidx.core.widget.NestedScrollView
-                        nestedScrollView?.smoothScrollTo(0, holder.itemView.top)
-                    }, 150)
+            linearCategory.setOnClickListener {
+                toggleExpand(category.mcat_id.toString()) // Pass the category ID
+                if (!isExpanded) {
+                    scrollToPosition()
                 }
             }
         }
+
+        private fun updateExpansionUI(isExpanded: Boolean) {
+            Log.e("ShopCategoryAdapter", "updateExpansionUI: isExpanded=$isExpanded")
+            subCategoryRecyclerView.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            iconArrowUp.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            iconArrowDown.visibility = if (isExpanded) View.GONE else View.VISIBLE
+            if (isExpanded && subCategoryRecyclerView.layoutManager == null) {
+                subCategoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+            }
+        }
+
+        private fun scrollToPosition() {
+            itemView.post {
+                var parentView: View? = itemView
+                while (parentView?.parent is View && parentView.parent !is NestedScrollView) {
+                    parentView = parentView.parent as? View
+                }
+
+                val nestedScrollView = parentView?.parent as? NestedScrollView
+                nestedScrollView?.post {
+                    nestedScrollView.smoothScrollTo(0, itemView.top)
+                }
+            }
+        }
+
+        fun getSubCategoryAdapter(): SubCategoryAdapter? = subCategoryAdapters[adapterPosition]
+        fun getSubCategoryRecycler(): RecyclerView = subCategoryRecyclerView
     }
 
-    override fun getItemCount(): Int = options.categories?.size ?: 0
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_shop_category, parent, false)
+        return CategoryViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
+        val category = categoryList[position]
+        val isExpanded = expandedMap[category.mcat_id.toString()] ?: false
+        holder.bind(position, category, isExpanded) { catId ->
+            handleCategoryClick(catId)
+        }
+    }
+
+    private fun handleCategoryClick(catId: String) {
+        val wasExpanded = expandedMap[catId] ?: false
+        expandedMap.clear()
+        expandedMap[catId] = !wasExpanded
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount(): Int = categoryList.size
+
+    fun expandCategory(catId: String) {
+        expandedMap.clear()
+        expandedMap[catId] = true
+        notifyDataSetChanged()
+    }
+
+    fun collapseCategory(catId: String) {
+        expandedMap[catId] = false
+        notifyDataSetChanged()
+    }
+
+    fun getCategoryIndex(catId: String): Int {
+        return categoryList.indexOfFirst { it.mcat_id.toString() == catId }
+    }
+
+    fun updateCategoriesPreserveExpansion(newList: List<Category>) {
+        val currentExpandedCategoryId = expandedMap.filter { it.value }.keys.firstOrNull()
+
+        categoryList.clear()
+        categoryList.addAll(newList)
+
+        expandedMap.clear()
+        if (currentExpandedCategoryId != null) {
+            expandedMap[currentExpandedCategoryId] = true
+        }
+
+        categoryList.forEachIndexed { index, category ->
+            subCategoryAdapters.getOrPut(index) {
+                SubCategoryAdapter(productAdapterListener, cdnURL)
+            }.updateSubCategoriesPreserveExpansion(category.subcategories)
+        }
+
+        notifyDataSetChanged()
+    }
 }

@@ -19,5 +19,9 @@ class RewardsActivity : AppCompatActivity() {
             val intent = Intent(this, ReferralActivity::class.java)
             startActivity(intent)
         }
+        binding.buttonSend.setOnClickListener {
+            val intent = Intent(this, ReferralActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
