@@ -2,13 +2,24 @@
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.app.truewebapp.data.dto.dashboard_banners.DealsSliders
 import com.app.truewebapp.databinding.ItemBannerDealBinding
+import com.app.truewebapp.ui.component.main.dashboard.DealsBannerListener
+import com.bumptech.glide.Glide
 
-class NonScrollingBannerDealsAdapter(private val banners: List<Int>) : RecyclerView.Adapter<NonScrollingBannerDealsAdapter.BannerViewHolder>() {
+class NonScrollingBannerDealsAdapter(
+    private val listener: DealsBannerListener, private val banners: List<DealsSliders>, private val  cdnURL: String) : RecyclerView.Adapter<NonScrollingBannerDealsAdapter.BannerViewHolder>() {
 
     inner class BannerViewHolder(private val binding: ItemBannerDealBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(imageRes: Int) {
-            binding.imageView.setImageResource(imageRes)
+        fun bind(imageRes: String, position: Int) {
+            Glide.with(binding.root.context)
+                .load(cdnURL + imageRes)
+                .thumbnail(0.1f)
+                .dontAnimate()
+                .into(binding.imageView)
+            binding.imageView.setOnClickListener {
+                listener.onUpdateDealsBanner(banners[position].main_mcat_id.toString(), banners[position].mcat_id.toString(), banners[position].msubcat_id.toString(), banners[position].mproduct_id.toString())
+            }
         }
     }
 
@@ -18,7 +29,7 @@ class NonScrollingBannerDealsAdapter(private val banners: List<Int>) : RecyclerV
     }
 
     override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
-        holder.bind(banners[position])
+        holder.bind(banners[position].home_explore_deal_banner_image, position)
     }
 
     override fun getItemCount(): Int = banners.size

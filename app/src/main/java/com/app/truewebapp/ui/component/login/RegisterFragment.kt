@@ -10,11 +10,15 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -22,12 +26,15 @@ import com.app.truewebapp.R
 import com.app.truewebapp.data.dto.register.RegisterRequest
 import com.app.truewebapp.databinding.FragmentRegisterBinding
 import com.app.truewebapp.ui.viewmodel.RegisterViewModel
+import com.app.truewebapp.ui.viewmodel.VerifyRepViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
+import com.google.android.material.snackbar.Snackbar
 
 class RegisterFragment : Fragment() {
 
     private lateinit var binding: FragmentRegisterBinding
     private lateinit var registerViewModel: RegisterViewModel
+    private lateinit var verifyRepViewModel: VerifyRepViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,26 +49,14 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
+        verifyRepViewModel = ViewModelProvider(this)[VerifyRepViewModel::class.java]
         setupTermsAndPrivacy()
-        initializeObservers()
+        registerObservers()
+        verifyObservers()
 
         binding.btnRegister.setOnClickListener {
             if (validateInputs()) {
-                val request = RegisterRequest(
-                    first_name = binding.firstNameInput.text.toString().trim(),
-                    last_name = binding.lastNameInput.text.toString().trim(),
-                    mobile = binding.mobileNumberInput.text.toString().trim(),
-                    email = binding.emailAddressInput.text.toString().trim(),
-                    password = binding.passwordInput.text.toString().trim(),
-                    rep_code = binding.repCodeInput.text.toString().trim(),
-                    company_name = binding.companyNameInput.text.toString().trim(),
-                    address1 = binding.address1Input.text.toString().trim(),
-                    address2 = binding.address2Input.text.toString().trim(),
-                    city = binding.cityInput.text.toString().trim(),
-                    postcode = binding.postCodeInput.text.toString().trim(),
-                    country = binding.countryInput.text.toString().trim(),
-                )
-                registerViewModel.register(request)
+                verifyRepViewModel.verify(binding.repCodeInput.text.toString().trim())
             }
         }
     }
@@ -158,17 +153,17 @@ class RegisterFragment : Fragment() {
         binding.countryInput.text?.clear()
     }
 
-    private fun initializeObservers() {
+    private fun registerObservers() {
         registerViewModel.registerResponse.observe(
             viewLifecycleOwner, Observer {
                 it?.let {
                     if (it.status) {
                         clearValue()
-                        showMessage("Registered Successfully")
+                        showTopSnackBar("Registered Successfully")
                         showCustomRegisterDialog()
                         // Navigate or store preferences here
                     } else {
-                        showMessage(it.message)
+                        showTopSnackBar(it.message)
                     }
                 }
             }
@@ -179,11 +174,52 @@ class RegisterFragment : Fragment() {
         })
 
         registerViewModel.apiError.observe(viewLifecycleOwner, Observer {
-            showMessage(it ?: "Unexpected API error")
+            showTopSnackBar(it ?: "Unexpected API error")
         })
 
         registerViewModel.onFailure.observe(viewLifecycleOwner, Observer {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
+        })
+    }
+
+    private fun verifyObservers() {
+        verifyRepViewModel.verifyRepResponse.observe(
+            viewLifecycleOwner, Observer {
+                it?.let {
+                    if (it.status) {
+
+                        val request = RegisterRequest(
+                            first_name = binding.firstNameInput.text.toString().trim(),
+                            last_name = binding.lastNameInput.text.toString().trim(),
+                            mobile = binding.mobileNumberInput.text.toString().trim(),
+                            email = binding.emailAddressInput.text.toString().trim(),
+                            password = binding.passwordInput.text.toString().trim(),
+                            rep_code = binding.repCodeInput.text.toString().trim(),
+                            company_name = binding.companyNameInput.text.toString().trim(),
+                            address1 = binding.address1Input.text.toString().trim(),
+                            address2 = binding.address2Input.text.toString().trim(),
+                            city = binding.cityInput.text.toString().trim(),
+                            postcode = binding.postCodeInput.text.toString().trim(),
+                            country = binding.countryInput.text.toString().trim(),
+                        )
+                        registerViewModel.register(request)
+                    } else {
+                        showTopSnackBar("Please Check Rep Code Again")
+                    }
+                }
+            }
+        )
+
+        verifyRepViewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+        })
+
+        verifyRepViewModel.apiError.observe(viewLifecycleOwner, Observer {
+            showTopSnackBar(it ?: "Unexpected API error")
+        })
+
+        verifyRepViewModel.onFailure.observe(viewLifecycleOwner, Observer {
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         })
     }
 
@@ -251,9 +287,22 @@ class RegisterFragment : Fragment() {
         dialog.show()
     }
 
+    private fun showTopSnackBar(message: String) {
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
 
-    private fun showMessage(msg: String) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        val view = snackBar.view
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.BOTTOM
+        params.bottomMargin = 50
+        view.layoutParams = params
+
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)) // customize color
+
+        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(Color.WHITE)
+        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+        snackBar.show()
     }
 }
 

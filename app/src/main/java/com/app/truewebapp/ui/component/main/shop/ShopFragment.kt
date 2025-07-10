@@ -3,21 +3,27 @@ package com.app.truewebapp.ui.component.main.shop
 import BannerAdapter
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.CompositePageTransformer
@@ -29,19 +35,24 @@ import com.app.truewebapp.data.dto.browse.MainCategories
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentShopBinding
 import com.app.truewebapp.ui.component.main.cart.CartActivity
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.viewmodel.BannersViewModel
 import com.app.truewebapp.ui.viewmodel.BrandsViewModel
+import com.app.truewebapp.ui.viewmodel.CartViewModel
 import com.app.truewebapp.ui.viewmodel.CategoriesViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
 class ShopFragment : Fragment(), ProductAdapterListener {
 
     private lateinit var binding: FragmentShopBinding
-    private lateinit var categoriesViewModel: CategoriesViewModel
+    lateinit var categoriesViewModel: CategoriesViewModel
     private lateinit var bannersViewModel: BannersViewModel
     private lateinit var wishlistViewModel: WishlistViewModel
     private lateinit var brandsViewModel: BrandsViewModel
+    private lateinit var cartViewModel: CartViewModel
     private var adapter: ShopMainCategoryAdapter? = null
     private var bannerAdapter: BannerAdapter? = null
     private val viewModel: ShopViewModel by activityViewModels()
@@ -52,9 +63,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private var search = ""
     private var token = ""
     private var variantId = ""
-    private var filters = ""
-    private var filtersType = "All"
-    private var applyFilter = false
+    var filters = ""
+    var filtersType = "All"
+    var applyFilter = false
+    var cdnUrl = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,7 +79,20 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            // Flow collector for cart count
+            cartDao.getCartItemCount().collect { totalCount ->
+                val actualCount = totalCount ?: 0
 
+                if (actualCount == 0) {
+                    binding.tvCartBadge.visibility = View.GONE
+                } else {
+                    binding.tvCartBadge.visibility = View.VISIBLE
+                    binding.tvCartBadge.text = actualCount.toString()
+                }
+            }
+        }
         initializeViewModels()
         setupViews()
         setupObservers()
@@ -79,6 +104,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         bannersViewModel = ViewModelProvider(this)[BannersViewModel::class.java]
         wishlistViewModel = ViewModelProvider(this)[WishlistViewModel::class.java]
         brandsViewModel = ViewModelProvider(this)[BrandsViewModel::class.java]
+        cartViewModel = ViewModelProvider(this)[CartViewModel::class.java]
 
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
         token = "Bearer " + preferences?.getString("token", "").orEmpty()
@@ -113,6 +139,18 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         setupRadioGroup()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        adapter?.notifyDataSetChanged()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopAutoScroll() // Stop auto-scrolling when the fragment is paused
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupSearchView() {
         val closeIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_close)
         val searchIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
@@ -172,7 +210,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
             val brandsAdapter = BrandsAdapter(
                 response.mbrands,
-                response.cdnURL.orEmpty(),
+                response.cdnURL,
                 filtersType,
                 response
             )
@@ -193,6 +231,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         observeBanners()
         observeWishlist()
         observeBrands()
+//        observeCart()
     }
 
     private fun observeCategories() {
@@ -200,11 +239,14 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
+                    binding.shimmerLayoutMainCategory.visibility = View.GONE
                     if (applyFilter) toggleFilterOverlay()
 
                     if (it.main_categories.isEmpty()) {
                         showNoDataView(true)
                     } else {
+                        cdnUrl = it.cdnURL
+                        binding.shimmerLayoutMainCategory.visibility = View.GONE
                         showNoDataView(false)
                         originalCategoryList = it.main_categories
                         setupShopUI(originalCategoryList, it.cdnURL)
@@ -214,15 +256,20 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
 
         categoriesViewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+            if (it == true) {
+                binding.shimmerLayoutMainCategory.visibility = View.VISIBLE
+                binding.shopMainCategoryRecycler.visibility = View.GONE
+            }
         }
 
         categoriesViewModel.apiError.observe(viewLifecycleOwner) {
-            showMessage(it ?: "Unexpected API error")
+            binding.shimmerLayoutMainCategory.visibility = View.GONE
+            showTopSnackBar(it ?: "Unexpected API error")
         }
 
         categoriesViewModel.onFailure.observe(viewLifecycleOwner) {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            binding.shimmerLayoutMainCategory.visibility = View.GONE
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
@@ -231,26 +278,39 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
-                    if (it.browseBanners.isEmpty()) {
+                    binding.shimmerLayoutBanner.visibility = View.GONE
+                    val banners = it.browseBanners
+
+                    if (banners.isEmpty()) {
                         showBannerView(false)
                     } else {
+                        binding.shimmerLayoutBanner.visibility = View.GONE
+                        binding.viewPager.visibility = View.VISIBLE
                         showBannerView(true)
-                        setUpNonScrollingBannerAdapter(it.browseBanners, it.cdnURL)
+                        setUpNonScrollingBannerAdapter(banners, it.cdnURL)
                     }
+                } else {
+                    showBannerView(false)
                 }
             }
         }
 
         bannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+            // Show shimmer while loading, hide ViewPager
+            if (it == true) {
+                binding.shimmerLayoutBanner.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.GONE
+            }
         }
 
         bannersViewModel.apiError.observe(viewLifecycleOwner) {
-            showMessage(it ?: "Unexpected API error")
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            showTopSnackBar(it ?: "Unexpected API error")
         }
 
         bannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            binding.shimmerLayoutBanner.visibility = View.GONE
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
@@ -260,21 +320,21 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 if (it.status) {
                     updateWishlistInAdapter(variantId)
                 } else {
-                    Toast.makeText(context, it.message ?: "Wishlist update failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         wishlistViewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+//            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
         }
 
         wishlistViewModel.apiError.observe(viewLifecycleOwner) {
-            showMessage(it ?: "Unexpected API error")
+            showTopSnackBar(it ?: "Unexpected API error")
         }
 
         wishlistViewModel.onFailure.observe(viewLifecycleOwner) {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
@@ -287,7 +347,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                         binding.brandsRecyclerView.visibility = View.VISIBLE
                         val brandsAdapter = BrandsAdapter(
                             it.mbrands,
-                            it.cdnURL.orEmpty(),
+                            it.cdnURL,
                             filtersType,
                             it
                         )
@@ -303,15 +363,15 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
 
         brandsViewModel.isLoading.observe(viewLifecycleOwner) {
-            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+//            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
         }
 
         brandsViewModel.apiError.observe(viewLifecycleOwner) {
-            showMessage(it ?: "Unexpected API error")
+            showTopSnackBar(it ?: "Unexpected API error")
         }
 
         brandsViewModel.onFailure.observe(viewLifecycleOwner) {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
@@ -378,8 +438,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
     }
 
-    private fun scrollToProduct(mainCatid: String, catid: String, subcatid: String, productid: String) {
-        val mainCatIndex = originalCategoryList.indexOfFirst { it.main_mcat_id.toString() == mainCatid }
+    fun scrollToProduct(mainCatid: String, catid: String, subcatid: String, productid: String) {
+        val mainCatIndex = originalCategoryList.indexOfFirst {
+            it.main_mcat_id.toString() == mainCatid
+        }
         if (mainCatIndex == -1) return
 
         val currentlyExpandedIndex = adapter?.getExpandedCategoryIndex()
@@ -406,7 +468,11 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             val shopCatIndex = shopCatAdapter?.getCategoryIndex(catid) ?: -1
             if (shopCatIndex == -1) return@postDelayed
 
-            shopCatAdapter?.expandCategory(shopCatIndex.toString())
+            val categoryId = shopCatAdapter?.getCategoryIdAt(shopCatIndex)
+            if (categoryId != null) {
+                shopCatAdapter.expandCategory(categoryId)
+            }
+
             mainCatVH.getCategoryRecycler().scrollToPosition(shopCatIndex)
 
             mainCatVH.getCategoryRecycler().postDelayed({
@@ -430,6 +496,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                     val productIndex = productAdapter?.getProductIndex(productid) ?: -1
                     if (productIndex == -1) return@postDelayed
 
+                    Log.e("TAG", "proceedScrollTo: "+productIndex)
                     subCatVH.getProductRecycler().post {
                         (subCatVH.getProductRecycler().layoutManager as? LinearLayoutManager)
                             ?.scrollToPositionWithOffset(productIndex, 100)
@@ -440,6 +507,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     }
 
 
+
     private fun stopAutoScroll() {
         autoScrollRunnable?.let { handler.removeCallbacks(it) }
     }
@@ -448,17 +516,30 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         stopAutoScroll()
         autoScrollRunnable?.let { handler.postDelayed(it, AUTO_SCROLL_DELAY) }
     }
+    private fun showTopSnackBar(message: String) {
+        val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
 
-    private fun showMessage(msg: String) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        val view = snackBar.view
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.BOTTOM
+        params.bottomMargin = 50
+        view.layoutParams = params
+
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)) // customize color
+
+        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(Color.WHITE)
+        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+        snackBar.show()
     }
 
     private fun toggleFilterOverlay() {
         val isFilterVisible = binding.filterLayout.visibility == View.VISIBLE
         binding.filterLayout.visibility = if (isFilterVisible) View.GONE else View.VISIBLE
-        binding.shopMainCategoryRecycler.visibility = if (isFilterVisible) View.VISIBLE else View.GONE
-        binding.shopCategoryLayout.visibility = if (isFilterVisible) View.VISIBLE else View.GONE
-        binding.layoutBanner.visibility = if (isFilterVisible) View.VISIBLE else View.GONE
+        binding.shopMainCategoryRecycler.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
+        binding.shopCategoryLayout.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
+        binding.layoutBanner.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
     }
 
     private fun showNoDataView(show: Boolean) {
@@ -468,7 +549,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     private fun showBannerView(show: Boolean) {
         binding.viewPager.visibility = if (show) View.VISIBLE else View.GONE
-        binding.layoutBanner.visibility = if (show) View.VISIBLE else View.GONE
+
+        val isFilterVisible = binding.filterLayout.visibility == View.VISIBLE
+        binding.layoutBanner.visibility = if (isFilterVisible) View.GONE else View.VISIBLE
 //        binding.dotsIndicator.visibility = if (show) View.VISIBLE else View.GONE
     }
 
@@ -489,8 +572,21 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         wishlistViewModel.wishlist(token, WishlistRequest(userId, mvariant_id))
     }
 
-    override fun onUpdateCart(totalItems: Int, productName: String) {
-        viewModel.updateCart(totalItems, productName)
+    override fun onUpdateCart(totalItems: Int, productId: Int) {
+        val cartDao by lazy { context?.let { CartDatabase.getInstance(it).cartDao() } }
+        lifecycleScope.launch {
+            cartDao?.getCartItemCount()?.collect { totalCount ->
+                // totalCount will be null if the cart is empty, so handle that
+                val actualCount = totalCount ?: 0
+
+                if (actualCount == 0) {
+                    binding.tvCartBadge.visibility = View.GONE
+                } else {
+                    binding.tvCartBadge.visibility = View.VISIBLE
+                    binding.tvCartBadge.text = actualCount.toString()
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

@@ -107,6 +107,7 @@
                         android:src="@drawable/bg_circle_primary"/>
 
                     <TextView
+                        android:id="@+id/tvInitial"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="R S"
@@ -121,6 +122,7 @@
                 </FrameLayout>
 
                 <TextView
+                    android:id="@+id/tvName"
                     android:layout_width="0sp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -132,6 +134,7 @@
             </LinearLayout>
 
             <View
+                android:id="@+id/viewRep"
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:layout_marginTop="@dimen/margin20"
@@ -159,6 +162,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvMobile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="07447437071"
@@ -188,6 +192,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="info@truewebpro.co.uk"
@@ -199,12 +204,25 @@
 
 
             <View
+                android:id="@+id/viewEmail"
                 android:layout_width="match_parent"
                 android:layout_height="1sp"
                 android:layout_marginTop="@dimen/margin20"
                 android:background="@color/lightGrey">
 
             </View>
+
+            <TextView
+                android:id="@+id/noDataTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="No Data Found"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

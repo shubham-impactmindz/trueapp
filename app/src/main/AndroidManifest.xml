@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -14,7 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TrueWebApp"
-        tools:targetApi="31" >
+        tools:targetApi="31">
+        <activity
+            android:name=".ui.component.login.ResetPasswordActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.component.login.WebViewActivity"
             android:exported="false" />
@@ -53,13 +56,15 @@
             android:exported="false" />
         <activity
             android:name=".ui.component.main.account.AddAddressActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.component.main.account.MyOrdersActivity"
             android:exported="false" />
         <activity
             android:name=".ui.component.main.account.EditAddressActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.component.main.account.CompanyAddressActivity"
             android:exported="false" />
@@ -91,7 +96,7 @@
             android:name=".ui.component.SplashActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MySplash" >
+            android:theme="@style/Theme.MySplash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

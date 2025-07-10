@@ -7,6 +7,9 @@ import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.app.truewebapp.databinding.ActivityCheckOutBinding
 
 class CheckOutActivity : AppCompatActivity() {
@@ -17,6 +20,15 @@ class CheckOutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCheckOutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Handle system bars insets (status + nav bar)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
 
         // Fetch data from API
         val deliveryMethods = fetchDeliveryMethodsFromAPI()

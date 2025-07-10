@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="@dimen/margin10"
+        android:singleLine="true"
         android:text="6, Park Lane, Manchester, M45 7PB"
         android:textSize="13sp"
         android:maxLines="2"

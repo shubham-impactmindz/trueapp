@@ -21,83 +21,79 @@
         android:gravity="center_vertical">
 
 
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieCheckmark"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
-                app:lottie_autoPlay="true"
-                android:gravity="start"
-                app:lottie_loop="true"
-                android:layout_centerVertical="true"
-                app:lottie_rawRes="@raw/sale" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="SALE"
-                android:textSize="13sp"
-                android:fontFamily="@font/roboto_bold"
-                android:textColor="@color/colorSecondary"/>
-
-            <!-- Favorite Button -->
-            <ImageView
-                android:visibility="gone"
-                android:id="@+id/btnFavoriteSelected"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_gravity="top|end"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_favourite"
-                app:tint="@color/colorPrimaryDark"
-                android:layout_centerVertical="true"
-                android:background="@drawable/circle_background"
-                android:padding="@dimen/margin5"/>
-
-            <ImageView
-                android:id="@+id/btnFavorite"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_weight="1"
-                android:layout_gravity="top|end"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_favourite_unselected"
-                app:tint="@color/colorPrimaryDark"
-                android:layout_centerVertical="true"
-                android:background="@drawable/circle_background"
-                android:padding="@dimen/margin5"/>
-
-
-        </RelativeLayout>
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="100sp">
-
+            android:layout_height="120sp">
 
 
             <ImageView
                 android:id="@+id/imgProduct"
-                android:layout_width="100sp"
-                android:layout_height="match_parent"
+                android:layout_width="120sp"
+                android:layout_height="120sp"
                 android:layout_gravity="center"
                 android:scaleType="fitCenter"/>
 
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieCheckmark"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    app:lottie_autoPlay="true"
+                    android:gravity="start"
+                    app:lottie_loop="true"
+                    android:layout_centerVertical="true"
+                    app:lottie_rawRes="@raw/sale" />
+
+                <TextView
+                    android:visibility="gone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:text="SALE"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/colorSecondary"/>
+
+                <!-- Favorite Button -->
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/btnFavoriteSelected"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_gravity="top|end"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_favourite"
+                    app:tint="@color/colorSecondary"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/circle_background"
+                    android:padding="@dimen/margin5"/>
+
+                <ImageView
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_gravity="top|end"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_favourite_unselected"
+                    app:tint="@color/colorPrimaryDark"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/circle_background"
+                    android:padding="@dimen/margin5"/>
+
+
+            </RelativeLayout>
 
 
             <LinearLayout
                 android:id="@+id/btnAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="bottom"
                 android:gravity="end">
 
@@ -124,63 +120,63 @@
                 android:orientation="horizontal">
 
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5">
-            </LinearLayout>
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/llCartSign"
-                android:layout_width="0dp"
-                android:layout_height="30sp"
-                android:layout_weight="1"
-                android:gravity="end|center"
-                android:layout_gravity="bottom"
-                android:orientation="horizontal">
-
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/border_solid_secondary">
+                    android:layout_weight="0.5">
+                </LinearLayout>
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/llCartSign"
+                    android:layout_width="0dp"
+                    android:layout_height="30sp"
+                    android:layout_weight="1"
+                    android:gravity="end|center"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/border_solid_secondary">
 
 
-                    <ImageView
-                        android:id="@+id/btnMinus"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_minus"
-                        app:tint="@color/white"
-                        android:padding="@dimen/padding8">
-                    </ImageView>
+                        <ImageView
+                            android:id="@+id/btnMinus"
+                            android:layout_width="0sp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:src="@drawable/ic_minus"
+                            app:tint="@color/white"
+                            android:padding="@dimen/padding8">
+                        </ImageView>
 
-                    <TextView
-                        android:id="@+id/textNoOfItems"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="1"
-                        android:textSize="@dimen/headingTextSize"
-                        android:textColor="@color/white"
-                        android:fontFamily="@font/roboto_bold">
-                    </TextView>
+                        <TextView
+                            android:id="@+id/textNoOfItems"
+                            android:layout_width="0sp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="1"
+                            android:textSize="@dimen/headingTextSize"
+                            android:textColor="@color/white"
+                            android:fontFamily="@font/roboto_bold">
+                        </TextView>
 
-                    <ImageView
-                        android:id="@+id/btnAddMore"
-                        android:layout_width="0sp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:src="@drawable/ic_add"
-                        app:tint="@color/white"
-                        android:padding="@dimen/padding8">
-                    </ImageView>
+                        <ImageView
+                            android:id="@+id/btnAddMore"
+                            android:layout_width="0sp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:src="@drawable/ic_add"
+                            app:tint="@color/white"
+                            android:padding="@dimen/padding8">
+                        </ImageView>
 
+
+                    </LinearLayout>
 
                 </LinearLayout>
-
-            </LinearLayout>
 
 
             </LinearLayout>
@@ -209,6 +205,21 @@
 
             <TextView
                 android:id="@+id/textTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="start"
+                android:layout_gravity="center"
+                android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
+                android:textSize="@dimen/smallTextSize"
+                android:layout_marginTop="2sp"
+                android:maxLines="2"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/black">
+            </TextView>
+
+
+            <TextView
+                android:id="@+id/textFlavour"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="start"
@@ -269,6 +280,7 @@
 
 
             <LinearLayout
+                android:id="@+id/llOffer"
                 android:layout_width="match_parent"
                 android:layout_height="20sp"
                 android:orientation="horizontal"

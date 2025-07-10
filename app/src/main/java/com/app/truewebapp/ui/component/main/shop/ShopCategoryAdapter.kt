@@ -35,7 +35,7 @@ class ShopCategoryAdapter(
             position: Int,
             category: Category,
             isExpanded: Boolean,
-            toggleExpand: (String) -> Unit // Changed toggleExpand to accept String (catId)
+            toggleExpand: (String) -> Unit
         ) {
             val title = Html.fromHtml(category.mcat_name, Html.FROM_HTML_MODE_LEGACY).toString()
             tvProduct.text = title
@@ -64,7 +64,7 @@ class ShopCategoryAdapter(
             updateExpansionUI(isExpanded)
 
             linearCategory.setOnClickListener {
-                toggleExpand(category.mcat_id.toString()) // Pass the category ID
+                toggleExpand(category.mcat_id.toString())
                 if (!isExpanded) {
                     scrollToPosition()
                 }
@@ -122,11 +122,18 @@ class ShopCategoryAdapter(
 
     override fun getItemCount(): Int = categoryList.size
 
-    fun expandCategory(catId: String) {
+    // ✅ FIXED: This now works when called from fragment
+    fun expandCategory(categoryId: String) {
         expandedMap.clear()
-        expandedMap[catId] = true
+        expandedMap[categoryId] = true
         notifyDataSetChanged()
     }
+
+
+    fun getCategoryIdAt(index: Int): String? {
+        return if (index in 0 until categoryList.size) categoryList[index].mcat_id.toString() else null
+    }
+
 
     fun collapseCategory(catId: String) {
         expandedMap[catId] = false

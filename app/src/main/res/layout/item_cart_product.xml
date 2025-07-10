@@ -35,7 +35,7 @@
                     android:id="@+id/imageProduct"
                     android:layout_width="50sp"
                     android:layout_height="match_parent"
-                    android:src="@drawable/ic_lays"/>
+                    android:src="@drawable/ic_logo_red_blue"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvProduct"
+                        android:id="@+id/textTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin10"
@@ -79,7 +79,7 @@
                                 android:gravity="center_vertical"
                                 android:text="@string/wallet_balance"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/mainHeadingTextSize" />
+                                android:textSize="@dimen/headingTextSize" />
 
                             <TextView
                                 android:id="@+id/comparePrice"
@@ -186,7 +186,7 @@
                     android:layout_width="25sp"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_favourite"
-                    app:tint="@color/colorPrimaryDark"
+                    app:tint="@color/colorSecondary"
                     android:background="@drawable/circle_background"
                     android:padding="@dimen/margin5"/>
 
@@ -201,10 +201,6 @@
 
             </LinearLayout>
         </FrameLayout>
-
-
-
-
     </LinearLayout>
 
 </LinearLayout>

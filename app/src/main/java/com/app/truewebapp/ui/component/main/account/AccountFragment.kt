@@ -6,22 +6,32 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.app.truewebapp.R
+import com.app.truewebapp.SHARED_PREF_NAME
 import com.app.truewebapp.databinding.FragmentAccountBinding
 import com.app.truewebapp.ui.component.login.LoginActivity
 import com.app.truewebapp.ui.component.login.WebViewActivity
+import com.app.truewebapp.ui.viewmodel.DeleteAccountViewModel
+import com.app.truewebapp.utils.ApiFailureTypes
+import com.google.android.material.snackbar.Snackbar
 
 class AccountFragment : Fragment() {
     lateinit var binding: FragmentAccountBinding
-
-
+    private lateinit var deleteAccountViewModel: DeleteAccountViewModel
+    private var token = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,6 +39,8 @@ class AccountFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentAccountBinding.inflate(inflater, container, false)
+        deleteAccountViewModel = ViewModelProvider(this)[DeleteAccountViewModel::class.java]
+        initializeObservers()
         return binding.root
     }
 
@@ -36,6 +48,52 @@ class AccountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupAccountPage()
+    }
+
+
+    private fun initializeObservers() {
+        deleteAccountViewModel.changePasswordResponse.observe(
+            viewLifecycleOwner, Observer {
+                it?.let {
+                    if (it.status) {
+                        performLogout()
+                        // Navigate or store preferences here
+                    } else {
+                        showTopSnackBar(it.message)
+                    }
+                }
+            }
+        )
+
+        deleteAccountViewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
+        })
+
+        deleteAccountViewModel.apiError.observe(viewLifecycleOwner, Observer {
+            showTopSnackBar(it) // Now this will show exact API message
+        })
+
+        deleteAccountViewModel.onFailure.observe(viewLifecycleOwner, Observer {
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
+        })
+    }
+
+    private fun showTopSnackBar(message: String) {
+        val snackBar = Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT)
+
+        val view = snackBar.view
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.BOTTOM
+        params.bottomMargin = 50
+        view.layoutParams = params
+
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)) // customize color
+
+        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(Color.WHITE)
+        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+        snackBar.show()
     }
 
     private fun setupAccountPage() {
@@ -117,7 +175,10 @@ class AccountFragment : Fragment() {
 
         btnLogout.setOnClickListener {
             dialog.dismiss()
-            performLogout()
+
+            val preferences =context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+            token = "Bearer " + preferences?.getString("token", "").orEmpty()
+            deleteAccountViewModel.deleteAccount(token)
         }
 
         dialog.show()
@@ -151,7 +212,7 @@ class AccountFragment : Fragment() {
     }
 
     private fun performLogout() {
-        val sharedPreferences = context?.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+        val sharedPreferences = context?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
         sharedPreferences?.edit()?.clear()?.apply()
 
         val intent = Intent(context, LoginActivity::class.java)

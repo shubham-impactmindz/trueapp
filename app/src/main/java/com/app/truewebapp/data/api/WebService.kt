@@ -1,10 +1,6 @@
 package com.app.truewebapp.data.api
 
 
-import com.app.accutecherp.data.dto.account_type.accountDataResponse
-import com.app.accutecherp.data.dto.account_type.accountTypeResponse
-import com.app.accutecherp.data.dto.attendance.MarkAttendanceResponse
-import com.app.accutecherp.data.dto.attendance.attendaceResponse
 import com.app.accutecherp.data.dto.city.cityResponse
 import com.app.accutecherp.data.dto.clientstatus.clientStatusResponse
 import com.app.accutecherp.data.dto.comment.CommentResponse
@@ -19,10 +15,27 @@ import com.app.accutecherp.data.dto.state.stateResponse
 import com.app.truewebapp.data.dto.brands.BrandsResponse
 import com.app.truewebapp.data.dto.browse.BannerResponse
 import com.app.truewebapp.data.dto.browse.CategoriesResponse
+import com.app.truewebapp.data.dto.cart.CartRequest
+import com.app.truewebapp.data.dto.cart.CartResponse
+import com.app.truewebapp.data.dto.change_password.ChangePasswordRequest
+import com.app.truewebapp.data.dto.change_password.ChangePasswordResponse
+import com.app.truewebapp.data.dto.company_address.CompanyAddressDeleteRequest
+import com.app.truewebapp.data.dto.company_address.CompanyAddressRequest
+import com.app.truewebapp.data.dto.company_address.CompanyAddressResponse
+import com.app.truewebapp.data.dto.dashboard_banners.BigBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.DealsBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.FruitsBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.NewProductsBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.RoundBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.SmallBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.TopSellerBannersResponse
 import com.app.truewebapp.data.dto.login.LoginRequest
 import com.app.truewebapp.data.dto.login.LoginResponse
 import com.app.truewebapp.data.dto.register.RegisterRequest
 import com.app.truewebapp.data.dto.register.RegisterResponse
+import com.app.truewebapp.data.dto.register.VerifyRepResponse
+import com.app.truewebapp.data.dto.reset_password.ResetPasswordRequest
+import com.app.truewebapp.data.dto.reset_password.ResetPasswordResponse
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.data.dto.wishlist.WishlistResponse
 import okhttp3.MultipartBody
@@ -72,19 +85,89 @@ interface WebService {
         @Query("user_id") userId: String? = null,
         ): Call<BrandsResponse>
 
-    @FormUrlEncoded
-    @POST("api/get_account_type")
-    fun fetchAccountType(
-        @Field("auth_key") authKey: String,
-        @Field("login_key") userName: String
-    ): Call<accountTypeResponse>
+    @GET("/api/round-banner")
+    fun fetchRoundBanners(
+        @Header("Authorization") token: String,
+        ): Call<RoundBannersResponse>
 
-    @FormUrlEncoded
-    @POST("api/get_account")
-    fun fetchAccountList(
-        @Field("auth_key") authKey: String,
-        @Field("login_key") userName: String
-    ): Call<accountDataResponse>
+    @GET("/api/big-banner")
+    fun fetchBigBanners(
+        @Header("Authorization") token: String,
+        ): Call<BigBannersResponse>
+
+    @GET("/api/small-banner")
+    fun fetchSmallBanners(
+        @Header("Authorization") token: String,
+        ): Call<SmallBannersResponse>
+
+    @GET("/api/deals-banner")
+    fun fetchDealsBanners(
+        @Header("Authorization") token: String,
+        ): Call<DealsBannersResponse>
+
+    @GET("/api/fruit-banner")
+    fun fetchFruitsBanners(
+        @Header("Authorization") token: String,
+        ): Call<FruitsBannersResponse>
+
+    @GET("/api/new-product-banner")
+    fun fetchNewProductsBanners(
+        @Header("Authorization") token: String,
+        ): Call<NewProductsBannersResponse>
+
+    @GET("/api/top-seller-banner")
+    fun fetchTopSellerBanners(
+        @Header("Authorization") token: String,
+        ): Call<TopSellerBannersResponse>
+
+    @POST("/api/change-password")
+    fun fetchChangePassword(
+        @Header("Authorization") token: String,
+        @Body changePasswordRequest: ChangePasswordRequest
+        ): Call<ChangePasswordResponse>
+
+    @GET("/api/company-address")
+    fun fetchCompanyAddress(
+        @Header("Authorization") token: String,
+        ): Call<CompanyAddressResponse>
+
+    @POST("/api/company-address/upsert")
+    fun fetchUpsertCompanyAddress(
+        @Header("Authorization") token: String,
+        @Body companyAddressRequest: CompanyAddressRequest
+        ): Call<ChangePasswordResponse>
+
+    @HTTP(method = "DELETE", path = "/api/company-address/delete", hasBody = true)
+    fun fetchDeleteCompanyAddress(
+        @Header("Authorization") token: String,
+        @Body companyAddressDeleteRequest: CompanyAddressDeleteRequest
+    ): Call<ChangePasswordResponse>
+
+    @GET("/api/reps/check/")
+    fun fetchVerifyUser(
+        @Query("userName") userName: String
+    ): Call<VerifyRepResponse>
+
+    @DELETE("/api/user-account/delete")
+    fun fetchDeleteAccount(
+        @Header("Authorization") token: String,
+    ): Call<ChangePasswordResponse>
+
+    @POST("/api/forgot-password")
+    fun fetchResetPassword(
+        @Body resetPasswordRequest: ResetPasswordRequest
+    ): Call<ResetPasswordResponse>
+
+    @POST("/api/cart-item/update")
+    fun fetchCart(
+        @Header("Authorization") token: String,
+        @Body cartRequest: CartRequest
+    ): Call<ChangePasswordResponse>
+
+    @GET("/api/cart-item")
+    fun fetchCartItems(
+        @Header("Authorization") token: String
+    ): Call<CartResponse>
 
     @FormUrlEncoded
     @POST("api/get_states")
@@ -225,24 +308,6 @@ interface WebService {
         @Field("to_so_date") to_so_date: String,
         @Field("client_ids") client_ids: String,
     ): Call<orderHistoryResponse>
-
-    @FormUrlEncoded
-    @POST("api/get_employee_attendance")
-    fun fetchAttendance(
-        @Field("auth_key") authKey: String,
-        @Field("login_key") userName: String,
-        @Field("punch_date") punchDate: String,
-        @Field("month") month: String,
-    ): Call<attendaceResponse>
-
-    @FormUrlEncoded
-    @POST("api/mark_employee_attendance")
-    fun markAttendance(
-        @Field("auth_key") authKey: String,
-        @Field("login_key") userName: String,
-        @Field("punch_type") punchType: String,
-        @Field("geo_location") geoLocation: String,
-    ): Call<MarkAttendanceResponse>
 
     @Multipart
     @POST("api/update_profile")

@@ -74,7 +74,7 @@ class SubCategoryAdapter(
                 .transform(RoundedCorners(25))
                 .into(iconBrand)
 
-            productsRecycler.adapter = ProductsAdapter(productAdapterListener, subCategory.products, subCategory.msubcat_name, cdnURL)
+            productsRecycler.adapter = ProductsAdapter(productAdapterListener, subCategory.products, subCategory.msubcat_name, cdnURL,itemView.context)
             productsRecycler.layoutManager = GridLayoutManager(itemView.context, 2)
 
             if (isExpanded) {

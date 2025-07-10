@@ -33,16 +33,23 @@
             android:textSize="@dimen/mainHeadingTextSize" />
     </LinearLayout>
 
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout">
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="0sp"
         android:fillViewport="true"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout">
+        android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -132,15 +139,49 @@
 
                 </View>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvRoundImages"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin10"
-                android:layout_marginBottom="@dimen/margin10"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                android:scrollbars="none" />
+
+                <FrameLayout
+                    android:id="@+id/shopCategoryLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmerLayoutRoundImages"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+                            <include layout="@layout/item_round_image_shimmer" />
+
+                        </LinearLayout>
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
+                        android:id="@+id/rvRoundImages"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:layout_marginBottom="@dimen/margin10"
+                        android:clipToPadding="false"
+                        android:overScrollMode="never"
+                        android:scrollbars="none" />
+
+                </FrameLayout>
+
 
             </LinearLayout>
 
@@ -150,7 +191,23 @@
                 android:layout_marginTop="@dimen/margin10">
 
 
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutBigBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="180sp"
+                    android:layout_marginLeft="@dimen/margin10"
+                    android:layout_marginRight="@dimen/margin10"
+                    android:layout_marginBottom="@dimen/margin10"
+                    android:visibility="visible">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/shimmer_color" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
                 <androidx.viewpager2.widget.ViewPager2
+                    android:visibility="gone"
                     android:id="@+id/viewPager"
                     android:layout_width="match_parent"
                     android:layout_height="180sp"
@@ -161,16 +218,38 @@
             </FrameLayout>
 
             <LinearLayout
+                android:id="@+id/layoutBanner"
                 android:layout_width="match_parent"
                 android:layout_height="125sp">
 
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/viewPagerNonScrolling"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false" />
+                    android:layout_height="match_parent">
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmerLayoutSmallBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/margin10"
+                        android:layout_marginRight="@dimen/margin10"
+                        android:layout_marginBottom="@dimen/margin10"
+                        android:visibility="visible">
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/shimmer_color" />
+                    </com.facebook.shimmer.ShimmerFrameLayout>
 
 
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/viewPagerNonScrolling"
+                        android:visibility="gone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false" />
+
+                </FrameLayout>
             </LinearLayout>
 
             <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
@@ -186,205 +265,137 @@
 
 
 
-            <LinearLayout
-                android:id="@+id/referralLayout"
+
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
 
-                <!-- Referral Rewards -->
-                <LinearLayout
-                    android:id="@+id/referralSection"
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutDealsBanner"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/height60"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:background="@drawable/border_solid_primary"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:layout_height="240sp"
+                    android:layout_marginStart="@dimen/margin10"
+                    android:layout_marginEnd="@dimen/margin10"
+                    android:layout_marginTop="@dimen/margin10"
+                    android:visibility="visible"
+                    app:layout_constraintTop_toTopOf="parent">
+
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_vertical"
                         android:orientation="vertical">
 
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/margin10"
-                            android:layout_marginRight="@dimen/margin10"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="@string/referral_rewards"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/headingTextSize" />
+                        <View
+                            android:id="@+id/viewDeals"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@color/shimmer_color" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/margin10"
-                            android:layout_marginRight="@dimen/margin10"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="@string/refer_a_retailer_to_earn_rewards"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/baseTextSize" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@color/shimmer_color" />
+
 
                     </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth24"
-                        android:layout_height="@dimen/imageHeight24"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:layout_marginEnd="@dimen/margin10"
-                        android:src="@drawable/ic_rewards"
-                        app:tint="@color/white">
-
-                    </ImageView>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:id="@+id/deliveryInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/height60"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:background="@drawable/border_solid_primary"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center_vertical"
-                        android:orientation="vertical">
-
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/margin10"
-                            android:layout_marginRight="@dimen/margin10"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="Delivery Info"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/headingTextSize" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/margin10"
-                            android:layout_marginRight="@dimen/margin10"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="Free next day delivery"
-                            android:textColor="@color/white"
-                            android:textSize="@dimen/baseTextSize" />
-
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth24"
-                        android:layout_height="@dimen/imageHeight24"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:layout_marginEnd="@dimen/margin10"
-                        android:src="@drawable/ic_delivery"
-                        app:tint="@color/white">
-
-                    </ImageView>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:id="@+id/creditLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/height50"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:background="@drawable/border_primary"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth24"
-                        android:layout_height="@dimen/imageHeight24"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:src="@drawable/ic_wallet"
-                        app:tint="@color/colorPrimaryDark" />
-
-                    <TextView
-                        android:layout_width="0sp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin10"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/roboto_medium"
-                        android:text="@string/credit_in_your_wallet"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/headingTextSize" />
-
-                    <ImageView
-                        android:layout_width="@dimen/imageWidth24"
-                        android:layout_height="@dimen/imageHeight24"
-                        android:layout_marginEnd="@dimen/margin10"
-                        android:src="@drawable/ic_arrow_right"
-                        app:tint="@color/colorPrimaryDark" />
-                </LinearLayout>
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="EXPLORE THE DEALS CENTRE"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/headingTextSize" />
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="220sp"
+                    android:layout_height="240sp"
+                    android:orientation="vertical"
                     android:layout_marginStart="@dimen/margin10"
                     android:layout_marginEnd="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10">
 
+
+
+                    <TextView
+                        android:id="@+id/tvDealsCenter"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="EXPLORE THE DEALS CENTRE"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/headingTextSize" />
+
                     <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
                         android:id="@+id/recyclerViewDeals"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="220sp"
                         android:clipToPadding="false" />
 
 
                 </LinearLayout>
+            </FrameLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/margin10"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutNewProducts"
+                    android:layout_width="match_parent"
+                    android:layout_height="240sp"
+                    android:layout_marginStart="@dimen/margin10"
+                    android:layout_marginEnd="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="NEW PRODUCTS"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/headingTextSize" />
+                    android:visibility="visible"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+
+                        <View
+                            android:id="@+id/viewNewProducts"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@color/shimmer_color" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@color/shimmer_color" />
+
+
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin10"
                     android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10">
+                    android:layout_marginTop="@dimen/margin10"
+                    android:orientation="vertical">
+
+
+                    <TextView
+                        android:visibility="gone"
+                        android:id="@+id/tvNewProducts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/margin10"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:layout_marginRight="@dimen/margin10"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="NEW PRODUCTS"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/headingTextSize" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
                         android:id="@+id/recyclerViewDrinks"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -393,119 +404,204 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/margin10"
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutFruitsBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="240sp"
+                    android:layout_marginStart="@dimen/margin10"
+                    android:layout_marginEnd="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="FRUITS"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/headingTextSize" />
+                    android:visibility="visible"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+
+                        <View
+                            android:id="@+id/viewFruits"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@color/shimmer_color" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@color/shimmer_color" />
+
+
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="220sp"
+                    android:layout_height="240sp"
                     android:layout_marginStart="@dimen/margin10"
                     android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10">
+                    android:layout_marginTop="@dimen/margin10"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvFruitsCenter"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="FRUITS"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/headingTextSize" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
                         android:id="@+id/recyclerViewFruits"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="220sp"
                         android:clipToPadding="false" />
 
 
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/margin10"
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutTopSeller"
+                    android:layout_width="match_parent"
+                    android:layout_height="240sp"
+                    android:layout_marginStart="@dimen/margin10"
+                    android:layout_marginEnd="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="TOP SELLER"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/headingTextSize" />
+                    android:visibility="visible"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
+
+
+                        <View
+                            android:id="@+id/viewTopSeller"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@color/shimmer_color" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@color/shimmer_color" />
+
+
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/margin10"
                     android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10">
+                    android:layout_marginTop="@dimen/margin10"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:visibility="gone"
+                        android:id="@+id/tvTopSeller"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/margin10"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:layout_marginRight="@dimen/margin10"
+                        android:fontFamily="@font/roboto_bold"
+                        android:text="TOP SELLER"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/headingTextSize" />
 
                     <androidx.recyclerview.widget.RecyclerView
+                        android:visibility="gone"
                         android:id="@+id/recyclerViewNutrition"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:clipToPadding="false" />
 
-
                 </LinearLayout>
 
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:fontFamily="@font/roboto_bold"
+                android:text="@string/recent_notifications"
+                android:textColor="@color/black"
+                android:textSize="@dimen/headingTextSize" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recentNotificationsRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginBottom="@dimen/margin10"
+                android:nestedScrollingEnabled="false">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin20"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Recent Orders"
+                android:textColor="@color/black"
+                android:textSize="@dimen/headingTextSize"
+                android:visibility="gone" />
+
+
+            <LinearLayout
+                android:id="@+id/viewOrderLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height50"
+                android:layout_marginTop="@dimen/margin20"
+                android:background="@drawable/border_primary"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0sp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="@string/recent_notifications"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/roboto_medium"
+                    android:gravity="center"
+                    android:text="@string/view_all_orders"
                     android:textColor="@color/black"
                     android:textSize="@dimen/headingTextSize" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recentNotificationsRecycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:layout_marginBottom="@dimen/margin10"
-                    android:nestedScrollingEnabled="false">
-
-                </androidx.recyclerview.widget.RecyclerView>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin20"
-                    android:fontFamily="@font/roboto_bold"
-                    android:text="Recent Orders"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/headingTextSize"
-                    android:visibility="gone" />
-
-
-                <LinearLayout
-                    android:id="@+id/viewOrderLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/height50"
-                    android:layout_marginTop="@dimen/margin20"
-                    android:background="@drawable/border_primary"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-
-                    <TextView
-                        android:layout_width="0sp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="@font/roboto_medium"
-                        android:gravity="center"
-                        android:text="@string/view_all_orders"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/headingTextSize" />
-
-                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

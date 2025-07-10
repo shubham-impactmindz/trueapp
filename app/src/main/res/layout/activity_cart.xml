@@ -74,6 +74,7 @@
             android:orientation="vertical">
 
             <ImageView
+                android:visibility="gone"
                 android:id="@+id/bannerImage"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height120"
@@ -81,17 +82,46 @@
                 android:src="@drawable/ic_banner"/>
 
             <androidx.recyclerview.widget.RecyclerView
+                android:visibility="gone"
                 android:id="@+id/cartListRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin15"
                 android:nestedScrollingEnabled="false"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
+
+
+
+                <ImageView
+                    android:id="@+id/imageCart"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    android:src="@drawable/ic_shopping_bag"/>
+
+                <TextView
+                    android:id="@+id/textEmptyCart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You don't have any items in your cart."
+                    android:textSize="16sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_bold"
+                    android:layout_marginTop="20dp"/>
+
+            </LinearLayout>
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
     <!-- Fixed Bottom CardView -->
     <androidx.cardview.widget.CardView
+        android:visibility="gone"
         android:id="@+id/linearCartDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

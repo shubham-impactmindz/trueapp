@@ -10,13 +10,15 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -27,6 +29,8 @@ import com.app.truewebapp.databinding.FragmentLoginBinding
 import com.app.truewebapp.ui.component.main.MainActivity
 import com.app.truewebapp.ui.viewmodel.LoginViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
+import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 
 class LoginFragment : Fragment() {
 
@@ -57,6 +61,11 @@ class LoginFragment : Fragment() {
                 )
                 loginViewModel.login(request)
             }
+        }
+
+        binding.btnResetPassword.setOnClickListener {
+            val intent = Intent(context, ResetPasswordActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -94,24 +103,27 @@ class LoginFragment : Fragment() {
             viewLifecycleOwner, Observer {
                 it?.let {
                     if (it.status) {
-                        if (it.user.admin_approval == "Pending" || it.user.admin_approval == "Declined" ){
+                        if (it.user_detail.admin_approval == "Pending" || it.user_detail.admin_approval == "Declined" ){
                             showCustomRegisterDialog()
                         }
                         else{
                             clearValue()
-                            showMessage("Login Successfully")
+                            showTopSnackBar("Login Successfully")
                             val preferences = context?.getSharedPreferences(SHARED_PREF_NAME,
                                 AppCompatActivity.MODE_PRIVATE
                             )
                             preferences?.edit()?.putString("token", it.token)?.apply()
-                            preferences?.edit()?.putString("userId", it.user.id.toString())?.apply()
+                            preferences?.edit()?.putString("userId", it.user_detail.id.toString())?.apply()
+                            val gson = Gson()
+                            val jsonString = gson.toJson(it) // Convert object to JSON string
+                            preferences?.edit()?.putString("userResponse", jsonString)?.apply()
                             val intent = Intent(context, MainActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             startActivity(intent)
                         }
                         // Navigate or store preferences here
                     } else {
-                        showMessage(it.message)
+                        showTopSnackBar(it.message)
                     }
                 }
             }
@@ -122,19 +134,32 @@ class LoginFragment : Fragment() {
         })
 
         loginViewModel.apiError.observe(viewLifecycleOwner, Observer {
-            showMessage(it ?: "Unexpected API error")
+            showTopSnackBar(it) // Now this will show exact API message
         })
 
         loginViewModel.onFailure.observe(viewLifecycleOwner, Observer {
-            showMessage(ApiFailureTypes().getFailureMessage(it, context))
+            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         })
     }
 
+    private fun showTopSnackBar(message: String) {
+        val snackBar = Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT)
 
-    private fun showMessage(msg: String) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        val view = snackBar.view
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.BOTTOM
+        params.bottomMargin = 50
+        view.layoutParams = params
+
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)) // customize color
+
+        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        textView.setTextColor(Color.WHITE)
+        textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+        snackBar.show()
     }
-    
+
     private fun setupTermsAndPrivacy() {
         val fullText = "By selecting Login, you agree to our Terms and Conditions and Privacy Policy"
         val spannableString = SpannableString(fullText)

@@ -21,76 +21,64 @@
         android:gravity="center_vertical">
 
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieCheckmark"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
-                app:lottie_autoPlay="true"
-                android:gravity="start"
-                app:lottie_loop="true"
-                android:layout_centerVertical="true"
-                app:lottie_rawRes="@raw/sale" />
-
-            <TextView
-                android:visibility="gone"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="SALE"
-                android:textSize="13sp"
-                android:fontFamily="@font/roboto_bold"
-                android:textColor="@color/colorSecondary"/>
-
-            <!-- Favorite Button -->
-            <ImageView
-                android:visibility="gone"
-                android:id="@+id/btnFavoriteSelected"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_gravity="top|end"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_favourite"
-                app:tint="@color/colorSecondary"
-                android:layout_centerVertical="true"
-                android:background="@drawable/circle_background"
-                android:padding="@dimen/margin5"/>
-
-            <ImageView
-                android:id="@+id/btnFavorite"
-                android:layout_width="30sp"
-                android:layout_height="30sp"
-                android:layout_weight="1"
-                android:layout_gravity="top|end"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_favourite_unselected"
-                app:tint="@color/colorPrimaryDark"
-                android:layout_centerVertical="true"
-                android:background="@drawable/circle_background"
-                android:padding="@dimen/margin5"/>
-
-
-        </RelativeLayout>
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="100sp">
+            android:layout_height="120sp">
 
 
 
             <ImageView
                 android:id="@+id/imgProduct"
                 android:layout_width="120sp"
-                android:layout_height="100sp"
+                android:layout_height="120sp"
                 android:layout_gravity="center"
-                android:scaleType="fitXY"/>
+                android:scaleType="fitCenter"/>
 
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieCheckmark"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
+                    app:lottie_autoPlay="true"
+                    android:gravity="start"
+                    app:lottie_loop="true"
+                    android:layout_centerVertical="true"
+                    app:lottie_rawRes="@raw/sale" />
+
+                <!-- Favorite Button -->
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/btnFavoriteSelected"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_gravity="top|end"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_favourite"
+                    app:tint="@color/colorSecondary"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/circle_background"
+                    android:padding="@dimen/margin5"/>
+
+                <ImageView
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_gravity="top|end"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_favourite_unselected"
+                    app:tint="@color/colorPrimaryDark"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/circle_background"
+                    android:padding="@dimen/margin5"/>
+
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/btnAdd"

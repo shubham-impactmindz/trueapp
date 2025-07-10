@@ -115,15 +115,67 @@
 
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/addressRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginTop="@dimen/margin10"
-                android:layout_marginBottom="10sp">
 
-            </androidx.recyclerview.widget.RecyclerView>
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefreshLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/margin10">
+
+            <FrameLayout
+                android:id="@+id/addressLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+                        <include layout="@layout/item_list_shimmer" />
+
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:visibility="gone"
+                    android:id="@+id/addressRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="10sp">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/tvNoData"
+                    android:layout_width="match_parent"
+                    android:layout_height="400sp"
+                    android:text="No Data Found"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_marginBottom="10sp"/>
+
+            </FrameLayout>
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
         </LinearLayout>

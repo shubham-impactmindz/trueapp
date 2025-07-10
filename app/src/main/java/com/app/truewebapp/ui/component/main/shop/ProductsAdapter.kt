@@ -1,26 +1,31 @@
 package com.app.truewebapp.ui.component.main.shop
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Paint
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.app.truewebapp.R
 import com.app.truewebapp.data.dto.browse.Product
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.utils.GlideApp
+import kotlinx.coroutines.*
 
 class ProductsAdapter(
     private val listener: ProductAdapterListener,
     private var products: List<Product>,
     private val title: String?,
-    private val cdnURL: String
+    private val cdnURL: String,
+    private val context: Context
 ) : RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
+
+    private val cartDao = CartDatabase.getInstance(context).cartDao()
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val llCartSign: LinearLayout = view.findViewById(R.id.llCartSign)
@@ -49,96 +54,177 @@ class ProductsAdapter(
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val product = products[position]
+
         holder.textBrand.text = product.brand_name
+        holder.textTitle.text = Html.fromHtml(product.mproduct_title, Html.FROM_HTML_MODE_LEGACY).toString()
 
-        val titleText = Html.fromHtml(product.mproduct_title, Html.FROM_HTML_MODE_LEGACY).toString()
-        holder.textTitle.text = titleText
-        val values = product.options
-            .take(2)
-            .mapNotNull { product.option_value[it] }
-            .map { value ->
-                value.split(" ")
-                    .joinToString(" ") { word ->
-                        word.replaceFirstChar { it.uppercaseChar() }
-                    }
-            }
-
+        val values = product.options.take(2).mapNotNull { product.option_value[it] }
+            .map { it.split(" ").joinToString(" ") { word -> word.replaceFirstChar(Char::uppercaseChar) } }
         holder.textFlavour.text = values.joinToString("/")
 
+        val imageUrl = if (!product.image.isNullOrEmpty()) cdnURL + product.image else cdnURL + product.mproduct_image
         GlideApp.with(holder.itemView.context)
-            .load(cdnURL + product.mproduct_image)
+            .load(imageUrl)
             .placeholder(R.drawable.ic_logo_red_blue)
             .error(R.drawable.ic_logo_red_blue)
             .into(holder.imgProduct)
 
-        var count = 0
-        val productName = "Product $position"
-
-        // --- Set Prices, Wishlist, Offers ---
         updateWishlistUI(holder, product)
         updatePriceUI(holder, product)
         updateDealTagUI(holder, product)
+        holder.finalPrice.text = "£ %.2f".format(product.price)
 
-        holder.finalPrice.text = "£ ${product.price}"
+        CoroutineScope(Dispatchers.Main).launch {
+
+            val quantity = withContext(Dispatchers.IO) {
+                cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+            }
+            updateCartUI(holder, product, quantity)
+        }
+
+        holder.btnFavorite.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+
+                val quantity = withContext(Dispatchers.IO) {
+                    cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+                }
+                if (quantity>0) {
+                    updateFavouriteAsync(product, quantity, true)
+                }
+            }
+
+            listener.onUpdateWishlist(product.mvariant_id.toString())
+        }
+
+        holder.btnFavoriteSelected.setOnClickListener {
+
+            CoroutineScope(Dispatchers.Main).launch {
+
+                val quantity = withContext(Dispatchers.IO) {
+                    cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+                }
+                if (quantity>0) {
+                    updateFavouriteAsync(product, quantity, false)
+                }
+            }
+            listener.onUpdateWishlist(product.mvariant_id.toString())
+        }
+    }
+
+    private fun updateCartUI(holder: ViewHolder, product: Product, initialCount: Int) {
+        var quantity = initialCount
 
         if (product.quantity == 0) {
-            // Out of stock UI
-//            holder.textOutOfStock.visibility = View.VISIBLE
             holder.tvOffer.text = "Out of stock"
-            holder.textBrand.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
-            holder.textTitle.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
-            holder.textFlavour.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
+            holder.textBrand.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.textTitle.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.textFlavour.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.finalPrice.setTextColor(context.getColor(android.R.color.darker_gray))
             holder.tvOffer.visibility = View.VISIBLE
             holder.llOffer.visibility = View.VISIBLE
-            holder.finalPrice.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
             holder.btnAdd.isEnabled = false
             holder.btnAddMore.isEnabled = false
             holder.btnMinus.isEnabled = false
             holder.llCartSign.visibility = View.GONE
             holder.btnAdd.visibility = View.GONE
         } else {
-            // In stock UI
-//            holder.textOutOfStock.visibility = View.GONE
             updateOfferUI(holder, product)
-            holder.finalPrice.setTextColor(holder.itemView.context.getColor(android.R.color.black))
+            holder.finalPrice.setTextColor(context.getColor(android.R.color.black))
             holder.btnAdd.isEnabled = true
             holder.btnAddMore.isEnabled = true
             holder.btnMinus.isEnabled = true
 
-            // Cart logic
+            if (quantity > 0) {
+                holder.llCartSign.visibility = View.VISIBLE
+                holder.btnAdd.visibility = View.GONE
+                holder.textNoOfItems.text = quantity.toString()
+            } else {
+                holder.llCartSign.visibility = View.GONE
+                holder.btnAdd.visibility = View.VISIBLE
+            }
+
             holder.btnAdd.setOnClickListener {
-                count = 1
-                holder.textNoOfItems.text = count.toString()
+                quantity = 1
+                updateCartAsync(product, quantity)
+                holder.textNoOfItems.text = quantity.toString()
                 holder.btnAdd.visibility = View.GONE
                 holder.llCartSign.visibility = View.VISIBLE
             }
 
             holder.btnAddMore.setOnClickListener {
-                count++
-                holder.textNoOfItems.text = count.toString()
-                listener.onUpdateCart(count, productName)
+                quantity++
+                updateCartAsync(product, quantity)
+                holder.textNoOfItems.text = quantity.toString()
             }
 
             holder.btnMinus.setOnClickListener {
-                if (count > 1) {
-                    count--
-                    holder.textNoOfItems.text = count.toString()
-                    listener.onUpdateCart(count, productName)
+                quantity--
+                if (quantity > 0) {
+                    updateCartAsync(product, quantity)
+                    holder.textNoOfItems.text = quantity.toString()
                 } else {
-                    count = 0
+                    deleteCartItemAsync(product)
                     holder.llCartSign.visibility = View.GONE
                     holder.btnAdd.visibility = View.VISIBLE
-                    listener.onUpdateCart(count, productName)
                 }
             }
         }
+    }
 
-        holder.btnFavorite.setOnClickListener {
-            listener.onUpdateWishlist(product.mvariant_id.toString())
+    private fun updateCartAsync(product: Product, quantity: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val cartItem = CartItemEntity(
+                    variantId = product.mvariant_id,
+                    title = product.mproduct_title ?: "",
+                    options = listToMap(product.options),
+                    image = product.image,
+                    fallbackImage = product.mproduct_image,
+                    price = product.price,
+                    comparePrice = product.compare_price ?: 0.0,
+                    isWishlisted = product.user_info_wishlist,
+                    cdnURL = cdnURL,
+                    quantity = quantity
+                )
+                cartDao.insertOrUpdateItem(cartItem)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+    }
 
-        holder.btnFavoriteSelected.setOnClickListener {
-            listener.onUpdateWishlist(product.mvariant_id.toString())
+    private fun updateFavouriteAsync(product: Product, quantity: Int, b: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val cartItem = CartItemEntity(
+                    variantId = product.mvariant_id,
+                    title = product.mproduct_title ?: "",
+                    options = listToMap(product.options),
+                    image = product.image,
+                    fallbackImage = product.mproduct_image,
+                    price = product.price,
+                    comparePrice = product.compare_price ?: 0.0,
+                    isWishlisted = b,
+                    cdnURL = cdnURL,
+                    quantity = quantity
+                )
+                cartDao.insertOrUpdateItem(cartItem)
+
+                withContext(Dispatchers.Main) {
+                    listener.onUpdateCart(quantity, product.mvariant_id)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun deleteCartItemAsync(product: Product) {
+        CoroutineScope(Dispatchers.IO).launch {
+            cartDao.deleteItemByVariantId(product.mvariant_id)
+            withContext(Dispatchers.Main) {
+                listener.onUpdateCart(0, product.mvariant_id)
+            }
         }
     }
 
@@ -158,7 +244,7 @@ class ProductsAdapter(
         } else {
             holder.comparePrice.visibility = View.VISIBLE
             holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-            holder.comparePrice.text = "£ ${product.compare_price}"
+            holder.comparePrice.text = "£ %.2f".format(product.compare_price)
         }
     }
 
@@ -177,12 +263,18 @@ class ProductsAdapter(
         if (product.product_deal_tag.isNullOrEmpty()) {
             holder.lottieCheckmark.visibility = View.INVISIBLE
         } else {
-            if (product.product_deal_tag.lowercase() == "flash deal") {
-                holder.lottieCheckmark.setAnimation(R.raw.flash_deals)
+            holder.lottieCheckmark.visibility = View.VISIBLE
+            val animationRes = if (product.product_deal_tag.lowercase() == "flash deal") {
+                R.raw.flash_deals
             } else {
-                holder.lottieCheckmark.setAnimation(R.raw.sale)
+                R.raw.sale
             }
+            holder.lottieCheckmark.setAnimation(animationRes)
         }
+    }
+
+    private fun listToMap(options: List<String>?): Map<String, String> {
+        return options?.mapIndexed { index, value -> "option_${index + 1}" to value }?.toMap() ?: emptyMap()
     }
 
     fun updateData(newProducts: List<Product>) {
@@ -195,28 +287,11 @@ class ProductsAdapter(
     }
 
     fun notifyProductChanged(productId: String) {
-        val position = products.indexOfFirst { it.mproduct_id.toString() == productId }
+        val position = getProductIndex(productId)
         if (position != -1) {
             notifyItemChanged(position)
         }
     }
 
     override fun getItemCount(): Int = products.size
-}
-
-class ProductDiffCallback(
-    private val oldList: List<Product>,
-    private val newList: List<Product>
-) : androidx.recyclerview.widget.DiffUtil.Callback() {
-
-    override fun getOldListSize(): Int = oldList.size
-    override fun getNewListSize(): Int = newList.size
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition].mproduct_id == newList[newItemPosition].mproduct_id
-    }
-
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldList[oldItemPosition] == newList[newItemPosition]
-    }
 }

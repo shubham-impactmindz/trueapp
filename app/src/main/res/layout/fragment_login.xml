@@ -69,6 +69,21 @@
             android:inputType="textPassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Reset Password Button -->
+    <TextView
+        android:id="@+id/btnResetPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Password?"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="@dimen/buttonTextSize"
+        android:fontFamily="@font/roboto_bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/btnLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+
     <!-- Login Button -->
     <TextView
         android:id="@+id/btnLogin"
@@ -95,7 +110,7 @@
         android:textAlignment="center"
         android:gravity="center"
         android:lineSpacingExtra="4sp"
-        app:layout_constraintTop_toBottomOf="@id/btnLogin"
+        app:layout_constraintTop_toBottomOf="@id/btnResetPassword"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="12sp"

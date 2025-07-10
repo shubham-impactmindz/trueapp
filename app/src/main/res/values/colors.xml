@@ -23,4 +23,5 @@
     <color name="borderGrey">#434343</color>
     <color name="searchGrey">#E5E5EA</color>
     <color name="backgroundIcons">#80F0F0F0</color>
+    <color name="shimmer_color">#CECFD2</color>
 </resources>

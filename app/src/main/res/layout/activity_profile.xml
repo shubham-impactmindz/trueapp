@@ -105,6 +105,7 @@
                         android:src="@drawable/bg_circle_primary"/>
 
                     <TextView
+                        android:id="@+id/tvInitial"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="R S"
@@ -118,6 +119,7 @@
 
                 </FrameLayout>
                 <TextView
+                    android:id="@+id/tvName"
                     android:layout_width="0sp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -148,6 +150,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvCompanyName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Trueweb Pro Limited"
@@ -177,6 +180,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvCompanyAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="6, Park Lane, Manchester, M45 7PB"
@@ -206,6 +210,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvPhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="07447437071"
@@ -235,6 +240,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="info@truewebpro.co.uk"
@@ -264,6 +270,7 @@
                     android:textColor="@color/black"/>
 
                 <TextView
+                    android:id="@+id/tvRepCode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="BQ345678"

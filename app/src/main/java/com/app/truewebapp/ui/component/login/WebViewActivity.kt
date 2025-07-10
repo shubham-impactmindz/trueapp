@@ -5,6 +5,9 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.app.truewebapp.databinding.ActivityWebViewBinding
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -19,16 +22,28 @@ class WebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityWebViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        // Handle system bars insets (status + nav bar)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(
+                top = systemBars.top,
+                bottom = systemBars.bottom
+            )
+            insets
+        }
 
         val title = intent.getStringExtra("title") ?: ""
         val type = if (title.equals("Terms and Conditions", ignoreCase = true)) "terms" else "privacy"
 
         binding.tvHeader.text = title
-        binding.progressBarLayout.visibility = View.VISIBLE
+        binding.shimmerLayout.startShimmer()
+        binding.shimmerLayout.visibility = View.VISIBLE
+        binding.webView.visibility = View.GONE
+
 
         fetchHtmlContentAndLoad(type)
 
-        binding.backButton.setOnClickListener {
+        binding.backLayout.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
     }
@@ -57,20 +72,26 @@ class WebViewActivity : AppCompatActivity() {
                         }
                     } else {
                         runOnUiThread {
-                            binding.progressBarLayout.visibility = View.GONE
+                            binding.shimmerLayout.stopShimmer()
+                            binding.shimmerLayout.visibility = View.GONE
+                            binding.webView.visibility = View.VISIBLE
                             showToast("Failed to fetch page data")
                         }
                     }
                 } else {
                     runOnUiThread {
-                        binding.progressBarLayout.visibility = View.GONE
+                        binding.shimmerLayout.stopShimmer()
+                        binding.shimmerLayout.visibility = View.GONE
+                        binding.webView.visibility = View.VISIBLE
                         showToast("Empty response from server")
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                    binding.progressBarLayout.visibility = View.GONE
+                    binding.shimmerLayout.stopShimmer()
+                    binding.shimmerLayout.visibility = View.GONE
+                    binding.webView.visibility = View.VISIBLE
                     showToast("Failed to load content")
                 }
             }
@@ -84,8 +105,11 @@ class WebViewActivity : AppCompatActivity() {
         binding.webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                binding.progressBarLayout.visibility = View.GONE
+                binding.shimmerLayout.stopShimmer()
+                binding.shimmerLayout.visibility = View.GONE
+                binding.webView.visibility = View.VISIBLE
             }
+
         }
     }
 

@@ -5,9 +5,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
+import com.app.truewebapp.data.dto.dashboard_banners.RoundSliders
+import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
 
-class RoundImageAdapter(private val images: List<Int>) :
+class RoundImageAdapter(
+    private val listener: RoundBannerListener,private val images: List<RoundSliders>,private val  cdnURL: String) :
     RecyclerView.Adapter<RoundImageAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -30,9 +33,15 @@ class RoundImageAdapter(private val images: List<Int>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        Glide.with(holder.itemView.context)
+            .load(cdnURL + images[position].home_round_banner_image)
+            .thumbnail(0.1f)
+            .dontAnimate()
+            .into(holder.imageView)
 
-        holder.imageView.setImageResource(images[position])
-//        holder.tvCategory.text = brands[position]
+        holder.imageView.setOnClickListener {
+            listener.onUpdateRoundBanner(images[position].main_mcat_id.toString(), images[position].mcat_id.toString(), images[position].msubcat_id.toString(), images[position].mproduct_id.toString())
+        }
     }
 
     override fun getItemCount(): Int = images.size

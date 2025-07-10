@@ -55,7 +55,7 @@
                 android:id="@+id/tvTotalAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="£546.00"
+                android:text="£0.00"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/headingTextSize"
                 android:fontFamily="@font/roboto_bold"/>
@@ -77,13 +77,14 @@
 
                 <!-- Badge for Cart Count + Amount -->
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/tvCartBadge"
                     android:layout_width="18sp"
                     android:layout_height="18sp"
                     android:layout_gravity="center"
                     android:background="@drawable/badge_background"
                     android:gravity="center"
-                    android:text="2"
+                    android:text="0"
                     android:layout_marginStart="@dimen/margin5"
                     android:layout_marginBottom="5sp"
                     android:textColor="@color/white"
@@ -185,9 +186,24 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmerLayoutBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="visible"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:background="@color/shimmer_color" />
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/viewPager"
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:clipToPadding="false" />
@@ -365,7 +381,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmerLayoutMainCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+                        <include layout="@layout/item_category_shimmer" />
+
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
                 <androidx.recyclerview.widget.RecyclerView
+                    android:visibility="gone"
                     android:id="@+id/shopMainCategoryRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -387,22 +430,4 @@
     </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <RelativeLayout
-        android:visibility="gone"
-        android:id="@+id/progressBarLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
-
-
-    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
