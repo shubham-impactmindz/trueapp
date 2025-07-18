@@ -21,7 +21,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -36,13 +35,14 @@ import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentShopBinding
 import com.app.truewebapp.ui.component.main.cart.CartActivity
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.viewmodel.BannersViewModel
 import com.app.truewebapp.ui.viewmodel.BrandsViewModel
-import com.app.truewebapp.ui.viewmodel.CartViewModel
 import com.app.truewebapp.ui.viewmodel.CategoriesViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class ShopFragment : Fragment(), ProductAdapterListener {
@@ -52,10 +52,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private lateinit var bannersViewModel: BannersViewModel
     private lateinit var wishlistViewModel: WishlistViewModel
     private lateinit var brandsViewModel: BrandsViewModel
-    private lateinit var cartViewModel: CartViewModel
     private var adapter: ShopMainCategoryAdapter? = null
     private var bannerAdapter: BannerAdapter? = null
-    private val viewModel: ShopViewModel by activityViewModels()
     private var originalCategoryList: List<MainCategories> = listOf()
     private val handler = Handler(Looper.getMainLooper())
     private var autoScrollRunnable: Runnable? = null
@@ -81,18 +79,34 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         super.onViewCreated(view, savedInstanceState)
         val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Flow collector for cart count
-            cartDao.getCartItemCount().collect { totalCount ->
-                val actualCount = totalCount ?: 0
+            // Collect cart count in a separate coroutine
+            launch {
+                cartDao.getCartItemCount().collect { totalCount ->
+                    val actualCount = totalCount ?: 0
 
-                if (actualCount == 0) {
-                    binding.tvCartBadge.visibility = View.GONE
-                } else {
-                    binding.tvCartBadge.visibility = View.VISIBLE
-                    binding.tvCartBadge.text = actualCount.toString()
+                    if (actualCount == 0) {
+                        binding.tvCartBadge.visibility = View.GONE
+                    } else {
+                        binding.tvCartBadge.visibility = View.VISIBLE
+                        binding.tvCartBadge.text = actualCount.toString()
+                    }
+                }
+            }
+
+            // Collect all cart items in another coroutine
+            launch {
+                cartDao.getAllItems().collectLatest { cartItems ->
+                    Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
+
+                    if (cartItems.isNotEmpty()) {
+                        updateTotalAmount(cartItems) // Update total price
+                    } else {
+                        binding.tvTotalAmount.text = "£ 0.00" // Reset total price for empty cart
+                    }
                 }
             }
         }
+
         initializeViewModels()
         setupViews()
         setupObservers()
@@ -104,7 +118,6 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         bannersViewModel = ViewModelProvider(this)[BannersViewModel::class.java]
         wishlistViewModel = ViewModelProvider(this)[WishlistViewModel::class.java]
         brandsViewModel = ViewModelProvider(this)[BrandsViewModel::class.java]
-        cartViewModel = ViewModelProvider(this)[CartViewModel::class.java]
 
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
         token = "Bearer " + preferences?.getString("token", "").orEmpty()
@@ -573,20 +586,39 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     }
 
     override fun onUpdateCart(totalItems: Int, productId: Int) {
-        val cartDao by lazy { context?.let { CartDatabase.getInstance(it).cartDao() } }
-        lifecycleScope.launch {
-            cartDao?.getCartItemCount()?.collect { totalCount ->
-                // totalCount will be null if the cart is empty, so handle that
-                val actualCount = totalCount ?: 0
+        val dao = context?.let { CartDatabase.getInstance(it).cartDao() } ?: return
 
-                if (actualCount == 0) {
-                    binding.tvCartBadge.visibility = View.GONE
-                } else {
-                    binding.tvCartBadge.visibility = View.VISIBLE
-                    binding.tvCartBadge.text = actualCount.toString()
+        lifecycleScope.launch {
+            launch {
+                dao.getCartItemCount().collect { totalCount ->
+                    val actualCount = totalCount ?: 0
+
+                    if (actualCount == 0) {
+                        binding.tvCartBadge.visibility = View.GONE
+                    } else {
+                        binding.tvCartBadge.visibility = View.VISIBLE
+                        binding.tvCartBadge.text = actualCount.toString()
+                    }
+                }
+            }
+
+            launch {
+                dao.getAllItems().collectLatest { cartItems ->
+                    Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
+
+                    if (cartItems.isNotEmpty()) {
+                        updateTotalAmount(cartItems)
+                    } else {
+                        binding.tvTotalAmount.text = "£ 0.00"
+                    }
                 }
             }
         }
+    }
+
+    private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
+        val totalAmount = cartItems.sumOf { it.price * it.quantity }
+        binding.tvTotalAmount.text = "£ %.2f".format(totalAmount)
     }
 
     override fun onDestroyView() {

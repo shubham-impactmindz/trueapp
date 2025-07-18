@@ -304,6 +304,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/tvDeliveryMethod"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Next Working Day Delivery"
@@ -376,7 +377,7 @@
                                     android:layout_width="0sp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text= "@string/wallet_balance"
+                                    android:text= "£0.00"
                                     android:textSize="13sp"
                                     android:gravity="end"
                                     android:fontFamily="@font/roboto_regular"
@@ -403,7 +404,7 @@
                                     android:layout_width="0sp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="@string/wallet_balance"
+                                    android:text="£0.00"
                                     android:textSize="13sp"
                                     android:gravity="end"
                                     android:fontFamily="@font/roboto_regular"
@@ -431,7 +432,7 @@
                                     android:layout_width="0sp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="@string/wallet_balance"
+                                    android:text="£0.00"
                                     android:textSize="13sp"
                                     android:gravity="end"
                                     android:fontFamily="@font/roboto_regular"
@@ -485,7 +486,7 @@
                                     android:layout_width="0sp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="@string/wallet_balance"
+                                    android:text="£0.00"
                                     android:textSize="13sp"
                                     android:gravity="end"
                                     android:fontFamily="@font/roboto_regular"
@@ -512,7 +513,7 @@
                                     android:layout_width="0sp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:text="@string/wallet_balance"
+                                    android:text="£0.00"
                                     android:textSize="13sp"
                                     android:gravity="end"
                                     android:fontFamily="@font/roboto_bold"
@@ -556,7 +557,9 @@
                         android:inputType="text"
                         android:textSize="@dimen/baseTextSize"
                         android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                        android:enabled="false"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/borderGrey"
                         android:fontFamily="@font/roboto_regular"
                         android:paddingEnd="60dp" />
 
@@ -578,8 +581,53 @@
                     android:layout_marginEnd="10dp"
                     android:clickable="true"
                     android:focusable="true"/>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/appliedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:padding="8dp"
+                    android:text="APPLIED"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/colorSecondary"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:layout_marginEnd="10dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <ImageView
+                    android:id="@+id/clearCouponIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="90dp"
+                    android:src="@drawable/ic_close"
+                    android:contentDescription="Clear coupon"
+                    android:visibility="gone"
+                    android:clickable="true"
+                    android:focusable="true" />
             </RelativeLayout>
 
+
+            <TextView
+                android:id="@+id/textSeeAllCoupon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="See All Coupons"
+                android:textSize="@dimen/buttonTextSize"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/margin20"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:gravity="center"
+                android:layout_gravity="end"/>
 
             <TextView
                 android:id="@+id/textPayment"

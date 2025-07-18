@@ -163,7 +163,7 @@
                     android:id="@+id/textSKU"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2 SKUs"
+                    android:text="0 SKUs"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
@@ -179,7 +179,7 @@
                     android:id="@+id/textTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="£224.25"
+                    android:text="£0.00"
                     android:textSize="@dimen/baseTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black"  />
@@ -206,7 +206,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin5"
-                        android:text="@string/wallet_balance"
+                        android:text="£0.00"
                         android:textSize="@dimen/baseTextSize"
                         android:fontFamily="@font/roboto_bold"
                         android:textColor="@color/black"  />

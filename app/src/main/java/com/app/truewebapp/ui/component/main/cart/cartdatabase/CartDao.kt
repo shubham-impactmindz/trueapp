@@ -33,4 +33,8 @@ interface CartDao {
     // This will emit a new total count every time the cart items change.
     @Query("SELECT COUNT(*) FROM cart_items")
     fun getCartItemCount(): Flow<Int> // COUNT(*) will never return null, it's 0 if table is empty
+
+    @Query("SELECT * FROM cart_items")
+    suspend fun getAllItemsOnce(): List<CartItemEntity>
+
 }

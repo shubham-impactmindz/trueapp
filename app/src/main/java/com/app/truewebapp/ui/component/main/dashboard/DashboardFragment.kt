@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -33,6 +34,7 @@ import com.app.truewebapp.data.dto.dashboard_banners.NewProductBanners
 import com.app.truewebapp.data.dto.dashboard_banners.TopSellerBanners
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentDashboardBinding
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.shop.NewProductTopSellerAdapterListener
 import com.app.truewebapp.ui.component.main.shop.ShopFragment
 import com.app.truewebapp.ui.viewmodel.BigBannersViewModel
@@ -46,6 +48,7 @@ import com.app.truewebapp.ui.viewmodel.TopSellerBannersViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
 
 class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, RoundBannerListener, DealsBannerListener, FruitsBannerListener, NewProductTopSellerAdapterListener {
@@ -105,6 +108,20 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            // Flow collector for cart count
+            cartDao.getCartItemCount().collect { totalCount ->
+                val actualCount = totalCount ?: 0
+
+//                if (actualCount == 0) {
+//                    binding.tvCartBadge.visibility = View.GONE
+//                } else {
+//                    binding.tvCartBadge.visibility = View.VISIBLE
+//                    binding.tvCartBadge.text = actualCount.toString()
+//                }
+            }
+        }
         roundBannersViewModel = ViewModelProvider(this)[RoundBannersViewModel::class.java]
         smallBannersViewModel = ViewModelProvider(this)[SmallBannersViewModel::class.java]
         bigBannersViewModel = ViewModelProvider(this)[BigBannersViewModel::class.java]
@@ -133,6 +150,13 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
             stopAutoScroll()
             loadInitialData()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        nonScrollingBannerDrinksAdapter?.notifyDataSetChanged()
+        nonScrollingBannerTopSellerAdapter?.notifyDataSetChanged()
     }
 
 
@@ -778,6 +802,12 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
     }
 
     override fun onUpdateCart(totalItems: Int, productId: Int) {
-
+        val cartDao by lazy { context?.let { CartDatabase.getInstance(it).cartDao() } }
+        lifecycleScope.launch {
+            cartDao?.getCartItemCount()?.collect { totalCount ->
+                // totalCount will be null if the cart is empty, so handle that
+                val actualCount = totalCount ?: 0
+            }
+        }
     }
 }

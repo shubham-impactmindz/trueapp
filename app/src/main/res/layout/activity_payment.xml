@@ -53,7 +53,7 @@
             android:layout_centerInParent="true"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            android:text="Payment - #D469377"
+            android:text="Payment"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="@dimen/mainHeadingTextSize" />
     </RelativeLayout>
@@ -113,19 +113,92 @@
                 android:fontFamily="@font/roboto_bold"
                 android:textSize="@dimen/headingTextSize"/>
 
-            <Spinner
-                android:id="@+id/bankSpinner"
+            <!-- Bank Details Start -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/height50"
-                android:layout_marginTop="@dimen/margin10"
-                android:background="@drawable/border_primary"
-                android:padding="@dimen/padding10"/>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin10">
+
+                <!-- Bank Holder Name -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Bank Holder Name"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_regular" />
+
+                    <TextView
+                        android:id="@+id/tvBankHolderName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="John Smith"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_bold" />
+                </LinearLayout>
+
+                <!-- Account Number -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Account Number"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_regular" />
+
+                    <TextView
+                        android:id="@+id/tvAccountNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12345678"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_bold" />
+                </LinearLayout>
+
+                <!-- Sort Code -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sort Code"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_regular" />
+
+                    <TextView
+                        android:id="@+id/tvSortCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12-34-56"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <!-- Bank Details End -->
 
             <TextView
                 android:id="@+id/authorizePaymentButton"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height40"
-                android:text="Authorize Payment - £183.00"
+                android:text="Proceed Payment - £183.00"
                 android:background="@drawable/border_solid_secondary"
                 android:textColor="@color/white"
                 android:gravity="center"
@@ -134,7 +207,9 @@
                 android:textSize="@dimen/buttonTextSize"/>
         </LinearLayout>
 
+
         <RadioButton
+            android:visibility="gone"
             android:id="@+id/payByCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

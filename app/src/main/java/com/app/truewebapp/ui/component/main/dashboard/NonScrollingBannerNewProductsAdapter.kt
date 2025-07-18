@@ -14,9 +14,14 @@ import com.airbnb.lottie.LottieAnimationView
 import com.app.truewebapp.R
 import com.app.truewebapp.data.dto.dashboard_banners.NewProductBanners
 import com.app.truewebapp.data.dto.dashboard_banners.Product
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.component.main.shop.NewProductTopSellerAdapterListener
 import com.app.truewebapp.utils.GlideApp
-import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class NonScrollingBannerNewProductsAdapter(private val listener: NewProductTopSellerAdapterListener,
                                            private var products: List<NewProductBanners>,
@@ -25,8 +30,7 @@ class NonScrollingBannerNewProductsAdapter(private val listener: NewProductTopSe
                                            private val context: Context
 ) : RecyclerView.Adapter<NonScrollingBannerNewProductsAdapter.ViewHolder>() {
 
-    private val localCart = mutableMapOf<Int, Int>()
-//    private val localCart = CartStorage.getSavedCart(context).toMutableMap()
+    private val cartDao = CartDatabase.getInstance(context).cartDao()
 
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -72,103 +76,172 @@ class NonScrollingBannerNewProductsAdapter(private val listener: NewProductTopSe
         holder.textFlavour.text = values.joinToString("/")
 
 
-        val imageUrl = if (!product.product.image.isNullOrEmpty()) {
-            cdnURL + product.product.image
-        } else {
-            cdnURL + product.product.mproduct_image
-        }
-
+        val imageUrl = if (!product.product.image.isNullOrEmpty()) cdnURL + product.product.image else cdnURL + product.product.mproduct_image
         GlideApp.with(holder.itemView.context)
             .load(imageUrl)
             .placeholder(R.drawable.ic_logo_red_blue)
             .error(R.drawable.ic_logo_red_blue)
             .into(holder.imgProduct)
 
-        // Setup prices, wishlist, deal tag
         updateWishlistUI(holder, product.product)
         updatePriceUI(holder, product.product)
         updateDealTagUI(holder, product.product)
-
         holder.finalPrice.text = "£ %.2f".format(product.product.price)
 
-        var count = localCart[product.product.mproduct_id] ?: 0
+        CoroutineScope(Dispatchers.Main).launch {
 
-        if (product.product.quantity == 0) {
-            // Out of stock UI
+            val quantity = withContext(Dispatchers.IO) {
+                cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+            }
+            updateCartUI(holder, product.product, quantity)
+        }
+
+        holder.btnFavorite.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+
+                val quantity = withContext(Dispatchers.IO) {
+                    cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+                }
+                if (quantity>0) {
+                    updateFavouriteAsync(product.product, quantity, true)
+                }
+            }
+
+            listener.onUpdateWishlist(product.product.mvariant_id.toString(), "New Product")
+        }
+
+        holder.btnFavoriteSelected.setOnClickListener {
+
+            CoroutineScope(Dispatchers.Main).launch {
+
+                val quantity = withContext(Dispatchers.IO) {
+                    cartDao.getQuantityByVariantId(product.mvariant_id) ?: 0
+                }
+                if (quantity>0) {
+                    updateFavouriteAsync(product.product, quantity, false)
+                }
+            }
+            listener.onUpdateWishlist(product.product.mvariant_id.toString(), "New Product")
+        }
+    }
+
+
+    private fun updateCartUI(holder: ViewHolder, product: Product, initialCount: Int) {
+        var quantity = initialCount
+
+        if (product.quantity == 0) {
             holder.tvOffer.text = "Out of stock"
-            holder.textBrand.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
-            holder.textTitle.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
-            holder.textFlavour.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
+            holder.textBrand.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.textTitle.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.textFlavour.setTextColor(context.getColor(android.R.color.darker_gray))
+            holder.finalPrice.setTextColor(context.getColor(android.R.color.darker_gray))
             holder.tvOffer.visibility = View.VISIBLE
             holder.llOffer.visibility = View.VISIBLE
-            holder.finalPrice.setTextColor(holder.itemView.context.getColor(android.R.color.darker_gray))
             holder.btnAdd.isEnabled = false
             holder.btnAddMore.isEnabled = false
             holder.btnMinus.isEnabled = false
             holder.llCartSign.visibility = View.GONE
             holder.btnAdd.visibility = View.GONE
         } else {
-            // In stock UI
-            updateOfferUI(holder, product.product)
-            holder.textBrand.setTextColor(holder.itemView.context.getColor(android.R.color.black))
-            holder.textTitle.setTextColor(holder.itemView.context.getColor(android.R.color.black))
-            holder.textFlavour.setTextColor(holder.itemView.context.getColor(android.R.color.black))
-            holder.finalPrice.setTextColor(holder.itemView.context.getColor(android.R.color.black))
+            updateOfferUI(holder, product)
+            holder.finalPrice.setTextColor(context.getColor(android.R.color.black))
             holder.btnAdd.isEnabled = true
             holder.btnAddMore.isEnabled = true
             holder.btnMinus.isEnabled = true
 
-            // Restore previous cart state
-            if (count > 0) {
+            if (quantity > 0) {
                 holder.llCartSign.visibility = View.VISIBLE
                 holder.btnAdd.visibility = View.GONE
-                holder.textNoOfItems.text = count.toString()
+                holder.textNoOfItems.text = quantity.toString()
             } else {
                 holder.llCartSign.visibility = View.GONE
                 holder.btnAdd.visibility = View.VISIBLE
             }
 
             holder.btnAdd.setOnClickListener {
-                count = 1
-                localCart[product.product.mproduct_id] = count
-//                CartStorage.saveCart(context, getCartAsJson())
-                holder.textNoOfItems.text = count.toString()
+                quantity = 1
+                updateCartAsync(product, quantity)
+                holder.textNoOfItems.text = quantity.toString()
                 holder.btnAdd.visibility = View.GONE
                 holder.llCartSign.visibility = View.VISIBLE
-                listener.onUpdateCart(count, product.product.mproduct_id)
             }
 
             holder.btnAddMore.setOnClickListener {
-                count++
-                localCart[product.product.mproduct_id] = count
-//                CartStorage.saveCart(context, getCartAsJson())
-                holder.textNoOfItems.text = count.toString()
-                listener.onUpdateCart(count, product.product.mproduct_id)
+                quantity++
+                updateCartAsync(product, quantity)
+                holder.textNoOfItems.text = quantity.toString()
             }
 
             holder.btnMinus.setOnClickListener {
-                if (count > 1) {
-                    count--
-                    localCart[product.product.mproduct_id] = count
-//                    CartStorage.saveCart(context, getCartAsJson())
-                    holder.textNoOfItems.text = count.toString()
-                    listener.onUpdateCart(count, product.product.mproduct_id)
+                quantity--
+                if (quantity > 0) {
+                    updateCartAsync(product, quantity)
+                    holder.textNoOfItems.text = quantity.toString()
                 } else {
-                    count = 0
-                    localCart.remove(product.product.mproduct_id)
+                    deleteCartItemAsync(product)
                     holder.llCartSign.visibility = View.GONE
                     holder.btnAdd.visibility = View.VISIBLE
-                    listener.onUpdateCart(count, product.product.mproduct_id)
                 }
             }
         }
+    }
 
-        holder.btnFavorite.setOnClickListener {
-            listener.onUpdateWishlist(product.mvariant_id.toString(),"New Product")
+    private fun updateCartAsync(product: Product, quantity: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val cartItem = CartItemEntity(
+                    variantId = product.mvariant_id,
+                    title = product.mproduct_title ?: "",
+                    options = product.option_value,
+                    image = product.image,
+                    fallbackImage = product.mproduct_image,
+                    price = product.price,
+                    comparePrice = product.compare_price ?: 0.0,
+                    isWishlisted = product.user_info_wishlist,
+                    cdnURL = cdnURL,
+                    quantity = quantity,
+                    taxable = product.taxable
+                )
+                cartDao.insertOrUpdateItem(cartItem)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+    }
 
-        holder.btnFavoriteSelected.setOnClickListener {
-            listener.onUpdateWishlist(product.mvariant_id.toString(),"New Product")
+    private fun updateFavouriteAsync(product: Product, quantity: Int, b: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val cartItem = CartItemEntity(
+                    variantId = product.mvariant_id,
+                    title = product.mproduct_title ?: "",
+                    options = product.option_value,
+                    image = product.image,
+                    fallbackImage = product.mproduct_image,
+                    price = product.price,
+                    comparePrice = product.compare_price ?: 0.0,
+                    isWishlisted = b,
+                    cdnURL = cdnURL,
+                    quantity = quantity,
+                    taxable = product.taxable
+                )
+                cartDao.insertOrUpdateItem(cartItem)
+
+                withContext(Dispatchers.Main) {
+                    listener.onUpdateCart(quantity, product.mvariant_id)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun deleteCartItemAsync(product: Product) {
+        CoroutineScope(Dispatchers.IO).launch {
+            cartDao.deleteItemByVariantId(product.mvariant_id)
+            withContext(Dispatchers.Main) {
+                listener.onUpdateCart(0, product.mvariant_id)
+            }
         }
     }
 
@@ -207,43 +280,15 @@ class NonScrollingBannerNewProductsAdapter(private val listener: NewProductTopSe
         if (product.product_deal_tag.isNullOrEmpty()) {
             holder.lottieCheckmark.visibility = View.INVISIBLE
         } else {
-            if (product.product_deal_tag.lowercase() == "flash deal") {
-                holder.lottieCheckmark.setAnimation(R.raw.flash_deals)
+            holder.lottieCheckmark.visibility = View.VISIBLE
+            val animationRes = if (product.product_deal_tag.lowercase() == "flash deal") {
+                R.raw.flash_deals
             } else {
-                holder.lottieCheckmark.setAnimation(R.raw.sale)
+                R.raw.sale
             }
+            holder.lottieCheckmark.setAnimation(animationRes)
         }
     }
 
     override fun getItemCount(): Int = products.size
-
-
-    fun getProductIndex(productId: String): Int {
-        return products.indexOfFirst { it.product.mproduct_id.toString() == productId }
-    }
-
-    fun notifyProductChanged(productId: String) {
-        val position = getProductIndex(productId)
-        if (position != -1) {
-            notifyItemChanged(position)
-        }
-    }
-
-    // ✅ Return cart as JSON format
-    fun getCartAsJson(): String {
-        val cartList = localCart.map { (id, qty) ->
-            mapOf("mproduct_id" to id, "quantity" to qty)
-        }
-        val cartMap = mapOf("cart" to cartList)
-        return Gson().toJson(cartMap)
-    }
-
-
-//    fun getCartAsJson(): String {
-//        val cartList = localCart.map { (id, qty) ->
-//            mapOf("mproduct_id" to id, "quantity" to qty)
-//        }
-//        val cartMap = mapOf("cart" to cartList)
-//        return Gson().toJson(cartMap)
-//    }
 }

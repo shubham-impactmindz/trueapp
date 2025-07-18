@@ -177,14 +177,15 @@ class ProductsAdapter(
                 val cartItem = CartItemEntity(
                     variantId = product.mvariant_id,
                     title = product.mproduct_title ?: "",
-                    options = listToMap(product.options),
+                    options = product.option_value,
                     image = product.image,
                     fallbackImage = product.mproduct_image,
                     price = product.price,
                     comparePrice = product.compare_price ?: 0.0,
                     isWishlisted = product.user_info_wishlist,
                     cdnURL = cdnURL,
-                    quantity = quantity
+                    quantity = quantity,
+                    taxable = product.taxable
                 )
                 cartDao.insertOrUpdateItem(cartItem)
             } catch (e: Exception) {
@@ -199,14 +200,15 @@ class ProductsAdapter(
                 val cartItem = CartItemEntity(
                     variantId = product.mvariant_id,
                     title = product.mproduct_title ?: "",
-                    options = listToMap(product.options),
+                    options = product.option_value,
                     image = product.image,
                     fallbackImage = product.mproduct_image,
                     price = product.price,
                     comparePrice = product.compare_price ?: 0.0,
                     isWishlisted = b,
                     cdnURL = cdnURL,
-                    quantity = quantity
+                    quantity = quantity,
+                    taxable = product.taxable
                 )
                 cartDao.insertOrUpdateItem(cartItem)
 
@@ -271,10 +273,6 @@ class ProductsAdapter(
             }
             holder.lottieCheckmark.setAnimation(animationRes)
         }
-    }
-
-    private fun listToMap(options: List<String>?): Map<String, String> {
-        return options?.mapIndexed { index, value -> "option_${index + 1}" to value }?.toMap() ?: emptyMap()
     }
 
     fun updateData(newProducts: List<Product>) {

@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.app.truewebapp.utils.Converters
 
-@Database(entities = [CartItemEntity::class], version = 1, exportSchema = false)
+@Database(entities = [CartItemEntity::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class CartDatabase : RoomDatabase() {
 

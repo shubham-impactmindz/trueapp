@@ -54,9 +54,23 @@ class CartAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = cartItemList[position]
+        // Capitalize and join the first two option values
+        val optionText = item.options.values
+            .take(2).joinToString(" ") { value ->
+                value.split(" ")
+                    .joinToString("/") { word -> word.replaceFirstChar(Char::uppercaseChar) }
+            } // Join the two option strings with a space
 
-        // Ensure text is not null before processing with Html.fromHtml
-        holder.textTitle.text = Html.fromHtml(item.title ?: "", Html.FROM_HTML_MODE_LEGACY).toString()
+// Compose full title with options in brackets, only if options exist
+        val fullTitle = if (optionText.isNotEmpty()) {
+            "${item.title} ($optionText)"
+        } else {
+            item.title ?: ""
+        }
+
+// Safely set the text using Html.fromHtml
+        holder.textTitle.text = Html.fromHtml(fullTitle, Html.FROM_HTML_MODE_LEGACY).toString()
+
         holder.textNoOfItems.text = item.quantity.toString()
 
         // Calculate total price for the item (price per unit * quantity)
