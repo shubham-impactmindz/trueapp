@@ -18,4 +18,5 @@ data class Data(
     val is_active: Boolean,
     val created_at: String,
     val updated_at: String,
+    val can_be_applied: Boolean,
 )

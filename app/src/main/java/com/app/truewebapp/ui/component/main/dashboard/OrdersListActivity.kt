@@ -1,6 +1,5 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -47,11 +46,11 @@ class OrdersListActivity : AppCompatActivity() {
             OrderOption("1439719","18:16 13/10/2024","PAID","FULFILLED","100","10","208.80"),
         )
 
-        adapter = OrdersAdapter(optionsOrders) { option ->
-            val intent = Intent(this, OrderDetailActivity::class.java)
-            startActivity(intent)
-        }
-        binding.recentOrdersRecycler.adapter = adapter
+//        adapter = OrdersAdapter(optionsOrders) { option ->
+//            val intent = Intent(this, OrderDetailActivity::class.java)
+//            startActivity(intent)
+//        }
+//        binding.recentOrdersRecycler.adapter = adapter
 
 
         binding.backLayout.setOnClickListener {

@@ -26,6 +26,7 @@ import com.app.truewebapp.data.dto.login.LoginRequest
 import com.app.truewebapp.data.dto.login.LoginResponse
 import com.app.truewebapp.data.dto.order.OrderPlaceResponse
 import com.app.truewebapp.data.dto.order.OrderRequest
+import com.app.truewebapp.data.dto.order.OrdersResponse
 import com.app.truewebapp.data.dto.register.RegisterRequest
 import com.app.truewebapp.data.dto.register.RegisterResponse
 import com.app.truewebapp.data.dto.register.VerifyRepResponse
@@ -187,4 +188,11 @@ interface WebService {
         @Header("Authorization") token: String,
         @Body orderRequest: OrderRequest
     ): Call<OrderPlaceResponse>
+
+    @GET("/api/orders")
+    fun fetchOrders(
+        @Query("page") page: String? = null,
+        @Query("per_page") per_page: String? = null,
+        @Header("Authorization") token: String,
+    ): Call<OrdersResponse>
 }

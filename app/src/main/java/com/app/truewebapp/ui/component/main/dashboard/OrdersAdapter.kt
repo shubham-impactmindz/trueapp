@@ -7,10 +7,21 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
+import com.app.truewebapp.data.dto.order.Orders
 import com.app.truewebapp.ui.component.main.cart.CartActivity
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class OrdersAdapter(private val options: List<OrderOption>, private val listener: (OrderOption) -> Unit) :
-    RecyclerView.Adapter<OrdersAdapter.ViewHolder>() {
+class OrdersAdapter(
+    private val orders: MutableList<Orders>,
+    private val onItemClick: (Orders) -> Unit
+) : RecyclerView.Adapter<OrdersAdapter.ViewHolder>() {
+
+    fun addOrders(newOrders: List<Orders>) {
+        val start = orders.size
+        orders.addAll(newOrders)
+        notifyItemRangeInserted(start, newOrders.size)
+    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textOrderNo: TextView = view.findViewById(R.id.tvOrderNo)
@@ -29,15 +40,21 @@ class OrdersAdapter(private val options: List<OrderOption>, private val listener
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val option = options[position]
-        holder.textOrderNo.text = option.orderNo
-        holder.textOrderDate.text = option.orderDate
-        holder.textPayment.text = option.paymentStatus
-        holder.textFullFill.text = option.fullFillStatus
-        holder.textUnit.text = option.units
-        holder.textSku.text = option.skus
-        holder.textTotalPaid.text = option.totalPaid
-        holder.itemView.setOnClickListener { listener(option) }
+        val option = orders[position]
+        holder.textOrderNo.text = option.order_id.toString()
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+
+        val parsedDate = inputFormat.parse(option.order_date)
+        val formattedDate = parsedDate?.let { outputFormat.format(it) } ?: option.order_date
+
+        holder.textOrderDate.text = formattedDate
+        holder.textPayment.text = option.payment_status
+        holder.textFullFill.text = option.fulfillment_status
+        holder.textUnit.text = option.units.toString()
+        holder.textSku.text = option.skus.toString()
+        holder.textTotalPaid.text = "£ ${option.summary.payment_total}"
+        holder.itemView.setOnClickListener { onItemClick(option) }
 
         holder.textReorderItems.setOnClickListener {
             val intent = Intent(holder.itemView.context, CartActivity::class.java)
@@ -45,5 +62,5 @@ class OrdersAdapter(private val options: List<OrderOption>, private val listener
         }
     }
 
-    override fun getItemCount(): Int = options.size
+    override fun getItemCount(): Int = orders.size
 }

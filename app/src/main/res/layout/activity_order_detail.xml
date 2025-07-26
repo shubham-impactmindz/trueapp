@@ -222,6 +222,7 @@
                             android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/tvDeliveryMethod"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Next Working Day Delivery"
@@ -449,6 +450,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/tvPaymentStatus"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height40"
                 android:text="Reorder Items"

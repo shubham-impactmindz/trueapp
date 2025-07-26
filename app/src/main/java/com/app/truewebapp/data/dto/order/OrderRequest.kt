@@ -6,4 +6,5 @@ data class OrderRequest(
     val user_company_address_id: String,
     val delivery_method_id: String,
     val delivery_instructions: String,
+    val couponId: String,
 )

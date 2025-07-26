@@ -30,6 +30,7 @@ class PaymentActivity : AppCompatActivity() {
     private var deliveryInstructions = ""
     private var totalAmount = ""
     private var couponDiscount = ""
+    private var couponId = ""
     // Lazy initialization for cartDao, ensures context is available
     private val cartDao by lazy { let { CartDatabase.getInstance(it).cartDao() } }
 
@@ -68,9 +69,9 @@ class PaymentActivity : AppCompatActivity() {
 
         binding.authorizePaymentButton.setOnClickListener {
             if (couponDiscount.contains("£")){
-                orderPlaceViewModel.orderPlace(token, OrderRequest("0.0",couponDiscount.split(" ")[1],addressId,deliveryMethodId, deliveryInstructions))
+                orderPlaceViewModel.orderPlace(token, OrderRequest("0.0",couponDiscount.split(" ")[1],addressId,deliveryMethodId, deliveryInstructions,couponId))
             } else{
-                orderPlaceViewModel.orderPlace(token, OrderRequest("0.0",couponDiscount,addressId,deliveryMethodId, deliveryInstructions))
+                orderPlaceViewModel.orderPlace(token, OrderRequest("0.0",couponDiscount,addressId,deliveryMethodId, deliveryInstructions,couponId))
 
             }
         }
@@ -85,6 +86,7 @@ class PaymentActivity : AppCompatActivity() {
         addressId = intent.getStringExtra("addressId")?: ""
         totalAmount = intent.getStringExtra("totalAmount") ?: "0.0"
         deliveryInstructions = intent.getStringExtra("deliveryInstructions") ?: ""
+        couponId = intent.getStringExtra("couponId") ?: ""
         couponDiscount = intent.getStringExtra("couponDiscount") ?: "0.0"
         binding.authorizePaymentButton.text = "Proceed Payment - ${totalAmount}"
     }

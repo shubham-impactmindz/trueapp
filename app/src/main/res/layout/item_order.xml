@@ -61,7 +61,7 @@
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Ordered."
+                android:text="Order Date"
                 android:textSize="@dimen/smallTextSize"
                 android:fontFamily="@font/roboto_regular"
                 android:textColor="@color/black"/>
@@ -235,6 +235,7 @@
     </LinearLayout>
 
     <TextView
+        android:visibility="gone"
         android:id="@+id/textReorderItems"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

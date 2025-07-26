@@ -55,82 +55,63 @@
             android:layout_marginStart="@dimen/margin8"/>
     </RelativeLayout>
 
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/mainLayout"
+    <ImageView
+        android:visibility="gone"
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height120"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_banner"
+        android:layout_marginTop="@dimen/margin10"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/cartListRecycler"
         android:layout_width="match_parent"
         android:layout_height="0sp"
-        android:fillViewport="true"
-        android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        android:visibility="gone"
+        android:nestedScrollingEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/bannerImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/linearCartDetail"> <!-- Constraint to Bottom -->
+        app:layout_constraintBottom_toTopOf="@+id/linearCartDetail"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin10"
-            android:orientation="vertical">
+    <ImageView
+        android:id="@+id/imageCart"
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:src="@drawable/ic_shopping_bag"
+        app:layout_constraintTop_toBottomOf="@id/bannerImage"
+        app:layout_constraintBottom_toTopOf="@id/linearCartDetail"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-            <ImageView
-                android:visibility="gone"
-                android:id="@+id/bannerImage"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/height120"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_banner"/>
+    </ImageView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:visibility="gone"
-                android:id="@+id/cartListRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+    <TextView
+        android:id="@+id/textEmptyCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You don't have any items in your cart."
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/roboto_bold"
+        app:layout_constraintTop_toBottomOf="@id/imageCart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
-
-
-
-                <ImageView
-                    android:id="@+id/imageCart"
-                    android:layout_width="50sp"
-                    android:layout_height="50sp"
-                    android:src="@drawable/ic_shopping_bag"/>
-
-                <TextView
-                    android:id="@+id/textEmptyCart"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="You don't have any items in your cart."
-                    android:textSize="16sp"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/roboto_bold"
-                    android:layout_marginTop="20dp"/>
-
-            </LinearLayout>
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Fixed Bottom CardView -->
     <androidx.cardview.widget.CardView
-        android:visibility="gone"
         android:id="@+id/linearCartDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin8"
-        app:cardElevation="@dimen/elevation10"
+        app:cardElevation="20sp"
+        android:orientation="vertical"
         app:contentPadding="@dimen/padding16"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -147,10 +128,10 @@
                     android:id="@+id/textItems"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10 Units"
-                    android:textSize="@dimen/baseTextSize"
+                    android:text="5 Units"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/black"  />
+                    android:textColor="@color/black" />
 
                 <View
                     android:layout_width="@dimen/width2"
@@ -163,8 +144,8 @@
                     android:id="@+id/textSKU"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 SKUs"
-                    android:textSize="@dimen/baseTextSize"
+                    android:text="1 SKUs"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
                     android:textColor="@color/black" />
 
@@ -180,9 +161,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="£0.00"
-                    android:textSize="@dimen/baseTextSize"
+                    android:textSize="@dimen/buttonTextSize"
                     android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/black"  />
+                    android:textColor="@color/black" />
 
                 <View
                     android:layout_width="@dimen/width2"
@@ -199,18 +180,19 @@
                     <ImageView
                         android:layout_width="@dimen/imageWidth15"
                         android:layout_height="@dimen/imageHeight15"
-                        android:src="@drawable/ic_wallet"
-                        app:tint="@color/black"/>
+                        android:src="@drawable/ic_wallet" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin5"
                         android:text="£0.00"
-                        android:textSize="@dimen/baseTextSize"
-                        android:fontFamily="@font/roboto_bold"
-                        android:textColor="@color/black"  />
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="@dimen/buttonTextSize"
+                        android:fontFamily="@font/roboto_bold" />
+
                 </LinearLayout>
+
             </LinearLayout>
 
             <TextView
@@ -220,14 +202,15 @@
                 android:layout_marginTop="@dimen/margin10"
                 android:gravity="center"
                 android:text="Spend £225.75 more for FREE delivery"
-                android:textColor="@color/textGrey"
-                android:textSize="@dimen/baseTextSize"
-                android:fontFamily="@font/roboto_medium"/>
+                android:textColor="@color/lightGrey"
+                android:textSize="@dimen/buttonTextSize"
+                android:fontFamily="@font/roboto_bold" />
 
             <LinearLayout
                 android:id="@+id/checkoutLayout"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height40"
+                android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginTop="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10"
@@ -241,11 +224,11 @@
                     android:text="Checkout"
                     android:textColor="@color/white"
                     android:textSize="@dimen/buttonTextSize"
-                    android:fontFamily="@font/roboto_bold"
-                    android:layout_marginStart="@dimen/margin2" />
+                    android:fontFamily="@font/roboto_bold" />
 
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

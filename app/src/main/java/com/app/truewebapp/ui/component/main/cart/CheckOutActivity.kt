@@ -41,7 +41,7 @@ class CheckOutActivity : AppCompatActivity() {
     private var subtotalAmount = 0.0
     private var selectedAddress = ""
     // Lazy initialization for cartDao, ensures context is available
-    private val cartDao by lazy { let { CartDatabase.getInstance(it).cartDao() } }
+    private val cartDao by lazy { CartDatabase.getInstance(this).cartDao() } // Corrected context passing
     private var totalVatAmount = 0.0
     private var minOrderValue = 0.0
     private var deliveryFees = 0.0
@@ -52,7 +52,8 @@ class CheckOutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCheckOutBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        minOrderValue = intent.getStringExtra("minOrderValue")?.toDoubleOrNull()!!
+        minOrderValue = intent.getStringExtra("minOrderValue")?.toDoubleOrNull() ?: 0.0 // Added null safety default
+
         // Handle system bars insets (status + nav bar)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -71,6 +72,7 @@ class CheckOutActivity : AppCompatActivity() {
             intent.putExtra("deliveryInstructions", if (instructions.isNullOrEmpty()) "" else instructions)
             intent.putExtra("totalAmount",binding.tvTotalPayment.text)
             intent.putExtra("couponDiscount",binding.tvCouponDiscount.text)
+            intent.putExtra("couponId",appliedCoupon?.coupon_id.toString())
             startActivity(intent)
         }
 
@@ -87,8 +89,16 @@ class CheckOutActivity : AppCompatActivity() {
             }
 
             if (matchedCoupon != null) {
-                applyCoupon(matchedCoupon)
-                showCouponAppliedUI()
+                // Manually entered coupon code must also pass the eligibility checks
+                val isEligible = matchedCoupon.can_be_applied == true &&
+                        (matchedCoupon.min_cart_value.toDoubleOrNull()?.let { subtotalAmount >= it } == true)
+
+                if (isEligible) {
+                    applyCoupon(matchedCoupon)
+                    showCouponAppliedUI()
+                } else {
+                    Toast.makeText(this, "Coupon is not eligible for your current cart.", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Invalid coupon code", Toast.LENGTH_SHORT).show()
             }
@@ -96,28 +106,6 @@ class CheckOutActivity : AppCompatActivity() {
         binding.clearCouponIcon.setOnClickListener {
             removeCoupon()
         }
-//        binding.couponInput.addTextChangedListener(object : TextWatcher {
-//            override fun afterTextChanged(s: Editable?) {
-//                val currentCode = s.toString().trim()
-//                val matchedCoupon = couponsViewModel.couponsResponse.value?.data?.find {
-//                    it.code.equals(currentCode, ignoreCase = true)
-//                }
-//
-//                if (appliedCoupon?.code.equals(currentCode, ignoreCase = true)) {
-//                    // Already applied, show "Applied" button
-//                    showCouponAppliedUI()
-//                } else if (matchedCoupon != null) {
-//                    // Show apply button if code exists but not yet applied
-//                    showApplyCouponUI()
-//                } else {
-//                    // No valid code, show apply button but discount is not valid
-//                    removeCoupon() // remove any previously applied
-//                }
-//            }
-//
-//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-//        })
 
         initializeViewModels()
         observeDeliveryMethods()
@@ -136,6 +124,7 @@ class CheckOutActivity : AppCompatActivity() {
 
         val coupons = couponsViewModel.couponsResponse.value?.data ?: emptyList()
 
+        // Pass the subtotal and appliedCode to the adapter for accurate display
         val adapter = CouponAdapter(coupons, subtotalAmount, appliedCoupon?.code) { selectedCoupon ->
             applyCoupon(selectedCoupon)
             bottomSheetDialog.dismiss()
@@ -146,18 +135,24 @@ class CheckOutActivity : AppCompatActivity() {
     }
 
     private fun applyCoupon(coupon: Data) {
-        if (subtotalAmount >= coupon.min_cart_value.toDoubleOrNull()!!) {
+        // This check is already done in `observeCoupons` and `showCouponsBottomSheet` but good to keep as a final guard
+        val isEligible = coupon.can_be_applied == true &&
+                (coupon.min_cart_value.toDoubleOrNull()?.let { subtotalAmount >= it } == true)
+
+        if (isEligible) {
             appliedCoupon = coupon
             binding.couponInput.setText(coupon.code)
-
             updateTotalPayment()
             showCouponAppliedUI()
         } else {
+            // This toast might be redundant if the button is disabled or already filtered,
+            // but it provides explicit feedback for manually entered invalid coupons.
             Toast.makeText(
                 this,
-                "Cart total should be at least £${coupon.min_cart_value} to apply this coupon.",
-                Toast.LENGTH_SHORT
+                "Coupon '${coupon.code}' is not eligible for your current cart. Min cart value: £${coupon.min_cart_value}.",
+                Toast.LENGTH_LONG
             ).show()
+            removeCoupon() // Remove any previously applied coupon if the new one is invalid
         }
     }
 
@@ -191,6 +186,11 @@ class CheckOutActivity : AppCompatActivity() {
 
                 if (cartItems.isNotEmpty()) {
                     updateTotalAmount(cartItems) // Update total price
+                } else {
+                    subtotalAmount = 0.0 // Reset subtotal if cart is empty
+                    totalVatAmount = 0.0 // Reset VAT if cart is empty
+                    removeCoupon() // Clear any applied coupon if cart becomes empty
+                    updateTotalPayment() // Recalculate total with no items/coupon
                 }
             }
         }
@@ -216,6 +216,9 @@ class CheckOutActivity : AppCompatActivity() {
 
         binding.tvTotal.text = "£ %.2f".format(subtotalAmount)
 
+        // After updating subtotalAmount, re-evaluate and apply the best coupon if needed
+        // This ensures if cart value changes, the coupon is re-checked for eligibility
+        reEvaluateAndApplyCoupon()
         updateTotalPayment()
     }
 
@@ -261,6 +264,51 @@ class CheckOutActivity : AppCompatActivity() {
         binding.tvVat.text = "£ %.2f".format(totalVatAmount)
     }
 
+    // New helper function to re-evaluate and apply the best eligible coupon
+    private fun reEvaluateAndApplyCoupon() {
+        val allAvailableCoupons = couponsViewModel.couponsResponse.value?.data ?: emptyList()
+
+        // Filter for coupons that are eligible AND can_be_applied
+        val eligibleAndCanBeAppliedCoupons = allAvailableCoupons.filter { coupon ->
+            coupon.can_be_applied == true &&
+                    (coupon.min_cart_value.toDoubleOrNull()?.let { subtotalAmount >= it } == true)
+        }
+
+        if (eligibleAndCanBeAppliedCoupons.isNotEmpty()) {
+            // If an old coupon was applied, check if it's still eligible and can be applied
+            val currentAppliedStillValid = appliedCoupon != null &&
+                    eligibleAndCanBeAppliedCoupons.contains(appliedCoupon)
+
+            if (!currentAppliedStillValid) {
+                // If the current applied coupon is no longer valid, or no coupon was applied,
+                // find the 'best' coupon to apply automatically.
+                // "Best" is subjective; here, we pick the one with the highest fixed discount,
+                // or highest percentage discount. You might need more complex logic.
+                val bestCoupon = eligibleAndCanBeAppliedCoupons.maxByOrNull { coupon ->
+                    when (coupon.discount_type.lowercase()) {
+                        "fixed" -> coupon.discount_value.toDoubleOrNull() ?: 0.0
+                        "percent" -> (subtotalAmount * (coupon.discount_value.toDoubleOrNull() ?: 0.0) / 100.0)
+                        else -> 0.0
+                    }
+                }
+                bestCoupon?.let {
+                    applyCoupon(it)
+                } ?: run {
+                    // No "best" coupon found (e.g., if all coupons are only 0 discount)
+                    // If appliedCoupon was just invalidated, this will ensure it's removed.
+                    // If no coupon was applied, no action needed.
+                    if (appliedCoupon != null) {
+                        removeCoupon()
+                    }
+                }
+            }
+            // If currentAppliedStillValid is true, do nothing, keep the current coupon
+        } else {
+            // No eligible coupons found, ensure no coupon is applied
+            removeCoupon()
+        }
+    }
+
 
     private fun initializeViewModels() {
         companyAddressViewModel = ViewModelProvider(this)[CompanyAddressViewModel::class.java]
@@ -274,35 +322,47 @@ class CheckOutActivity : AppCompatActivity() {
     private fun observeCoupons() {
         couponsViewModel.couponsResponse.observe(this) { response ->
             response?.let {
-
                 if (it.status) {
                     binding.textSeeAllCoupon.visibility = View.VISIBLE
-                    val validCoupons = it.data.filter {
-                        c -> subtotalAmount >= c.min_cart_value.toDoubleOrNull()!!
-                    }
-                    if (validCoupons.isNotEmpty()) {
-                        applyCoupon(validCoupons.first())
-                    }
+                    if (it.data.isNotEmpty()) { // Ensure data is not empty before filtering
+                        val eligibleAndCanBeAppliedCoupons = it.data.filter { c ->
+                            c.can_be_applied == true &&
+                                    (c.min_cart_value.toDoubleOrNull()?.let { subtotalAmount >= it } == true)
+                        }
 
+                        if (eligibleAndCanBeAppliedCoupons.isNotEmpty()) {
+                            // Automatically apply the first eligible and can_be_applied coupon
+                            // You might want to apply the "best" one based on your business logic
+                            // For simplicity, let's keep it applying the first one for now.
+                            // If you want "best" coupon, call reEvaluateAndApplyCoupon() here.
+                            applyCoupon(eligibleAndCanBeAppliedCoupons.first())
+                        } else {
+                            // If no valid coupons, ensure none are applied automatically
+                            removeCoupon()
+                        }
+                    } else {
+                        // No coupons returned from API, so no coupon to apply
+                        removeCoupon()
+                    }
                 } else {
                     binding.textSeeAllCoupon.visibility = View.GONE
+                    removeCoupon() // No coupons available, remove any applied
                 }
             }
         }
 
         couponsViewModel.isLoading.observe(this) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-
-            }
+            // Handle loading state, e.g., show/hide a progress bar
         }
 
         couponsViewModel.apiError.observe(this) {
-
+            // Handle API errors
+            Toast.makeText(this, "API Error: $it", Toast.LENGTH_SHORT).show()
         }
 
         couponsViewModel.onFailure.observe(this) {
-
+            // Handle general failures (e.g., network issues)
+            Toast.makeText(this, "Network Error: ${it?.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -322,7 +382,8 @@ class CheckOutActivity : AppCompatActivity() {
                             it.company_addresses[0].company_address1,
                             it.company_addresses[0].company_address2?.takeIf { it.isNotBlank() },  // Include only if not blank
                             it.company_addresses[0].company_city,
-                            it.company_addresses[0].company_country
+                            it.company_addresses[0].company_country,
+                            it.company_addresses[0].company_postcode,
                         )
 
                         val fullAddress = addressParts.joinToString(", ")
@@ -336,24 +397,22 @@ class CheckOutActivity : AppCompatActivity() {
                         )
                     }
                 } else {
-
+                    // Handle case where status is false
+                    Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         companyAddressViewModel.isLoading.observe(this) {
             // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-
-            }
         }
 
         companyAddressViewModel.apiError.observe(this) {
-
+            Toast.makeText(this, "API Error: $it", Toast.LENGTH_SHORT).show()
         }
 
         companyAddressViewModel.onFailure.observe(this) {
-
+            Toast.makeText(this, "Network Error: ${it?.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -392,7 +451,7 @@ class CheckOutActivity : AppCompatActivity() {
             val selectedButton = group.findViewById<RadioButton>(checkedId)
             val selectedOption = selectedButton.tag as DeliveryMethods
             binding.tvDeliveryMethod.text = selectedOption.delivery_method_name
-            deliveryFees = selectedOption.delivery_method_amount.toDoubleOrNull()!!
+            deliveryFees = selectedOption.delivery_method_amount.toDoubleOrNull() ?: 0.0
             deliveryMethodId = selectedOption.delivery_method_id
             updateTotalPayment()
         }
@@ -407,7 +466,8 @@ class CheckOutActivity : AppCompatActivity() {
                 option.company_address1,
                 option.company_address2?.takeIf { it.isNotBlank() },
                 option.company_city,
-                option.company_country
+                option.company_country,
+                option.company_postcode,
             )
             val fullAddress = addressParts.joinToString(", ")
 
@@ -447,7 +507,8 @@ class CheckOutActivity : AppCompatActivity() {
                 selectedOption.company_address1,
                 selectedOption.company_address2?.takeIf { it.isNotBlank() },
                 selectedOption.company_city,
-                selectedOption.company_country
+                selectedOption.company_country,
+                selectedOption.company_postcode
             )
 
             selectedAddress = addressParts.joinToString(", ")
