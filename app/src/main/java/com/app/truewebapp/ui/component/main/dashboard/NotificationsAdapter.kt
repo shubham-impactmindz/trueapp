@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,13 @@ class NotificationsAdapter(private val options: List<NotificationOption>, privat
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val option = options[position]
         holder.text.text = option.name
-        holder.itemView.setOnClickListener { listener(option) }
+        holder.itemView.setOnClickListener {
+            holder.itemView.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
+            listener(option)
+        }
     }
 
     override fun getItemCount(): Int = 5

@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -65,6 +66,10 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
         }
 
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
         initializeViewModels()
@@ -124,7 +129,7 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
                     binding.linearCartDetail.visibility = View.GONE
                     binding.textEmptyCart.visibility = View.VISIBLE
                     binding.imageCart.visibility = View.VISIBLE
-                    binding.textTotal.text = "£ 0.00" // Reset total price for empty cart
+                    binding.textTotal.text = "£0.00" // Reset total price for empty cart
                 }
             }
         }
@@ -152,13 +157,17 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
         }
 
         val finalTotal = totalAmount + deliveryFee
-        binding.textTotal.text = "£ %.2f".format(finalTotal)
+        binding.textTotal.text = "£%.2f".format(finalTotal)
 
         Log.d("CartFragment", "Total: £$totalAmount, Delivery: £$deliveryFee, Final: £$finalTotal")
     }
 
     private fun setupView() {
         binding.checkoutLayout.setOnClickListener {
+            binding.checkoutLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             lifecycleScope.launch {
                 // Step 1: Fetch cart items once from DB
                 val cartItems = withContext(Dispatchers.IO) {

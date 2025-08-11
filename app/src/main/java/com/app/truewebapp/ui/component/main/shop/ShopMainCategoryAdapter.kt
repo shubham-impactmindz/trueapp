@@ -1,6 +1,7 @@
 package com.app.truewebapp.ui.component.main.shop
 
 import android.text.Html
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,6 +60,10 @@ class ShopMainCategoryAdapter(
             updateExpansionUI(isExpanded)
 
             linearCategory.setOnClickListener {
+                linearCategory.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 val wasExpanded = expandedMainCategoryIndex == position
                 toggleExpand(position)
                 if (!wasExpanded) scrollToPosition()

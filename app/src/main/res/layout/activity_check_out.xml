@@ -538,32 +538,20 @@
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/couponInputLayout"
+
+                <TextView
+                    android:id="@+id/couponInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:boxStrokeWidth="0sp"
-                    app:boxStrokeWidthFocused="0sp"
-                    app:boxStrokeColor="@color/colorPrimaryDark"
-                    app:boxBackgroundMode="filled"
-                    app:hintEnabled="false">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/couponInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="Enter Coupon Code"
-                        android:background="@drawable/border_primary"
-                        android:inputType="text"
-                        android:textSize="@dimen/baseTextSize"
-                        android:padding="10sp"
-                        android:enabled="false"
-                        android:textColor="@color/black"
-                        android:textColorHint="@color/borderGrey"
-                        android:fontFamily="@font/roboto_regular"
-                        android:paddingEnd="60dp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:hint="See All Coupons"
+                    android:background="@drawable/border_primary"
+                    android:gravity="center_vertical"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/borderGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:paddingEnd="60dp" />
 
                 <TextView
                     android:id="@+id/applyButton"
@@ -616,6 +604,7 @@
 
 
             <TextView
+                android:visibility="gone"
                 android:id="@+id/textSeeAllCoupon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -628,6 +617,86 @@
                 android:layout_marginRight="@dimen/margin10"
                 android:gravity="center"
                 android:layout_gravity="end"/>
+
+            <!-- Add this after the coupon section in your XML -->
+            <LinearLayout
+                android:id="@+id/walletDeductionLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:padding="@dimen/margin10"
+                android:background="@drawable/border_primary">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Wallet Balance"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textColor="@color/black"/>
+
+                <!-- Add this TextView for displaying wallet balance -->
+                <TextView
+                    android:id="@+id/tvWalletBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="£0.00"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="@dimen/margin10"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/walletToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/walletDeductionMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/baseTextSize"
+                android:fontFamily="@font/roboto_regular"
+                android:textColor="@color/colorSecondary"
+                android:layout_marginTop="@dimen/margin5"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/remainingAmountMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/baseTextSize"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_marginTop="@dimen/margin5"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:visibility="gone"/>
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/textPlaceOrder"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height40"
+                android:text="Place Order"
+                android:textSize="@dimen/buttonTextSize"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/white"
+                android:background="@drawable/border_solid_secondary"
+                android:layout_marginTop="@dimen/margin20"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginBottom="@dimen/margin20"
+                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/textPayment"

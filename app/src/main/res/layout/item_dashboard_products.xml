@@ -90,96 +90,63 @@
             </RelativeLayout>
 
 
-            <LinearLayout
-                android:id="@+id/btnAdd"
+            <FrameLayout
+                android:id="@+id/frameCart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:gravity="end">
-
-
+                android:layout_gravity="bottom|end">
 
                 <ImageView
+                    android:id="@+id/btnAdd"
                     android:layout_width="30sp"
                     android:layout_height="30sp"
-                    android:layout_gravity="end|center"
                     android:src="@drawable/ic_add"
                     app:tint="@color/white"
+                    android:layout_gravity="end"
                     android:padding="@dimen/padding8"
-                    android:gravity="end|center"
-                    android:background="@drawable/circle_background_secondary"/>
-
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:orientation="horizontal">
-
+                    android:background="@drawable/circle_background_secondary"
+                    android:visibility="visible"/>
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5">
-                </LinearLayout>
-                <LinearLayout
-                    android:visibility="gone"
                     android:id="@+id/llCartSign"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="25sp"
-                    android:layout_weight="1"
-                    android:gravity="end|center"
-                    android:layout_gravity="bottom"
-                    android:orientation="horizontal">
+                    android:gravity="center"
+                    android:layout_gravity="end"
+                    android:orientation="horizontal"
+                    android:background="@drawable/border_solid_secondary"
+                    android:visibility="gone">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/border_solid_secondary">
+                    <ImageView
+                        android:id="@+id/btnMinus"
+                        android:layout_width="30sp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_minus"
+                        app:tint="@color/white"
+                        android:padding="8sp"/>
 
+                    <TextView
+                        android:id="@+id/textNoOfItems"
+                        android:layout_width="wrap_content"
+                        android:minWidth="30sp"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="1"
+                        android:textSize="@dimen/headingTextSize"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/roboto_bold"/>
 
-                        <ImageView
-                            android:id="@+id/btnMinus"
-                            android:layout_width="0sp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0.7"
-                            android:src="@drawable/ic_minus"
-                            app:tint="@color/white"
-                            android:padding="@dimen/padding8">
-                        </ImageView>
-
-                        <TextView
-                            android:id="@+id/textNoOfItems"
-                            android:layout_width="0sp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:text="1"
-                            android:textSize="@dimen/headingTextSize"
-                            android:textColor="@color/white"
-                            android:fontFamily="@font/roboto_bold">
-                        </TextView>
-
-                        <ImageView
-                            android:id="@+id/btnAddMore"
-                            android:layout_width="0sp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="0.7"
-                            android:src="@drawable/ic_add"
-                            app:tint="@color/white"
-                            android:padding="@dimen/padding8">
-                        </ImageView>
-
-
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/btnAddMore"
+                        android:layout_width="30sp"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/white"
+                        android:padding="8sp"/>
 
                 </LinearLayout>
 
-
-            </LinearLayout>
+            </FrameLayout>
 
         </FrameLayout>
 

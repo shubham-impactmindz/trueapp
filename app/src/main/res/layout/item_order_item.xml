@@ -1,64 +1,80 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="80sp"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:paddingBottom="10sp"> <!-- Added padding to give space at the bottom -->
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1sp"
         android:layout_marginBottom="10sp"
-        android:background="@color/lightGrey">
-
-    </View>
+        android:background="@color/lightGrey" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
+        <!-- FrameLayout to hold image + badge -->
+        <FrameLayout
+            android:layout_width="50sp"
+            android:layout_height="50sp">
 
-    <ImageView
-        android:id="@+id/iconProduct"
-        android:layout_width="50sp"
-        android:layout_height="@dimen/height50"/>
+            <ImageView
+                android:id="@+id/iconProduct"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
 
+            <TextView
+                android:id="@+id/badgeQuantity"
+                android:layout_width="18sp"
+                android:layout_height="18sp"
+                android:layout_gravity="top|end"
+                android:background="@drawable/badge_background"
+                android:text="60"
+                android:textSize="10sp"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:fontFamily="@font/roboto_bold"
+                android:padding="2dp" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvProduct"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/margin10"
+            android:text="Lays [India's Magic Masala / 100gms]"
+            android:textSize="13sp"
+            android:fontFamily="@font/roboto_regular"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/tvPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin10"
+            android:text="@string/wallet_balance"
+            android:textSize="13sp"
+            android:fontFamily="@font/roboto_bold"
+            android:textColor="@color/black"/>
+    </LinearLayout>
+
+    <!-- New TextView for Total Amount -->
     <TextView
-        android:id="@+id/tvProduct"
-        android:layout_width="0sp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginStart="@dimen/margin10"
-        android:text="Lays [India's Magic Masala / 100gms]"
-        android:textSize="13sp"
-        android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/black"/>
-
-    <TextView
-        android:id="@+id/tvQuantity"
+        android:id="@+id/tvTotalAmount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin10"
-        android:text="60"
-        android:textSize="13sp"
-        android:fontFamily="@font/roboto_regular"
-        android:textColor="@color/black"/>
-
-    <TextView
-        android:id="@+id/tvPrice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin10"
-        android:text="@string/wallet_balance"
-        android:textSize="13sp"
+        android:layout_gravity="end"
+        android:text="Total: £123.45"
+        android:textSize="14sp"
         android:fontFamily="@font/roboto_bold"
         android:textColor="@color/black"/>
-
-
-
-    </LinearLayout>
 
 </LinearLayout>

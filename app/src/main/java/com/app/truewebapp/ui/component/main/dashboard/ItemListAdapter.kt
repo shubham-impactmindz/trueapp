@@ -21,8 +21,9 @@ class ItemListAdapter(private val cdnURL: String?) : RecyclerView.Adapter<ItemLi
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val productTitle: TextView = view.findViewById(R.id.tvProduct)
-        val quantity: TextView = view.findViewById(R.id.tvQuantity)
+        val quantity: TextView = view.findViewById(R.id.badgeQuantity)
         val price: TextView = view.findViewById(R.id.tvPrice)
+        val tvTotalAmount: TextView = view.findViewById(R.id.tvTotalAmount)
         val iconProduct: ImageView = view.findViewById(R.id.iconProduct)
     }
 
@@ -48,7 +49,8 @@ class ItemListAdapter(private val cdnURL: String?) : RecyclerView.Adapter<ItemLi
 
         holder.productTitle.text = item.product.mproduct_title + variantText
         holder.quantity.text = item.quantity.toString()
-        holder.price.text = "£ ${item.unit_price}"
+        holder.price.text = "£${"%.2f".format((item.unit_price))}"
+        holder.tvTotalAmount.text = "Total: £${"%.2f".format((item.quantity * item.unit_price))}"
 
     }
 

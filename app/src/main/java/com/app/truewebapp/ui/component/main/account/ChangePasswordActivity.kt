@@ -3,6 +3,7 @@ package com.app.truewebapp.ui.component.main.account
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -44,9 +45,17 @@ class ChangePasswordActivity : AppCompatActivity() {
             insets
         }
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
         binding.llChangePassword.setOnClickListener {
+            binding.llChangePassword.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             if (validateInputs()){
                 changePasswordViewModel.changePassword(token, ChangePasswordRequest(
                     binding.passwordInput.text.toString().trim(),

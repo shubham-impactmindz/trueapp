@@ -61,7 +61,8 @@ data class Summary(
     val coupon_discount: Double,
     val delivery_cost: Double,
     val vat: Double,
-    val payment_total: Double
+    val payment_total: Double,
+    val total_paid: Double
 ) : Parcelable
 
 @Parcelize

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Paint
 import android.text.Html
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -74,15 +75,18 @@ class CartAdapter(
         holder.textNoOfItems.text = item.quantity.toString()
 
         // Calculate total price for the item (price per unit * quantity)
-        holder.finalPrice.text = "£ %.2f".format(item.price * item.quantity)
+        holder.finalPrice.text = "£%.2f".format(item.price)
 
         // Compare price logic
         if (item.comparePrice != 0.0) {
             holder.comparePrice.visibility = View.VISIBLE
             holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-            holder.comparePrice.text = "£ %.2f".format(item.comparePrice) // Display original compare price
+            holder.comparePrice.setTextColor(context.getColor(R.color.black))
+            holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
+            holder.comparePrice.text = "£%.2f".format(item.comparePrice) // Display original compare price
         } else {
             holder.comparePrice.visibility = View.GONE
+            holder.finalPrice.setTextColor(context.getColor(R.color.black))
         }
 
         // Image loading logic
@@ -113,14 +117,26 @@ class CartAdapter(
 
         // Click listeners for wishlist
         holder.btnFavorite.setOnClickListener {
+            holder.btnFavorite.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             listener.onUpdateWishlist(item.variantId.toString())
         }
         holder.btnFavoriteSelected.setOnClickListener {
+            holder.btnFavoriteSelected.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             listener.onUpdateWishlist(item.variantId.toString())
         }
 
         // Click listeners for quantity change
         holder.btnAddMore.setOnClickListener {
+            holder.btnAddMore.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             // Here, the adapter needs to interact with the database directly.
             // So, cartDao needs to be initialized.
             val cartDao = CartDatabase.getInstance(context).cartDao()
@@ -129,6 +145,9 @@ class CartAdapter(
         }
 
         holder.btnMinus.setOnClickListener {
+            holder.btnMinus.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
             // Here, the adapter needs to interact with the database directly.
             val cartDao = CartDatabase.getInstance(context).cartDao()
             val newQty = item.quantity - 1
@@ -141,6 +160,10 @@ class CartAdapter(
 
         // Click listener for delete button
         holder.linearDelete.setOnClickListener {
+            holder.linearDelete.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             // Here, the adapter needs to interact with the database directly.
             val cartDao = CartDatabase.getInstance(context).cartDao()
             deleteCartItem(cartDao, item.variantId) // Pass cartDao

@@ -37,4 +37,9 @@ interface CartDao {
     @Query("SELECT * FROM cart_items")
     suspend fun getAllItemsOnce(): List<CartItemEntity>
 
+    @Query("SELECT quantity FROM cart_items WHERE variantId = :variantId")
+    fun getQuantityFlowByVariantId(variantId: Int): Flow<Int?>
+
+    @Query("SELECT isWishlisted FROM cart_items WHERE variantId = :variantId")
+    suspend fun isWishlisted(variantId: Int): Boolean?
 }

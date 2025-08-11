@@ -27,7 +27,7 @@ object BankDetailRepository {
                         successHandler(it)
                     }
                     Log.e("TAG", "onResponse: "+response.body())
-                    if (response.code() == 400) {
+                    if (response.code() != 200) {
                         val jsonObj = JSONObject(response.errorBody()!!.charStream().readText())
                         failureHandler(jsonObj.getString("message"))
                     }

@@ -4,7 +4,6 @@ import DashboardBannerAdapter
 import NonScrollingBannerAdapter
 import NonScrollingBannerDealsAdapter
 import NonScrollingBannerFruitsAdapter
-import NonScrollingBannerNewProductsAdapter
 import NonScrollingBannerTopSellerAdapter
 import android.content.Context
 import android.content.Intent
@@ -13,6 +12,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,32 +23,27 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.app.truewebapp.R
 import com.app.truewebapp.SHARED_PREF_NAME
 import com.app.truewebapp.data.dto.brands.WishlistBrand
-import com.app.truewebapp.data.dto.dashboard_banners.NewProductBanners
-import com.app.truewebapp.data.dto.dashboard_banners.TopSellerBanners
+import com.app.truewebapp.data.dto.dashboard_banners.ProductBanner
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentDashboardBinding
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartRepository
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartViewModel
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartViewModelFactory
 import com.app.truewebapp.ui.component.main.shop.NewProductTopSellerAdapterListener
 import com.app.truewebapp.ui.component.main.shop.ShopFragment
-import com.app.truewebapp.ui.viewmodel.BigBannersViewModel
 import com.app.truewebapp.ui.viewmodel.BrandsViewModel
-import com.app.truewebapp.ui.viewmodel.DealsBannersViewModel
-import com.app.truewebapp.ui.viewmodel.FruitsBannersViewModel
-import com.app.truewebapp.ui.viewmodel.NewProductsBannersViewModel
-import com.app.truewebapp.ui.viewmodel.RoundBannersViewModel
-import com.app.truewebapp.ui.viewmodel.SmallBannersViewModel
-import com.app.truewebapp.ui.viewmodel.TopSellerBannersViewModel
+import com.app.truewebapp.ui.viewmodel.HomeBannersViewModel
+import com.app.truewebapp.ui.viewmodel.ProductBannersViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.launch
 
 
 class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, RoundBannerListener, DealsBannerListener, FruitsBannerListener, NewProductTopSellerAdapterListener {
@@ -66,22 +61,23 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
     private val handler = Handler(Looper.getMainLooper())
     private var autoScrollRunnable: Runnable? = null
     private val AUTO_SCROLL_DELAY: Long = 3000 // Auto scroll every 3 seconds
-    private lateinit var roundBannersViewModel: RoundBannersViewModel
-    private lateinit var smallBannersViewModel: SmallBannersViewModel
-    private lateinit var bigBannersViewModel: BigBannersViewModel
-    private lateinit var dealsBannersViewModel: DealsBannersViewModel
-    private lateinit var fruitsBannersViewModel: FruitsBannersViewModel
-    private lateinit var newProductsBannersViewModel: NewProductsBannersViewModel
-    private lateinit var topSellerBannersViewModel: TopSellerBannersViewModel
+    private lateinit var productBannersViewModel: ProductBannersViewModel
+    private lateinit var homeBannersViewModel: HomeBannersViewModel
     private lateinit var brandsViewModel: BrandsViewModel
     private lateinit var wishlistViewModel: WishlistViewModel
-    private var originalCategoryList: List<NewProductBanners> = listOf()
-    private var originalTopSellerList: List<TopSellerBanners> = listOf()
+    private lateinit var cartViewModel: CartViewModel
+
+    private var originalCategoryList: List<ProductBanner> = listOf()
+    private var originalTopSellerList: List<ProductBanner> = listOf()
     private var originalBrandsList: List<WishlistBrand> = listOf()
     private var token = ""
     private var variantId = ""
     private var type = ""
     private var filters = ""
+    private var cdnUrl = ""
+    private var lastRefreshTime: Long = 0
+    private val refreshDebounceTime = 1000L // 1 second in milliseconds
+    private val cartDao by lazy { CartDatabase.getInstance(requireContext()).cartDao() }
 
 
     override fun onAttach(context: Context) {
@@ -100,7 +96,6 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentDashboardBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -108,56 +103,54 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Flow collector for cart count
-            cartDao.getCartItemCount().collect { totalCount ->
-                val actualCount = totalCount ?: 0
+        // This single collector is sufficient. It respects the view's lifecycle and will
+        // automatically pause and resume collecting.
+//        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+//            cartDao.getCartItemCount().collect { totalCount ->
+//                updateCartBadge(totalCount ?: 0)
+//            }
+//        }
 
-//                if (actualCount == 0) {
-//                    binding.tvCartBadge.visibility = View.GONE
-//                } else {
-//                    binding.tvCartBadge.visibility = View.VISIBLE
-//                    binding.tvCartBadge.text = actualCount.toString()
-//                }
-            }
-        }
-        roundBannersViewModel = ViewModelProvider(this)[RoundBannersViewModel::class.java]
-        smallBannersViewModel = ViewModelProvider(this)[SmallBannersViewModel::class.java]
-        bigBannersViewModel = ViewModelProvider(this)[BigBannersViewModel::class.java]
-        dealsBannersViewModel = ViewModelProvider(this)[DealsBannersViewModel::class.java]
-        fruitsBannersViewModel = ViewModelProvider(this)[FruitsBannersViewModel::class.java]
-        newProductsBannersViewModel = ViewModelProvider(this)[NewProductsBannersViewModel::class.java]
-        topSellerBannersViewModel = ViewModelProvider(this)[TopSellerBannersViewModel::class.java]
+        productBannersViewModel = ViewModelProvider(this)[ProductBannersViewModel::class.java]
+        homeBannersViewModel = ViewModelProvider(this)[HomeBannersViewModel::class.java]
         wishlistViewModel = ViewModelProvider(this)[WishlistViewModel::class.java]
         brandsViewModel = ViewModelProvider(this)[BrandsViewModel::class.java]
+        val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
+        val repo = CartRepository(cartDao)
+        cartViewModel = ViewModelProvider(this, CartViewModelFactory(repo)).get(CartViewModel::class.java)
+
+        // Observe total cart count for badge
+        cartViewModel.totalCount.observe(viewLifecycleOwner) { total ->
+            updateCartBadge(total)
+        }
+
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
         token = "Bearer " + preferences?.getString("token", "").orEmpty()
-        observeRoundBanners()
-        observeSmallBanners()
-        observeBigBanners()
-        observeDealsBanners()
-        observeFruitsBanners()
-        observeNewProducts()
-        observeTopSeller()
+        observeProductsBanners()
+        observeHomeBanners()
         observeWishlist()
         observeBrands()
         loadInitialData()
         setupNotifications()
 
-
         binding.swipeRefreshLayout.setOnRefreshListener {
-            stopAutoScroll()
-            loadInitialData()
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastRefreshTime > refreshDebounceTime) {
+                lastRefreshTime = currentTime
+                stopAutoScroll()
+                loadInitialData()
+            } else {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        nonScrollingBannerDrinksAdapter?.notifyDataSetChanged()
-        nonScrollingBannerTopSellerAdapter?.notifyDataSetChanged()
-    }
+//    override fun onResume() {
+//        super.onResume()
+//
+//        nonScrollingBannerDrinksAdapter?.notifyDataSetChanged()
+//        nonScrollingBannerTopSellerAdapter?.notifyDataSetChanged()
+//    }
 
 
     private fun stopAutoScroll() {
@@ -165,18 +158,23 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
     }
 
     private fun startAutoScroll() {
-        stopAutoScroll()
+        stopAutoScroll() // Ensure any existing runnable is stopped before starting a new one.
         autoScrollRunnable?.let { handler.postDelayed(it, AUTO_SCROLL_DELAY) }
     }
+
 
 
     private fun initializeAutoScrollRunnable() {
         if (autoScrollRunnable == null) {
             autoScrollRunnable = object : Runnable {
                 override fun run() {
-                    val nextItem = (binding.viewPager.currentItem + 1) % (bannerAdapter?.itemCount ?: 1)
-                    binding.viewPager.setCurrentItem(nextItem, true)
-                    handler.postDelayed(this, AUTO_SCROLL_DELAY) // THIS works correctly here
+                    val itemCount = bannerAdapter?.itemCount ?: 0
+                    if (itemCount > 1) {
+                        val nextItem = (binding.viewPager.currentItem + 1) % itemCount
+                        binding.viewPager.setCurrentItem(nextItem, true)
+                    }
+                    // The runnable re-posts itself to create the loop.
+                    handler.postDelayed(this, AUTO_SCROLL_DELAY)
                 }
             }
         }
@@ -207,18 +205,13 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
     private fun loadInitialData() {
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
-        roundBannersViewModel.roundBanners(token)
-        smallBannersViewModel.smallBanners(token)
-        bigBannersViewModel.bigBanners(token)
-        dealsBannersViewModel.dealsBanners(token)
-        fruitsBannersViewModel.fruitsBanners(token)
-        newProductsBannersViewModel.newProductBanners(token)
-        topSellerBannersViewModel.topSellerBanners(token)
+        productBannersViewModel.productBanners(token)
+        homeBannersViewModel.homeBanners(token)
         brandsViewModel.brands(token, preferences?.getString("userId", ""))
     }
 
-    private fun observeRoundBanners() {
-        roundBannersViewModel.roundBannersModel.observe(viewLifecycleOwner) { response ->
+    private fun observeHomeBanners() {
+        homeBannersViewModel.homeSlidersResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
@@ -226,6 +219,10 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
                     if (banners.isEmpty()) {
                         binding.shimmerLayoutRoundImages.visibility = View.GONE
+                        binding.shimmerLayoutSmallBanner.visibility = View.GONE
+                        binding.shimmerLayoutBigBanner.visibility = View.GONE
+                        binding.shimmerLayoutDealsBanner.visibility = View.GONE
+                        binding.shimmerLayoutFruitsBanner.visibility = View.GONE
 
                     } else {
                         binding.shimmerLayoutRoundImages.visibility = View.GONE
@@ -234,43 +231,7 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
                         binding.rvRoundImages.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                         binding.rvRoundImages.adapter = roundImageAdapter
-                    }
-                } else {
 
-                }
-            }
-        }
-
-        roundBannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-                binding.shimmerLayoutRoundImages.visibility = View.VISIBLE
-                binding.rvRoundImages.visibility = View.GONE
-            }
-        }
-
-        roundBannersViewModel.apiError.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutRoundImages.visibility = View.GONE
-            showTopSnackBar(it ?: "Unexpected API error")
-        }
-
-        roundBannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutRoundImages.visibility = View.GONE
-            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
-        }
-    }
-
-    private fun observeSmallBanners() {
-        smallBannersViewModel.smallBannersModel.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
-                if (it.status) {
-                    val banners = it.smallSliders
-
-                    if (banners.isEmpty()) {
-                        binding.shimmerLayoutSmallBanner.visibility = View.GONE
-
-                    } else {
                         binding.shimmerLayoutSmallBanner.visibility = View.GONE
                         binding.viewPagerNonScrolling.visibility = View.VISIBLE
                         nonScrollingBannerAdapter = NonScrollingBannerAdapter(this,it.smallSliders, it.cdnURL)
@@ -281,48 +242,10 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                         // Set up smooth scrolling without large jumps
                         binding.viewPagerNonScrolling.offscreenPageLimit = 1
                         binding.viewPagerNonScrolling.setCurrentItem(0, false)
-                    }
-                } else {
 
-                }
-            }
-        }
-
-        smallBannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-                binding.shimmerLayoutSmallBanner.visibility = View.VISIBLE
-                binding.viewPagerNonScrolling.visibility = View.GONE
-            }
-        }
-
-        smallBannersViewModel.apiError.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutSmallBanner.visibility = View.GONE
-            binding.dotsIndicator.visibility = View.GONE
-            showTopSnackBar(it ?: "Unexpected API error")
-        }
-
-        smallBannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutSmallBanner.visibility = View.GONE
-            binding.dotsIndicator.visibility = View.GONE
-            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
-        }
-    }
-
-    private fun observeBigBanners() {
-        bigBannersViewModel.bigBannersModel.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
-                if (it.status) {
-                    val banners = it.bigSliders
-
-                    if (banners.isEmpty()) {
-
-                        binding.shimmerLayoutBigBanner.visibility = View.GONE
-                    } else {
                         binding.shimmerLayoutBigBanner.visibility = View.GONE
                         binding.viewPager.visibility = View.VISIBLE
-                        bannerAdapter = DashboardBannerAdapter(this,banners, it.cdnURL, )
+                        bannerAdapter = DashboardBannerAdapter(this,it.bigSliders, it.cdnURL, )
                         binding.viewPager.adapter = bannerAdapter
 
 
@@ -341,101 +264,29 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
                         initializeAutoScrollRunnable()
                         startAutoScroll()
-                    }
-                } else {
 
-                }
-            }
-        }
 
-        bigBannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-                binding.shimmerLayoutBigBanner.visibility = View.VISIBLE
-                binding.viewPager.visibility = View.GONE
-            }
-        }
-
-        bigBannersViewModel.apiError.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutBigBanner.visibility = View.GONE
-            showTopSnackBar(it ?: "Unexpected API error")
-        }
-
-        bigBannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutBigBanner.visibility = View.GONE
-            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
-        }
-    }
-
-    private fun observeDealsBanners() {
-        dealsBannersViewModel.dealsBannersModel.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
-                if (it.status) {
-                    val banners = it.dealsSliders
-
-                    if (banners.isEmpty()) {
-                        binding.shimmerLayoutDealsBanner.visibility = View.GONE
-
-                    } else {
                         binding.shimmerLayoutDealsBanner.visibility = View.GONE
                         binding.viewDeals.visibility = View.GONE
                         binding.recyclerViewDeals.visibility = View.VISIBLE
                         binding.tvDealsCenter.visibility = View.VISIBLE
-                        binding.tvDealsCenter.text = it.slider_header
+                        binding.tvDealsCenter.text = it.dealsHeader
                         binding.recyclerViewDeals.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
                         // Setup ViewPager with adapter
-                        nonScrollingBannerDealsAdapter = NonScrollingBannerDealsAdapter(this,banners, it.cdnURL)
+                        nonScrollingBannerDealsAdapter = NonScrollingBannerDealsAdapter(this,it.dealsSliders, it.cdnURL)
                         binding.recyclerViewDeals.adapter = nonScrollingBannerDealsAdapter
-                    }
-                } else {
 
-                }
-            }
-        }
 
-        dealsBannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
-                binding.shimmerLayoutDealsBanner.visibility = View.VISIBLE
-                binding.viewDeals.visibility = View.VISIBLE
-                binding.recyclerViewDeals.visibility = View.GONE
-                binding.tvDealsCenter.visibility = View.GONE
-            }
-        }
-
-        dealsBannersViewModel.apiError.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutDealsBanner.visibility = View.GONE
-            showTopSnackBar(it ?: "Unexpected API error")
-        }
-
-        dealsBannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutDealsBanner.visibility = View.GONE
-            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
-        }
-    }
-
-    private fun observeFruitsBanners() {
-        fruitsBannersViewModel.fruitsBannersModel.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
-                if (it.status) {
-                    val banners = it.fruitSliders
-
-                    if (banners.isEmpty()) {
-                        binding.shimmerLayoutFruitsBanner.visibility = View.GONE
-
-                    } else {
                         binding.shimmerLayoutFruitsBanner.visibility = View.GONE
                         binding.viewFruits.visibility = View.GONE
                         binding.recyclerViewFruits.visibility = View.VISIBLE
                         binding.tvFruitsCenter.visibility = View.VISIBLE
-                        binding.tvFruitsCenter.text = it.slider_header
+                        binding.tvFruitsCenter.text = it.fruitHeader
                         binding.recyclerViewFruits.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
                         // Setup ViewPager with adapter
-                        nonScrollingBannerFruitsAdapter = NonScrollingBannerFruitsAdapter(this, banners, it.cdnURL)
+                        nonScrollingBannerFruitsAdapter = NonScrollingBannerFruitsAdapter(this, it.fruitSliders, it.cdnURL)
                         binding.recyclerViewFruits.adapter = nonScrollingBannerFruitsAdapter
                     }
                 } else {
@@ -444,9 +295,19 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
             }
         }
 
-        fruitsBannersViewModel.isLoading.observe(viewLifecycleOwner) {
+        homeBannersViewModel.isLoading.observe(viewLifecycleOwner) {
             // Show shimmer while loading, hide ViewPager
             if (it == true) {
+                binding.shimmerLayoutRoundImages.visibility = View.VISIBLE
+                binding.rvRoundImages.visibility = View.GONE
+                binding.shimmerLayoutSmallBanner.visibility = View.VISIBLE
+                binding.viewPagerNonScrolling.visibility = View.GONE
+                binding.shimmerLayoutBigBanner.visibility = View.VISIBLE
+                binding.viewPager.visibility = View.GONE
+                binding.shimmerLayoutDealsBanner.visibility = View.VISIBLE
+                binding.viewDeals.visibility = View.VISIBLE
+                binding.recyclerViewDeals.visibility = View.GONE
+                binding.tvDealsCenter.visibility = View.GONE
                 binding.shimmerLayoutFruitsBanner.visibility = View.VISIBLE
                 binding.viewFruits.visibility = View.VISIBLE
                 binding.recyclerViewFruits.visibility = View.GONE
@@ -454,40 +315,55 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
             }
         }
 
-        fruitsBannersViewModel.apiError.observe(viewLifecycleOwner) {
+        homeBannersViewModel.apiError.observe(viewLifecycleOwner) {
+            binding.shimmerLayoutRoundImages.visibility = View.GONE
+            binding.shimmerLayoutSmallBanner.visibility = View.GONE
+            binding.dotsIndicator.visibility = View.GONE
+            binding.shimmerLayoutBigBanner.visibility = View.GONE
+            binding.shimmerLayoutDealsBanner.visibility = View.GONE
             binding.shimmerLayoutFruitsBanner.visibility = View.GONE
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
-        fruitsBannersViewModel.onFailure.observe(viewLifecycleOwner) {
+        homeBannersViewModel.onFailure.observe(viewLifecycleOwner) {
+            binding.shimmerLayoutRoundImages.visibility = View.GONE
+            binding.shimmerLayoutSmallBanner.visibility = View.GONE
+            binding.dotsIndicator.visibility = View.GONE
+            binding.shimmerLayoutBigBanner.visibility = View.GONE
+            binding.shimmerLayoutDealsBanner.visibility = View.GONE
             binding.shimmerLayoutFruitsBanner.visibility = View.GONE
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
-    private fun observeNewProducts() {
-        newProductsBannersViewModel.newProductsBannersResponse.observe(viewLifecycleOwner) { response ->
+    private fun observeProductsBanners() {
+        productBannersViewModel.productSlidersResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     originalCategoryList = it.newProductBanners
-                    val cdnUrl = it.cdnURL
+                    originalTopSellerList = it.topSellerBanners
+                    cdnUrl = it.cdnURL
 
                     if (originalCategoryList.isEmpty()) {
                         binding.shimmerLayoutNewProducts.visibility = View.GONE
-
+                        binding.shimmerLayoutTopSeller.visibility = View.GONE
                     } else {
                         binding.shimmerLayoutNewProducts.visibility = View.GONE
                         binding.viewNewProducts.visibility = View.GONE
                         binding.recyclerViewDrinks.visibility = View.VISIBLE
                         binding.tvNewProducts.visibility = View.VISIBLE
-                        binding.tvNewProducts.text = it.slider_header
-                        binding.recyclerViewDrinks.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+                        binding.tvNewProducts.text = it.newProductHeader
+                        binding.shimmerLayoutTopSeller.visibility = View.GONE
+                        binding.viewTopSeller.visibility = View.GONE
+                        binding.recyclerViewNutrition.visibility = View.VISIBLE
+                        binding.tvTopSeller.visibility = View.VISIBLE
+                        binding.tvTopSeller.text = it.topSellerHeader
 
-                        nonScrollingBannerDrinksAdapter = NonScrollingBannerNewProductsAdapter(this,
-                            originalCategoryList, "", cdnUrl,requireContext())
-                        binding.recyclerViewDrinks.adapter = nonScrollingBannerDrinksAdapter
+                        setupNewProductsAdapter()
+                        setupTopSellerAdapter()
 
+                        // UPDATE the existing adapter's data
                     }
                 } else {
 
@@ -495,62 +371,13 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
             }
         }
 
-        newProductsBannersViewModel.isLoading.observe(viewLifecycleOwner) {
+        productBannersViewModel.isLoading.observe(viewLifecycleOwner) {
             // Show shimmer while loading, hide ViewPager
             if (it == true) {
                 binding.shimmerLayoutNewProducts.visibility = View.VISIBLE
                 binding.viewNewProducts.visibility = View.VISIBLE
                 binding.recyclerViewDrinks.visibility = View.GONE
                 binding.tvNewProducts.visibility = View.GONE
-            }
-        }
-
-        newProductsBannersViewModel.apiError.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutNewProducts.visibility = View.GONE
-            showTopSnackBar(it ?: "Unexpected API error")
-        }
-
-        newProductsBannersViewModel.onFailure.observe(viewLifecycleOwner) {
-            binding.shimmerLayoutNewProducts.visibility = View.GONE
-            showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
-        }
-    }
-
-    private fun observeTopSeller() {
-        topSellerBannersViewModel.topSellerBannersResponse.observe(viewLifecycleOwner) { response ->
-            response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
-                if (it.status) {
-                    originalTopSellerList = it.topSellerBanners
-                    val cdnUrl = it.cdnURL
-
-                    if (originalTopSellerList.isEmpty()) {
-                        binding.shimmerLayoutTopSeller.visibility = View.GONE
-
-                    } else {
-
-                        binding.shimmerLayoutTopSeller.visibility = View.GONE
-                        binding.viewTopSeller.visibility = View.GONE
-                        binding.recyclerViewNutrition.visibility = View.VISIBLE
-                        binding.tvTopSeller.visibility = View.VISIBLE
-                        binding.tvTopSeller.text = it.slider_header
-
-
-                        binding.recyclerViewNutrition.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-                        nonScrollingBannerTopSellerAdapter = NonScrollingBannerTopSellerAdapter(this,
-                            originalTopSellerList, "", cdnUrl,requireContext())
-                        binding.recyclerViewNutrition.adapter = nonScrollingBannerTopSellerAdapter
-                    }
-                } else {
-
-                }
-            }
-        }
-
-        topSellerBannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
-            if (it == true) {
                 binding.shimmerLayoutTopSeller.visibility = View.VISIBLE
                 binding.viewTopSeller.visibility = View.VISIBLE
                 binding.recyclerViewNutrition.visibility = View.GONE
@@ -558,12 +385,14 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
             }
         }
 
-        topSellerBannersViewModel.apiError.observe(viewLifecycleOwner) {
+        productBannersViewModel.apiError.observe(viewLifecycleOwner) {
+            binding.shimmerLayoutNewProducts.visibility = View.GONE
             binding.shimmerLayoutTopSeller.visibility = View.GONE
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
-        topSellerBannersViewModel.onFailure.observe(viewLifecycleOwner) {
+        productBannersViewModel.onFailure.observe(viewLifecycleOwner) {
+            binding.shimmerLayoutNewProducts.visibility = View.GONE
             binding.shimmerLayoutTopSeller.visibility = View.GONE
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
@@ -612,6 +441,7 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
         snackBar.show()
     }
 
+    // FIX: This function is now more efficient.
     private fun updateWishlistInAdapter(variantId: String) {
         var updated = false
 
@@ -620,37 +450,77 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                 if (product.mvariant_id.toString() == variantId) {
                     // Toggle wishlist flag
                     product.product.user_info_wishlist = !product.product.user_info_wishlist
-                    val productIndex = prodIndex
-                    nonScrollingBannerDrinksAdapter?.notifyItemChanged(productIndex)
+                    // Use the more efficient notifyItemChanged to update only the affected item.
+                    nonScrollingBannerDrinksAdapter?.notifyItemChanged(prodIndex)
                     updated = true
+                    return@forEachIndexed // Exit the loop once the item is found and updated
                 }
             }
+            // FIX: Removed the redundant and inefficient call to notifyDataSetChanged().
+            // The notifyItemChanged() call above is sufficient.
 
-            if (updated) {
-                nonScrollingBannerDrinksAdapter?.notifyDataSetChanged()
-            }
-        }else{
-
+        } else {
             originalTopSellerList.forEachIndexed { prodIndex, product ->
                 if (product.mvariant_id.toString() == variantId) {
-                    // Toggle wishlist flag
                     product.product.user_info_wishlist = !product.product.user_info_wishlist
-                    val productIndex = prodIndex
-                    nonScrollingBannerTopSellerAdapter?.notifyItemChanged(productIndex)
+                    nonScrollingBannerTopSellerAdapter?.notifyItemChanged(prodIndex)
                     updated = true
+                    return@forEachIndexed // Exit the loop once the item is found and updated
                 }
             }
-
-            if (updated) {
-                nonScrollingBannerTopSellerAdapter?.notifyDataSetChanged()
-            }
+            // FIX: Removed the redundant and inefficient call to notifyDataSetChanged().
+            // The notifyItemChanged() call above is sufficient.
         }
     }
 
+    private fun setupNewProductsAdapter() {
+        val adapter = NonScrollingBannerNewProductsAdapter(
+            listener = this,
+            products = originalCategoryList,
+            cdnURL = cdnUrl,
+            context = requireContext(),
+            cartViewModel = cartViewModel,
+            lifecycleOwner = viewLifecycleOwner
+        )
+        binding.recyclerViewDrinks.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerViewDrinks.adapter = adapter
+    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacks(autoScrollRunnable!!)
+    private fun setupTopSellerAdapter() {
+        val topSellerAdapter = NonScrollingBannerTopSellerAdapter(
+            listener = this,
+            products = originalTopSellerList,
+            cdnURL = cdnUrl,
+            context = requireContext(),
+            cartViewModel = cartViewModel,
+            lifecycleOwner = viewLifecycleOwner
+        )
+        binding.recyclerViewNutrition.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerViewNutrition.adapter = topSellerAdapter
+    }
+
+    override fun onUpdateCart(totalItems: Int, productId: Int) {
+        // Live badge updated already via LiveData; optional additional UI updates done here
+        updateCartBadge(totalItems)
+    }
+
+    override fun onUpdateWishlist(mvariant_id: String, type: String) {
+        val userId = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+            ?.getString("userId", "") ?: ""
+        variantId = mvariant_id
+        wishlistViewModel.wishlist("Bearer " + userId, WishlistRequest(userId, mvariant_id))
+    }
+
+    private fun updateCartBadge(count: Int) {
+        activity?.runOnUiThread {
+
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Use a safe call `?.let` to prevent a NullPointerException if autoScrollRunnable is null.
+        autoScrollRunnable?.let { handler.removeCallbacks(it) }
     }
 
     private fun setupNotifications() {
@@ -671,11 +541,19 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
 
         binding.viewOrderLayout.setOnClickListener {
+            binding.viewOrderLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, OrdersListActivity::class.java)
             startActivity(intent)
         }
 
         binding.shopLayout.setOnClickListener {
+            binding.shopLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             tabSwitcher?.switchToShopTab()
 
 
@@ -686,6 +564,10 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
         }
 
         binding.favLayout.setOnClickListener {
+            binding.favLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             tabSwitcher?.switchToShopTab()
 
             Handler(Looper.getMainLooper()).postDelayed({
@@ -793,21 +675,9 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
         }, 500) // Delay 300ms to ensure tab is switched and view is ready
     }
 
-    override fun onUpdateWishlist(mvariant_id: String, type: String) {
-        val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
-        val userId = preferences?.getString("userId", "").orEmpty()
-        this.variantId = mvariant_id
-        this.type = type
-        wishlistViewModel.wishlist(token, WishlistRequest(userId, mvariant_id))
-    }
-
-    override fun onUpdateCart(totalItems: Int, productId: Int) {
-        val cartDao by lazy { context?.let { CartDatabase.getInstance(it).cartDao() } }
-        lifecycleScope.launch {
-            cartDao?.getCartItemCount()?.collect { totalCount ->
-                // totalCount will be null if the cart is empty, so handle that
-                val actualCount = totalCount ?: 0
-            }
-        }
+    override fun refreshAdapters() {
+        // Only refresh visible items
+        nonScrollingBannerDrinksAdapter?.notifyDataSetChanged()
+        nonScrollingBannerTopSellerAdapter?.notifyDataSetChanged()
     }
 }

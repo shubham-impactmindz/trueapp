@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    tools:context=".ui.component.main.account.EditProfileActivity">
+
+    <RelativeLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height60"
+        android:gravity="center_vertical"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="@dimen/margin5"
+        android:elevation="@dimen/elevation10"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/backLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:gravity="center">
+
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="@dimen/imageWidth24"
+                android:layout_height="@dimen/imageHeight24"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin5"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Back"
+                android:textSize="@dimen/headingTextSize"
+                android:textColor="@color/colorPrimaryDark">
+
+            </TextView>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/margin8"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:text="Edit Profile"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="@dimen/mainHeadingTextSize" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0sp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin10"
+            android:orientation="vertical">
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/bannerImage"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height120"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_banner"/>
+
+            <LinearLayout
+                android:id="@+id/nameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                android:gravity="center">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/firstNameInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/height60"
+                    android:layout_marginEnd="5sp"
+                    android:layout_weight="1"
+                    app:boxStrokeWidth="0sp"
+                    app:boxStrokeWidthFocused="0sp"
+                    app:boxStrokeColor="@color/colorPrimaryDark"
+                    app:boxBackgroundMode="filled"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/firstNameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="First name"
+                        android:background="@drawable/border_primary"
+                        android:inputType="textPersonName"
+                        android:textSize="@dimen/baseTextSize"
+                        android:padding="10sp"
+                        android:textColorHint="@color/borderGrey"
+                        android:drawableTint="@color/colorPrimaryDark"
+                        android:drawableStart="@drawable/first_name"
+                        android:drawablePadding="@dimen/padding10"
+                        android:fontFamily="@font/roboto_regular"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/lastNameInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/height60"
+                    android:layout_marginStart="5sp"
+                    android:layout_weight="1"
+                    app:boxStrokeWidth="0sp"
+                    app:boxStrokeWidthFocused="0sp"
+                    app:boxStrokeColor="@color/colorPrimaryDark"
+                    app:boxBackgroundMode="filled"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/lastNameInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="Last name"
+                        android:background="@drawable/border_primary"
+                        android:inputType="textPersonName"
+                        android:textSize="@dimen/baseTextSize"
+                        android:padding="10sp"
+                        android:textColorHint="@color/borderGrey"
+                        android:drawableTint="@color/colorPrimaryDark"
+                        android:drawableStart="@drawable/first_name"
+                        android:drawablePadding="@dimen/padding10"
+                        android:fontFamily="@font/roboto_regular"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/mobileNumberInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/mobileNumberInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Mobile number"
+                    android:background="@drawable/border_primary"
+                    android:inputType="number"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:maxLength="10"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/phone"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/emailAddressInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/emailAddressInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Email"
+                    android:background="@drawable/border_primary"
+                    android:inputType="textEmailAddress"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/email"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Email Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/companyNameInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/companyNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Company name"
+                    android:background="@drawable/border_primary"
+                    android:inputType="textPersonName"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/company"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/address1InputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/address1Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Address line 1"
+                    android:background="@drawable/border_primary"
+                    android:inputType="textPostalAddress"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/maps"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/address2InputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/address2Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Address line 2"
+                    android:background="@drawable/border_primary"
+                    android:inputType="textPostalAddress"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/maps"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/cityLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                android:gravity="center">
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/cityInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/height60"
+                    android:layout_marginEnd="5sp"
+                    android:layout_weight="1"
+                    app:boxStrokeWidth="0sp"
+                    app:boxStrokeWidthFocused="0sp"
+                    app:boxStrokeColor="@color/colorPrimaryDark"
+                    app:boxBackgroundMode="filled"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/cityInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="City"
+                        android:background="@drawable/border_primary"
+                        android:inputType="textPostalAddress"
+                        android:textSize="@dimen/baseTextSize"
+                        android:padding="10sp"
+                        android:textColorHint="@color/borderGrey"
+                        android:drawableTint="@color/colorPrimaryDark"
+                        android:drawableStart="@drawable/maps"
+                        android:drawablePadding="@dimen/padding10"
+                        android:fontFamily="@font/roboto_regular"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/postCodeInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/height60"
+                    android:layout_marginStart="5sp"
+                    android:layout_weight="1"
+                    app:boxStrokeWidth="0sp"
+                    app:boxStrokeWidthFocused="0sp"
+                    app:boxStrokeColor="@color/colorPrimaryDark"
+                    app:boxBackgroundMode="filled"
+                    app:hintEnabled="false">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/postCodeInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="Postcode"
+                        android:background="@drawable/border_primary"
+                        android:inputType="textPostalAddress"
+                        android:textSize="@dimen/baseTextSize"
+                        android:padding="10sp"
+                        android:textColorHint="@color/borderGrey"
+                        android:drawableTint="@color/colorPrimaryDark"
+                        android:drawableStart="@drawable/maps"
+                        android:drawablePadding="@dimen/padding10"
+                        android:fontFamily="@font/roboto_regular"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/countryInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height60"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="@dimen/margin10"
+                app:boxStrokeWidth="0sp"
+                app:boxStrokeWidthFocused="0sp"
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:boxBackgroundMode="filled"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/countryInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Country"
+                    android:background="@drawable/border_primary"
+                    android:inputType="textPostalAddress"
+                    android:textSize="@dimen/baseTextSize"
+                    android:padding="10sp"
+                    android:textColorHint="@color/borderGrey"
+                    android:drawableTint="@color/colorPrimaryDark"
+                    android:drawableStart="@drawable/maps"
+                    android:drawablePadding="@dimen/padding10"
+                    android:fontFamily="@font/roboto_regular"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Login Button -->
+            <TextView
+                android:id="@+id/btnUpdate"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height40"
+                android:text="UPDATE"
+                android:background="@drawable/border_solid_secondary"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_marginTop="16sp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/buttonTextSize"
+                android:gravity="center"
+                android:fontFamily="@font/roboto_bold"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

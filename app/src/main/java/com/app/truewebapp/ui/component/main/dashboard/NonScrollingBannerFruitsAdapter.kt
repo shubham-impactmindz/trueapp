@@ -1,14 +1,15 @@
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.app.truewebapp.data.dto.dashboard_banners.FruitsSliders
+import com.app.truewebapp.data.dto.dashboard_banners.FruitSlider
 import com.app.truewebapp.databinding.ItemBannerDealBinding
 import com.app.truewebapp.ui.component.main.dashboard.FruitsBannerListener
 import com.bumptech.glide.Glide
 
 class NonScrollingBannerFruitsAdapter(
-    private val listener: FruitsBannerListener, private val banners: List<FruitsSliders>, private val  cdnURL: String) : RecyclerView.Adapter<NonScrollingBannerFruitsAdapter.BannerViewHolder>() {
+    private val listener: FruitsBannerListener, private val banners: List<FruitSlider>, private val cdnURL: String) : RecyclerView.Adapter<NonScrollingBannerFruitsAdapter.BannerViewHolder>() {
 
     inner class BannerViewHolder(private val binding: ItemBannerDealBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(imageRes: String, position: Int) {
@@ -18,6 +19,10 @@ class NonScrollingBannerFruitsAdapter(
                 .dontAnimate()
                 .into(binding.imageView)
             binding.imageView.setOnClickListener {
+                binding.imageView.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 listener.onUpdateFruitsBanner(banners[position].main_mcat_id.toString(), banners[position].mcat_id.toString(), banners[position].msubcat_id.toString(), banners[position].mproduct_id.toString())
             }
         }

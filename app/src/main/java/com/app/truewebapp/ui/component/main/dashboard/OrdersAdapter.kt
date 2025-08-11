@@ -1,6 +1,7 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
 import android.content.Intent
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,10 +54,28 @@ class OrdersAdapter(
         holder.textFullFill.text = option.fulfillment_status
         holder.textUnit.text = option.units.toString()
         holder.textSku.text = option.skus.toString()
-        holder.textTotalPaid.text = "£ ${option.summary.payment_total}"
-        holder.itemView.setOnClickListener { onItemClick(option) }
+        val subtotal = option.summary.subtotal ?: 0.0
+        val walletDiscount = option.summary.wallet_discount ?: 0.0
+        val couponDiscount = option.summary.coupon_discount ?: 0.0
+        val deliveryCost = option.summary.delivery_cost ?: 0.0
+        val vat = option.summary.vat ?: 0.0
+
+        val totalPayment = (subtotal + vat + deliveryCost) - (walletDiscount + couponDiscount)
+
+        holder.textTotalPaid.text = "£${"%.2f".format(totalPayment)}"
+        holder.itemView.setOnClickListener {
+            holder.itemView.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
+            onItemClick(option)
+        }
 
         holder.textReorderItems.setOnClickListener {
+            holder.textReorderItems.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(holder.itemView.context, CartActivity::class.java)
             holder.itemView.context.startActivity(intent)
         }

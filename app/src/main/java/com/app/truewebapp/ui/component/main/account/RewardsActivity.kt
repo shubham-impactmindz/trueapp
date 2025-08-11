@@ -2,6 +2,7 @@ package com.app.truewebapp.ui.component.main.account
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -25,13 +26,25 @@ class RewardsActivity : AppCompatActivity() {
             insets
         }
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
         binding.cardViewReferral.setOnClickListener {
+            binding.cardViewReferral.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(this, ReferralActivity::class.java)
             startActivity(intent)
         }
         binding.buttonSend.setOnClickListener {
+            binding.buttonSend.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(this, ReferralActivity::class.java)
             startActivity(intent)
         }

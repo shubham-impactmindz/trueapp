@@ -1,4 +1,5 @@
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,10 @@ class BannerAdapter(
                 .into(binding.imageView)
 
             binding.imageView.setOnClickListener {
+                binding.imageView.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 listener.onBannerClick(banner.main_mcat_id.toString(),banner.mcat_id.toString(), banner.msubcat_id.toString(), banner.mproduct_id.toString())
             }
         }

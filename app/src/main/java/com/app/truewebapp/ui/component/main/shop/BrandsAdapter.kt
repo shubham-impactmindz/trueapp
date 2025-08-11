@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.shop
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,6 +49,10 @@ class BrandsAdapter(
 
         if (type.lowercase() != "all") {
             holder.productBrandLayout.setOnClickListener {
+                holder.productBrandLayout.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 brand.isSelected = !brand.isSelected
                 notifyItemChanged(position)
             }

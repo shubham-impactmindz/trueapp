@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -60,9 +61,17 @@ class EditAddressActivity : AppCompatActivity() {
             insets
         }
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
         binding.saveLayout.setOnClickListener {
+            binding.saveLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             if (validateInputs()){
                 companyAddressUpsertViewModel.companyAddress(token, CompanyAddressRequest(binding.companyNameInput.text.toString().trim(),
                     binding.address1Input.text.toString().trim(),binding.address2Input.text.toString().trim(),binding.cityInput.text.toString().trim(),
@@ -71,6 +80,10 @@ class EditAddressActivity : AppCompatActivity() {
             }
         }
         binding.deleteLayout.setOnClickListener {
+            binding.deleteLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             companyAddressDeleteViewModel.deleteCompanyAddress(token, CompanyAddressDeleteRequest(intent.getStringExtra("company_address_id")))
         }
     }

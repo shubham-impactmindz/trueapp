@@ -1,16 +1,17 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
-import com.app.truewebapp.data.dto.dashboard_banners.RoundSliders
+import com.app.truewebapp.data.dto.dashboard_banners.RoundSlider
 import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
 
 class RoundImageAdapter(
-    private val listener: RoundBannerListener,private val images: List<RoundSliders>,private val  cdnURL: String) :
+    private val listener: RoundBannerListener, private val images: List<RoundSlider>, private val cdnURL: String) :
     RecyclerView.Adapter<RoundImageAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -40,6 +41,10 @@ class RoundImageAdapter(
             .into(holder.imageView)
 
         holder.imageView.setOnClickListener {
+            holder.imageView.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             listener.onUpdateRoundBanner(images[position].main_mcat_id.toString(), images[position].mcat_id.toString(), images[position].msubcat_id.toString(), images[position].mproduct_id.toString())
         }
     }

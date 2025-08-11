@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
 import android.text.Html
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import com.app.truewebapp.R
@@ -15,7 +18,10 @@ import com.app.truewebapp.data.dto.browse.Product
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.utils.GlideApp
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProductsAdapter(
     private val listener: ProductAdapterListener,
@@ -72,7 +78,7 @@ class ProductsAdapter(
         updateWishlistUI(holder, product)
         updatePriceUI(holder, product)
         updateDealTagUI(holder, product)
-        holder.finalPrice.text = "£ %.2f".format(product.price)
+        holder.finalPrice.text = "£%.2f".format(product.price)
 
         CoroutineScope(Dispatchers.Main).launch {
 
@@ -83,6 +89,10 @@ class ProductsAdapter(
         }
 
         holder.btnFavorite.setOnClickListener {
+            holder.btnFavorite.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             CoroutineScope(Dispatchers.Main).launch {
 
                 val quantity = withContext(Dispatchers.IO) {
@@ -97,6 +107,10 @@ class ProductsAdapter(
         }
 
         holder.btnFavoriteSelected.setOnClickListener {
+            holder.btnFavoriteSelected.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
 
             CoroutineScope(Dispatchers.Main).launch {
 
@@ -144,6 +158,10 @@ class ProductsAdapter(
             }
 
             holder.btnAdd.setOnClickListener {
+                holder.btnAdd.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 quantity = 1
                 updateCartAsync(product, quantity)
                 holder.textNoOfItems.text = quantity.toString()
@@ -153,12 +171,21 @@ class ProductsAdapter(
 
             holder.btnAddMore.setOnClickListener {
                 quantity++
+                holder.btnAddMore.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 updateCartAsync(product, quantity)
                 holder.textNoOfItems.text = quantity.toString()
             }
 
             holder.btnMinus.setOnClickListener {
                 quantity--
+                holder.btnMinus.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 if (quantity > 0) {
                     updateCartAsync(product, quantity)
                     holder.textNoOfItems.text = quantity.toString()
@@ -243,10 +270,13 @@ class ProductsAdapter(
     private fun updatePriceUI(holder: ViewHolder, product: Product) {
         if (product.compare_price == 0.0) {
             holder.comparePrice.visibility = View.GONE
+            holder.finalPrice.setTextColor(context.getColor(R.color.black))
         } else {
             holder.comparePrice.visibility = View.VISIBLE
             holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-            holder.comparePrice.text = "£ %.2f".format(product.compare_price)
+            holder.comparePrice.setTextColor(context.getColor(R.color.black))
+            holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
+            holder.comparePrice.text = "£%.2f".format(product.compare_price)
         }
     }
 

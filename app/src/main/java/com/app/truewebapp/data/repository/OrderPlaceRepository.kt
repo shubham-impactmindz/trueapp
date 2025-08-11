@@ -29,6 +29,7 @@ object OrderPlaceRepository {
                         successHandler(it)
                     }
                     Log.e("TAG", "onResponse: "+response.body())
+                    Log.e("TAG", "onResponse: "+response.headers())
                     if (response.code() == 400) {
                         val jsonObj = JSONObject(response.errorBody()!!.charStream().readText())
                         failureHandler(jsonObj.getString("message"))

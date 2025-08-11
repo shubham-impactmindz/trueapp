@@ -16,7 +16,9 @@ import com.app.truewebapp.data.dto.coupons.CouponsResponse
 import com.app.truewebapp.data.dto.dashboard_banners.BigBannersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.DealsBannersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.FruitsBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.HomeSlidersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.NewProductsBannersResponse
+import com.app.truewebapp.data.dto.dashboard_banners.ProductSlidersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.RoundBannersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.SmallBannersResponse
 import com.app.truewebapp.data.dto.dashboard_banners.TopSellerBannersResponse
@@ -27,11 +29,14 @@ import com.app.truewebapp.data.dto.login.LoginResponse
 import com.app.truewebapp.data.dto.order.OrderPlaceResponse
 import com.app.truewebapp.data.dto.order.OrderRequest
 import com.app.truewebapp.data.dto.order.OrdersResponse
+import com.app.truewebapp.data.dto.profile.ProfileRequest
+import com.app.truewebapp.data.dto.profile.UserProfileResponse
 import com.app.truewebapp.data.dto.register.RegisterRequest
 import com.app.truewebapp.data.dto.register.RegisterResponse
 import com.app.truewebapp.data.dto.register.VerifyRepResponse
 import com.app.truewebapp.data.dto.reset_password.ResetPasswordRequest
 import com.app.truewebapp.data.dto.reset_password.ResetPasswordResponse
+import com.app.truewebapp.data.dto.wallet.WalletBalanceResponse
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.data.dto.wishlist.WishlistResponse
 import retrofit2.Call
@@ -72,6 +77,16 @@ interface WebService {
     fun fetchBanner(
         @Header("Authorization") token: String,
         ): Call<BannerResponse>
+
+    @GET("/api/products-banner")
+    fun fetchProductsBanner(
+        @Header("Authorization") token: String,
+        ): Call<ProductSlidersResponse>
+
+    @GET("/api/home-banner")
+    fun fetchHomeBanner(
+        @Header("Authorization") token: String,
+        ): Call<HomeSlidersResponse>
 
     @GET("/api/brands")
     fun fetchBrands(
@@ -195,4 +210,20 @@ interface WebService {
         @Query("per_page") per_page: String? = null,
         @Header("Authorization") token: String,
     ): Call<OrdersResponse>
+
+    @GET("/api/user-profile")
+    fun fetchUserProfile(
+        @Header("Authorization") token: String
+    ): Call<UserProfileResponse>
+
+    @PUT("/api/user-profile/update")
+    fun fetchEditUserProfile(
+        @Header("Authorization") token: String,
+        @Body profileRequest: ProfileRequest
+    ): Call<UserProfileResponse>
+
+    @GET("/api/wallet/balance")
+    fun fetchWalletBalance(
+        @Header("Authorization") token: String
+    ): Call<WalletBalanceResponse>
 }

@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log // Added for debugging
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,7 @@ import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.component.main.shop.ProductAdapterListener
 import com.app.truewebapp.ui.viewmodel.CartViewModel
 import com.app.truewebapp.ui.viewmodel.DeliverySettingsViewModel
+import com.app.truewebapp.ui.viewmodel.WalletBalanceViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
@@ -45,8 +47,10 @@ class CartFragment : Fragment(), ProductAdapterListener {
     private val cartDao by lazy { context?.let { CartDatabase.getInstance(it).cartDao() } }
 
     private var token = ""
+    private var walletBalance = ""
     private var currentWishlistVariantId: String? = null // Store variant ID for wishlist toggles
     private lateinit var deliverySettingsViewModel: DeliverySettingsViewModel
+    private lateinit var walletBalanceViewModel: WalletBalanceViewModel
     private lateinit var cartViewModel: CartViewModel
     private var minOrderValue: String? = null
 
@@ -67,9 +71,11 @@ class CartFragment : Fragment(), ProductAdapterListener {
         observeWishlistViewModel() // Observe wishlist actions
         observeDeliverySettingsViewModel() // Observe wishlist actions
         observeCart()
+        observeWalletBalance()
     }
 
     private fun initializeViewModels() {
+        walletBalanceViewModel = ViewModelProvider(this)[WalletBalanceViewModel::class.java]
         wishlistViewModel = ViewModelProvider(this)[WishlistViewModel::class.java]
         deliverySettingsViewModel = ViewModelProvider(this)[DeliverySettingsViewModel::class.java]
         cartViewModel = ViewModelProvider(this)[CartViewModel::class.java]
@@ -83,6 +89,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
     override fun onResume() {
         super.onResume()
         observeCartItems()
+        walletBalanceViewModel.walletBalance(token)
         // If there's a reason to re-evaluate the cart outside of direct DB changes (e.g.,
         // if user comes back from a product detail page where cart was updated locally but not through DB observer)
         // you might need a mechanism here, but for now, Flow is sufficient for DB changes.
@@ -95,6 +102,30 @@ class CartFragment : Fragment(), ProductAdapterListener {
         Log.d("CartFragment", "RecyclerView and Adapter set up.")
     }
 
+    private fun observeWalletBalance() {
+        walletBalanceViewModel.walletBalanceResponse.observe(viewLifecycleOwner) { response ->
+            response?.let { it ->
+
+                if (it.success) {
+                    walletBalance = it.balance
+                    "£$walletBalance".also { binding.tvWalletBalance.text = it }
+                }
+            }
+        }
+
+        walletBalanceViewModel.isLoading.observe(viewLifecycleOwner) {
+
+        }
+
+        walletBalanceViewModel.apiError.observe(viewLifecycleOwner) {
+
+        }
+
+        walletBalanceViewModel.onFailure.observe(viewLifecycleOwner) {
+
+        }
+    }
+
     private fun observeCart() {
         cartViewModel.changePasswordResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
@@ -102,6 +133,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
 
                     val intent = Intent(context, CheckOutActivity::class.java)
                     intent.putExtra("minOrderValue",minOrderValue)
+                    intent.putExtra("walletBalance",walletBalance)
                     // Optionally pass total amount or cart items data if CheckOutActivity needs it
                     startActivity(intent)
                 }
@@ -142,7 +174,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
                     binding.imageCart.visibility = View.VISIBLE
                     binding.textItems.text = "0 Units"
                     binding.textSKU.text = "0 SKUs"
-                    binding.textTotal.text = "£ 0.00" // Reset total price for empty cart
+                    binding.textTotal.text = "£0.00" // Reset total price for empty cart
                 }
             }
         }
@@ -170,13 +202,17 @@ class CartFragment : Fragment(), ProductAdapterListener {
         }
 
         val finalTotal = totalAmount + deliveryFee
-        binding.textTotal.text = "£ %.2f".format(finalTotal)
+        binding.textTotal.text = "£%.2f".format(finalTotal)
 
         Log.d("CartFragment", "Total: £$totalAmount, Delivery: £$deliveryFee, Final: £$finalTotal")
     }
 
     private fun setupView() {
         binding.checkoutLayout.setOnClickListener {
+            binding.checkoutLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             lifecycleScope.launch {
                 // Step 1: Fetch cart items once from DB
                 val cartItems = withContext(Dispatchers.IO) {

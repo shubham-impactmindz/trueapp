@@ -1,6 +1,7 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -33,12 +34,20 @@ class OrderDetailActivity : AppCompatActivity() {
             binding.tvSkuNo.text = it.skus.toString()
             binding.tvDeliveryMethod.text = it.delivery.method
             binding.tvAddress.text = it.delivery.address
-            binding.tvTotal.text = "£ ${it.summary.subtotal}"
-            binding.tvWalletDiscount.text = "£ ${it.summary.wallet_discount}"
-            binding.tvCouponDiscount.text = "£ ${it.summary.coupon_discount}"
-            binding.tvDelivery.text = "£ ${it.summary.delivery_cost}"
-            binding.tvVat.text = "£ ${it.summary.vat}"
-            binding.tvTotalPayment.text = "£ ${it.summary.payment_total}"
+            val subtotal = it.summary.subtotal ?: 0.0
+            val walletDiscount = it.summary.wallet_discount ?: 0.0
+            val couponDiscount = it.summary.coupon_discount ?: 0.0
+            val deliveryCost = it.summary.delivery_cost ?: 0.0
+            val vat = it.summary.vat ?: 0.0
+
+            val totalPayment = (subtotal + vat + deliveryCost) - (walletDiscount + couponDiscount)
+
+            binding.tvTotal.text = "£${"%.2f".format(subtotal)}"
+            binding.tvWalletDiscount.text = "£${"%.2f".format(walletDiscount)}"
+            binding.tvCouponDiscount.text = "£${"%.2f".format(couponDiscount)}"
+            binding.tvDelivery.text = "£${"%.2f".format(deliveryCost)}"
+            binding.tvVat.text = "£${"%.2f".format(vat)}"
+            binding.tvTotalPayment.text = "£${"%.2f".format(totalPayment)}"
 
             adapter = ItemListAdapter(cdnURL)
             binding.orderItemsRecycler.layoutManager = LinearLayoutManager(this)
@@ -46,10 +55,16 @@ class OrderDetailActivity : AppCompatActivity() {
             adapter.setItems(it.items)
             if (it.payment_status.lowercase() == "pending"){
                 binding.tvPaymentStatus.text = "Payment Pending"
+            }else if(it.payment_status.lowercase() == "paid"){
+                binding.tvPaymentStatus.text = "Paid"
             }
         }
 
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
     }

@@ -3,6 +3,7 @@ package com.app.truewebapp.ui.component.main
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -12,14 +13,18 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import com.app.truewebapp.R
 import com.app.truewebapp.databinding.ActivityMainBinding
+import com.app.truewebapp.ui.component.main.cart.CartUpdateListener
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.dashboard.TabSwitcher
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.launch
 import java.util.ArrayDeque
 
-class MainActivity : AppCompatActivity(), TabSwitcher {
+class MainActivity : AppCompatActivity(), TabSwitcher, CartUpdateListener {
 
     private lateinit var adapter: ViewPagerAdapter
     private lateinit var binding: ActivityMainBinding
@@ -57,6 +62,11 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
                 2 -> {
                     tab.text = "Cart"
                     tab.setIcon(R.drawable.ic_cart_unselected)
+                    tab.orCreateBadge.apply {
+                        number = 0
+                        isVisible = false
+                        backgroundColor = ContextCompat.getColor(this@MainActivity, R.color.colorSecondary)
+                    }
                 }
                 3 -> {
                     tab.text = "Wallet"
@@ -70,6 +80,7 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
         }.attach()
 
         // Track tab changes and push to history
+        // Track tab changes and push to history
         binding.tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
                 val position = tab?.position ?: 0
@@ -80,12 +91,22 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
                     }
                 }
                 binding.viewPager.currentItem = position
+                // Add this line to perform haptic feedback on the selected tab's view
+                tab?.view?.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
             }
 
             override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
-            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {
+                // You can also add haptic feedback here if a tab is re-selected.
+                tab?.view?.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
+            }
         })
-
         // Handle back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -113,6 +134,31 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
                 }
             }
         })
+        loadInitialCartCount()
+    }
+
+    private fun loadInitialCartCount() {
+        val dao = CartDatabase.getInstance(this).cartDao()
+
+        lifecycleScope.launch {
+            dao.getCartItemCount().collect { totalCount ->
+                // totalCount will be null if the cart is empty, so handle that
+                updateCartBadge(totalCount)
+            }
+        }
+    }
+
+    fun updateCartBadge(count: Int) {
+        val cartTab = binding.tabLayout.getTabAt(2) // Cart tab is at position 2
+        cartTab?.let { tab ->
+            val badge = tab.orCreateBadge
+            if (count > 0) {
+                badge.number = count
+                badge.isVisible = true
+            } else {
+                badge.isVisible = false
+            }
+        }
     }
 
     private fun showExitSnackbar() {
@@ -137,5 +183,14 @@ class MainActivity : AppCompatActivity(), TabSwitcher {
     override fun switchToShopTab() {
         binding.viewPager.currentItem = 1
         binding.tabLayout.getTabAt(1)?.select()
+    }
+
+    override fun switchToCartTab() {
+        binding.viewPager.currentItem = 2
+        binding.tabLayout.getTabAt(2)?.select()
+    }
+
+    override fun onCartItemsUpdated(count: Int) {
+        updateCartBadge(count)
     }
 }

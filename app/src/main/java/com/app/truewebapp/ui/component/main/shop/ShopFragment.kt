@@ -2,7 +2,7 @@ package com.app.truewebapp.ui.component.main.shop
 
 import BannerAdapter
 import android.annotation.SuppressLint
-import android.content.Intent
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -11,6 +11,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -33,9 +34,10 @@ import com.app.truewebapp.data.dto.browse.BrowseBanners
 import com.app.truewebapp.data.dto.browse.MainCategories
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentShopBinding
-import com.app.truewebapp.ui.component.main.cart.CartActivity
+import com.app.truewebapp.ui.component.main.cart.CartUpdateListener
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
+import com.app.truewebapp.ui.component.main.dashboard.TabSwitcher
 import com.app.truewebapp.ui.viewmodel.BannersViewModel
 import com.app.truewebapp.ui.viewmodel.BrandsViewModel
 import com.app.truewebapp.ui.viewmodel.CategoriesViewModel
@@ -54,6 +56,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private lateinit var brandsViewModel: BrandsViewModel
     private var adapter: ShopMainCategoryAdapter? = null
     private var bannerAdapter: BannerAdapter? = null
+    private var tabSwitcher: TabSwitcher? = null
+    private var cartUpdateListener: CartUpdateListener? = null
     private var originalCategoryList: List<MainCategories> = listOf()
     private val handler = Handler(Looper.getMainLooper())
     private var autoScrollRunnable: Runnable? = null
@@ -65,6 +69,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     var filtersType = "All"
     var applyFilter = false
     var cdnUrl = ""
+
+    // Add a flag to track the visibility state of content when filter is shown
+    private var wasContentVisibleBeforeFilter = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -101,7 +108,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                     if (cartItems.isNotEmpty()) {
                         updateTotalAmount(cartItems) // Update total price
                     } else {
-                        binding.tvTotalAmount.text = "£ 0.00" // Reset total price for empty cart
+                        binding.tvTotalAmount.text = "£0.00" // Reset total price for empty cart
                     }
                 }
             }
@@ -111,6 +118,24 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         setupViews()
         setupObservers()
         loadInitialData()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is TabSwitcher) {
+            tabSwitcher = context
+        }
+        if (context is CartUpdateListener) {
+            cartUpdateListener = context
+        } else {
+            throw RuntimeException("$context must implement CartUpdateListener")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        tabSwitcher = null
+        cartUpdateListener = null
     }
 
     private fun initializeViewModels() {
@@ -124,14 +149,34 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     }
 
     private fun setupViews() {
-        binding.filterButton.setOnClickListener { toggleFilterOverlay() }
-        binding.cart.setOnClickListener { startActivity(Intent(context, CartActivity::class.java)) }
+        binding.filterButton.setOnClickListener {
+            binding.filterButton.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
+            toggleFilterOverlay()
+        }
+        binding.cart.setOnClickListener {
+            binding.cart.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
+            tabSwitcher?.switchToCartTab()
+        }
         binding.cancelLayout.setOnClickListener {
+            binding.cancelLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             toggleFilterOverlay()
             applyFilter = false
         }
 
         binding.applyLayout.setOnClickListener {
+            binding.applyLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val selectedIds = brandsViewModel.brandsResponse.value?.mbrands
                 ?.filter { it.isSelected }
                 ?.map { it.mbrand_id }
@@ -549,24 +594,50 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     private fun toggleFilterOverlay() {
         val isFilterVisible = binding.filterLayout.visibility == View.VISIBLE
-        binding.filterLayout.visibility = if (isFilterVisible) View.GONE else View.VISIBLE
-        binding.shopMainCategoryRecycler.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
-        binding.shopCategoryLayout.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
-        binding.layoutBanner.visibility = if (isFilterVisible) View.GONE else View.VISIBLE // Fixed visibility
+
+        if (isFilterVisible) {
+            // Filter is currently visible, so hide it
+            binding.filterLayout.visibility = View.GONE
+            // Restore visibility of other views based on their state before the filter was shown
+            binding.shopMainCategoryRecycler.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
+            binding.shopCategoryLayout.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
+            // Restore banner visibility based on its own data/loading state, not just a fixed value
+            // This is handled better by observeBanners() and showBannerView()
+            showBannerView(bannerAdapter?.itemCount ?: 0 > 0) // Re-evaluate banner visibility
+        } else {
+            // Filter is currently hidden, so show it
+            // Before showing the filter, store the current visibility of content views
+            wasContentVisibleBeforeFilter = binding.shopMainCategoryRecycler.visibility == View.VISIBLE || binding.layoutBanner.visibility == View.VISIBLE
+
+            binding.filterLayout.visibility = View.VISIBLE
+            // Hide the content views when the filter is active
+            binding.shopMainCategoryRecycler.visibility = View.GONE
+            binding.shopCategoryLayout.visibility = View.GONE
+            binding.layoutBanner.visibility = View.GONE
+        }
     }
+
 
     private fun showNoDataView(show: Boolean) {
         binding.noDataTextView.visibility = if (show) View.VISIBLE else View.GONE
-        binding.shopMainCategoryRecycler.visibility = if (show) View.GONE else View.VISIBLE
+        // Ensure main category recycler is hidden if no data, and visible otherwise,
+        // unless the filter is active
+        if (binding.filterLayout.visibility == View.GONE) {
+            binding.shopMainCategoryRecycler.visibility = if (show) View.GONE else View.VISIBLE
+        }
     }
 
     private fun showBannerView(show: Boolean) {
         binding.viewPager.visibility = if (show) View.VISIBLE else View.GONE
-
-        val isFilterVisible = binding.filterLayout.visibility == View.VISIBLE
-        binding.layoutBanner.visibility = if (isFilterVisible) View.GONE else View.VISIBLE
-//        binding.dotsIndicator.visibility = if (show) View.VISIBLE else View.GONE
+        // Ensure layoutBanner visibility is tied to its content,
+        // but only if the filter is not currently active.
+        if (binding.filterLayout.visibility == View.GONE) {
+            binding.layoutBanner.visibility = if (show) View.VISIBLE else View.GONE
+        } else {
+            binding.layoutBanner.visibility = View.GONE // Keep hidden if filter is active
+        }
     }
+
 
     private fun setupShopUI(categories: List<MainCategories>, cdnUrl: String) {
         if (adapter == null) {
@@ -575,6 +646,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             binding.shopMainCategoryRecycler.adapter = adapter
         } else {
             adapter?.updateCategoriesPreserveExpansion(categories)
+        }
+        // Ensure visibility is correct after setting up UI, unless filter is active
+        if (binding.filterLayout.visibility == View.GONE) {
+            binding.shopMainCategoryRecycler.visibility = View.VISIBLE
         }
     }
 
@@ -599,6 +674,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                         binding.tvCartBadge.visibility = View.VISIBLE
                         binding.tvCartBadge.text = actualCount.toString()
                     }
+                    cartUpdateListener?.onCartItemsUpdated(actualCount)
                 }
             }
 
@@ -609,7 +685,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                     if (cartItems.isNotEmpty()) {
                         updateTotalAmount(cartItems)
                     } else {
-                        binding.tvTotalAmount.text = "£ 0.00"
+                        binding.tvTotalAmount.text = "£0.00"
                     }
                 }
             }
@@ -618,7 +694,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
         val totalAmount = cartItems.sumOf { it.price * it.quantity }
-        binding.tvTotalAmount.text = "£ %.2f".format(totalAmount)
+        binding.tvTotalAmount.text = "£%.2f".format(totalAmount)
     }
 
     override fun onDestroyView() {

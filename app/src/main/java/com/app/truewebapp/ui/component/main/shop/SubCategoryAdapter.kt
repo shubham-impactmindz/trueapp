@@ -2,6 +2,7 @@ package com.app.truewebapp.ui.component.main.shop
 
 import android.os.CountDownTimer
 import android.text.Html
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -142,6 +143,10 @@ class SubCategoryAdapter(
         holder.bind(subCategory, isExpanded, cdnURL, productAdapterListener)
 
         holder.linearSubCategory.setOnClickListener {
+            holder.linearSubCategory.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val subcatId = subCategory.msubcat_id.toString()
             val wasExpanded = expandedMap[subcatId] ?: false
             expandedMap.clear()

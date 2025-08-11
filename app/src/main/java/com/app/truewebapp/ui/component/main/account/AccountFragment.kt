@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -98,59 +99,115 @@ class AccountFragment : Fragment() {
 
     private fun setupAccountPage() {
         binding.repLayout.setOnClickListener {
+            binding.repLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, RepDetailActivity::class.java)
             startActivity(intent)
         }
         binding.myOrdersLayout.setOnClickListener {
+            binding.myOrdersLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, MyOrdersActivity::class.java)
             startActivity(intent)
         }
         binding.myRewardsLayout.setOnClickListener {
+            binding.myRewardsLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, RewardsActivity::class.java)
             startActivity(intent)
         }
         binding.companyAddressLayout.setOnClickListener {
+            binding.companyAddressLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, CompanyAddressActivity::class.java)
             startActivity(intent)
         }
         binding.paymentOptionLayout.setOnClickListener {
+            binding.paymentOptionLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, PaymentOptionsActivity::class.java)
             startActivity(intent)
         }
         binding.servicesLayout.setOnClickListener {
+            binding.servicesLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, ServicesActivity::class.java)
             startActivity(intent)
         }
         binding.profileLayout.setOnClickListener {
+            binding.profileLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, ProfileActivity::class.java)
             startActivity(intent)
         }
         binding.walletLayout.setOnClickListener {
+            binding.walletLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, WalletActivity::class.java)
             startActivity(intent)
         }
         binding.notificationLayout.setOnClickListener {
+            binding.notificationLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, NotificationsActivity::class.java)
             startActivity(intent)
         }
         binding.passwordLayout.setOnClickListener {
+            binding.passwordLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(context, ChangePasswordActivity::class.java)
             startActivity(intent)
         }
         binding.termsLayout.setOnClickListener {
+            binding.termsLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(requireContext(), WebViewActivity::class.java)
             intent.putExtra("title", "Terms and Conditions")
             startActivity(intent)
         }
         binding.privacyLayout.setOnClickListener {
+            binding.privacyLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(requireContext(), WebViewActivity::class.java)
             intent.putExtra("title", "Privacy Policy")
             startActivity(intent)
         }
         binding.logoutLayout.setOnClickListener {
+            binding.logoutLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             showCustomLogoutDialog()
         }
         binding.deleteLayout.setOnClickListener {
+            binding.deleteLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             showCustomDeleteDialog()
         }
     }
@@ -170,10 +227,18 @@ class AccountFragment : Fragment() {
         btnLogout.setText("Delete")
 
         btnCancel.setOnClickListener {
+            btnCancel.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             dialog.dismiss()
         }
 
         btnLogout.setOnClickListener {
+            btnLogout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             dialog.dismiss()
 
             val preferences =context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
@@ -194,10 +259,18 @@ class AccountFragment : Fragment() {
         val btnLogout = dialog.findViewById<Button>(R.id.btnLogout)
 
         btnCancel.setOnClickListener {
+            btnCancel.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             dialog.dismiss()
         }
 
         btnLogout.setOnClickListener {
+            btnLogout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             dialog.dismiss()
             performLogout()
         }

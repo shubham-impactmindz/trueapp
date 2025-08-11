@@ -1,16 +1,17 @@
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.app.truewebapp.data.dto.dashboard_banners.SmallSliders
+import com.app.truewebapp.data.dto.dashboard_banners.SmallSlider
 import com.app.truewebapp.databinding.ItemBannerBinding
 import com.app.truewebapp.ui.component.main.dashboard.SmallBannerListener
 import com.bumptech.glide.Glide
 
 class NonScrollingBannerAdapter(
     private val listener: SmallBannerListener,
-    private val banners: List<SmallSliders>,
-    private val  cdnURL: String)
+    private val banners: List<SmallSlider>,
+    private val cdnURL: String)
     : RecyclerView.Adapter<NonScrollingBannerAdapter.BannerViewHolder>() {
 
     inner class BannerViewHolder(private val binding: ItemBannerBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -21,6 +22,10 @@ class NonScrollingBannerAdapter(
                 .dontAnimate()
                 .into(binding.imageView)
             binding.imageView.setOnClickListener {
+                binding.imageView.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 listener.onUpdateSmallBanner(banners[position].main_mcat_id.toString(), banners[position].mcat_id.toString(), banners[position].msubcat_id.toString(), banners[position].mproduct_id.toString())
             }
         }

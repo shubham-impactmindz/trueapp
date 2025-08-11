@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.account
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,10 @@ class AddressListAdapter(
         "${item.user_company_name}, ${item.company_address1}, ${item.company_address2}, ${item.company_city}, ${item.company_country}, ${item.company_postcode}".also { holder.tvAddress.text = it }
 
         holder.linearAddress.setOnClickListener {
+            holder.linearAddress.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             listener.onEditAddressClicked(item.user_company_address_id.toString(),item.user_company_name.toString(),item.company_address1,item.company_address2,item.company_city,
                 item.company_country,item.company_postcode)
         }

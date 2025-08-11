@@ -202,6 +202,36 @@
                     android:textColor="@color/colorPrimaryDark"/>
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/repCodeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="@dimen/margin20"
+                android:gravity="center"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:layout_gravity="center">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Rep Code"
+                    android:textSize="@dimen/headingTextSize"
+                    android:fontFamily="@font/roboto_medium"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tvRepCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="123456"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_medium"
+                    android:layout_marginTop="5sp"
+                    android:textColor="@color/colorPrimaryDark"/>
+            </LinearLayout>
+
 
             <View
                 android:id="@+id/viewEmail"

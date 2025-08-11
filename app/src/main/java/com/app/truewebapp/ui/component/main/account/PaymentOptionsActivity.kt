@@ -2,6 +2,7 @@ package com.app.truewebapp.ui.component.main.account
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -30,9 +31,17 @@ class PaymentOptionsActivity : AppCompatActivity() {
         paymentsAdapter = PaymentsAdapter()
         binding.savedPaymentsRecyclerView.adapter = paymentsAdapter
         binding.backLayout.setOnClickListener {
+            binding.backLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             finish()
         }
         binding.cardLayout.setOnClickListener {
+            binding.cardLayout.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(this, AddCardActivity::class.java)
             startActivity(intent)
         }

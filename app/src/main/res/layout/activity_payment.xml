@@ -144,6 +144,30 @@
                         android:fontFamily="@font/roboto_bold" />
                 </LinearLayout>
 
+                <!-- Bank Name -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingVertical="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Bank Name"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_regular" />
+
+                    <TextView
+                        android:id="@+id/tvBankName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="John Smith"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/roboto_bold" />
+                </LinearLayout>
+
                 <!-- Account Number -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -205,6 +229,83 @@
                 android:layout_marginTop="@dimen/margin10"
                 android:fontFamily="@font/roboto_bold"
                 android:textSize="@dimen/buttonTextSize"/>
+        </LinearLayout>
+
+        <!-- Add this somewhere appropriate in your layout -->
+        <LinearLayout
+            android:id="@+id/walletDeductionLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_margin="@dimen/margin10"
+            android:padding="@dimen/margin10"
+            android:background="@drawable/border_primary">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Wallet Deduction Applied"
+                android:textStyle="bold"
+                android:textSize="@dimen/baseTextSize"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin5"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Original Amount:"/>
+
+                <TextView
+                    android:id="@+id/tvOriginalAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin5"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Wallet Deduction:"/>
+
+                <TextView
+                    android:id="@+id/tvWalletDeduction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorSecondary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin5"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Amount to Pay:"/>
+
+                <TextView
+                    android:id="@+id/tvFinalAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"/>
+            </LinearLayout>
         </LinearLayout>
 
 

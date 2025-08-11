@@ -2,6 +2,7 @@ package com.app.truewebapp.ui.component.main.cart
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -43,6 +44,10 @@ class OrderSuccessActivity : AppCompatActivity() {
 
         // Handle button click
         binding.btnContinue.setOnClickListener {
+            binding.btnContinue.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY,
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+            )
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()

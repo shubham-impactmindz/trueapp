@@ -26,7 +26,6 @@
             android:layout_centerVertical="true"
             android:gravity="center">
 
-
             <ImageView
                 android:id="@+id/backButton"
                 android:layout_width="@dimen/imageWidth24"
@@ -40,10 +39,7 @@
                 android:fontFamily="@font/roboto_bold"
                 android:text="Back"
                 android:textSize="@dimen/headingTextSize"
-                android:textColor="@color/colorPrimaryDark">
-
-            </TextView>
-
+                android:textColor="@color/colorPrimaryDark" />
         </LinearLayout>
 
         <TextView
@@ -56,7 +52,18 @@
             android:textSize="@dimen/mainHeadingTextSize"
             android:fontFamily="@font/roboto_bold"
             android:gravity="center"
-            android:layout_marginStart="@dimen/margin8"/>
+            android:layout_marginStart="@dimen/margin8" />
+
+        <!-- 🖉 Edit icon -->
+        <ImageView
+            android:id="@+id/editButton"
+            android:layout_width="@dimen/imageWidth24"
+            android:layout_height="@dimen/imageHeight24"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_edit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/colorPrimaryDark" />
     </RelativeLayout>
 
     <ScrollView

@@ -30,15 +30,9 @@ data class UserDetails(
 
 data class RepDetails(
     val rep_id: Int,
-    val rep_code: String,
-    val user_id: Int,
-    val user: User,
-    val commission_percent: String,
-)
-
-data class User(
-    val id: Int,
     val name: String,
     val email: String,
     val mobile: String,
+    val rep_code: String,
+    val commission_percent: String,
 )

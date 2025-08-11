@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".TrueWebApplication"
@@ -15,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TrueWebApp"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.component.main.account.EditProfileActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.component.login.ResetPasswordActivity"
             android:exported="false" />

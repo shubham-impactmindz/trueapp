@@ -1,15 +1,16 @@
 
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.app.truewebapp.data.dto.dashboard_banners.BigSliders
+import com.app.truewebapp.data.dto.dashboard_banners.BigSlider
 import com.app.truewebapp.databinding.ItemBannerBinding
 import com.app.truewebapp.ui.component.main.dashboard.BigBannerListener
 import com.bumptech.glide.Glide
 
 class DashboardBannerAdapter(
     private val listener: BigBannerListener,
-    private val banners: List<BigSliders>,
+    private val banners: List<BigSlider>,
     private val cdnURL: String,
 ) : RecyclerView.Adapter<DashboardBannerAdapter.BannerViewHolder>() {
 
@@ -22,6 +23,10 @@ class DashboardBannerAdapter(
                 .dontAnimate()
                 .into(binding.imageView)
             binding.imageView.setOnClickListener {
+                binding.imageView.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
                 listener.onUpdateBigBanner(banners[position].main_mcat_id.toString(), banners[position].mcat_id.toString(), banners[position].msubcat_id.toString(), banners[position].mproduct_id.toString())
             }
         }
