@@ -267,6 +267,7 @@
 
 
             <FrameLayout
+                android:id="@+id/frameDeals"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -336,6 +337,7 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/frameProducts"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <com.facebook.shimmer.ShimmerFrameLayout
@@ -407,6 +409,7 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/frameFruits"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <com.facebook.shimmer.ShimmerFrameLayout
@@ -474,6 +477,7 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/frameSeller"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <com.facebook.shimmer.ShimmerFrameLayout

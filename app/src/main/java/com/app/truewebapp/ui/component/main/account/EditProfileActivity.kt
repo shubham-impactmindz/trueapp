@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.account
 
+// Import necessary Android and Kotlin libraries
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.widget.Toast
@@ -14,25 +15,55 @@ import com.app.truewebapp.databinding.ActivityEditProfileBinding
 import com.app.truewebapp.ui.viewmodel.EditUserProfileViewModel
 import com.google.gson.Gson
 
+// Activity class for editing user profile
 class EditProfileActivity : AppCompatActivity() {
+
+    // View binding for accessing layout elements
     lateinit var binding: ActivityEditProfileBinding
+
+    // Authentication token for API calls
     private var token = ""
+
+    // Stores user login response (details of the logged-in user)
     lateinit var loginResponse: LoginResponse
+
+    // ViewModel to handle edit profile related operations
     private lateinit var editUserProfileViewModel: EditUserProfileViewModel
+
+    // Lifecycle method: Called when activity is created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityEditProfileBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
-        editUserProfileViewModel = ViewModelProvider(this)[EditUserProfileViewModel::class.java]
-        token = "Bearer ${preferences?.getString("token", "") ?: ""}"
-        val user_detailsJson = preferences.getString("userResponse", "")
-        loginResponse = Gson().fromJson(user_detailsJson, LoginResponse::class.java)
-        observeEditUserProfile()
-        val nameParts = loginResponse.user_detail.name.split(" ")
-        val firstName = nameParts.firstOrNull() ?: ""
-        val lastName = nameParts.drop(1).joinToString(" ")
 
+        // Inflate layout using View Binding
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+
+        // Set inflated layout as the activity view
+        setContentView(binding.root)
+
+        // Access stored preferences (shared storage)
+        val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
+
+        // Initialize ViewModel using Android's ViewModelProvider
+        editUserProfileViewModel = ViewModelProvider(this)[EditUserProfileViewModel::class.java]
+
+        // Retrieve token from preferences and format it as Bearer token
+        token = "Bearer ${preferences?.getString("token", "") ?: ""}"
+
+        // Retrieve user details stored as JSON string in preferences
+        val user_detailsJson = preferences.getString("userResponse", "")
+
+        // Convert JSON string into LoginResponse object using Gson
+        loginResponse = Gson().fromJson(user_detailsJson, LoginResponse::class.java)
+
+        // Start observing LiveData from ViewModel
+        observeEditUserProfile()
+
+        // Split user’s full name into first and last name
+        val nameParts = loginResponse.user_detail.name.split(" ")
+        val firstName = nameParts.firstOrNull() ?: "" // first word = first name
+        val lastName = nameParts.drop(1).joinToString(" ") // remaining words = last name
+
+        // Pre-fill the EditText fields with user data
         binding.firstNameInput.setText(firstName)
         binding.lastNameInput.setText(lastName)
         binding.mobileNumberInput.setText(loginResponse.user_detail.mobile)
@@ -43,26 +74,36 @@ class EditProfileActivity : AppCompatActivity() {
         binding.cityInput.setText(loginResponse.user_detail.city)
         binding.postCodeInput.setText(loginResponse.user_detail.postcode)
         binding.countryInput.setText(loginResponse.user_detail.country)
+
+        // Adjust layout padding based on system bars (status bar + navigation bar)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
             view.updatePadding(
-                top = systemBars.top,
-                bottom = systemBars.bottom
+                top = systemBars.top, // padding for status bar
+                bottom = systemBars.bottom // padding for navigation bar
             )
             insets
         }
+
+        // Back button click listener
         binding.backLayout.setOnClickListener {
+            // Provide haptic feedback (vibration effect)
             binding.backLayout.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag to ignore system haptic setting
             )
-            finish()
+            finish() // Close activity and return to previous screen
         }
+
+        // Update button click listener
         binding.btnUpdate.setOnClickListener {
+            // Provide haptic feedback
             binding.btnUpdate.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
+
+            // Create request object with updated profile details
             val request = ProfileRequest(
                 name = binding.firstNameInput.text.toString().trim() +" " +binding.lastNameInput.text.toString().trim(),
                 mobile = binding.mobileNumberInput.text.toString().trim(),
@@ -74,15 +115,20 @@ class EditProfileActivity : AppCompatActivity() {
                 postcode = binding.postCodeInput.text.toString().trim(),
                 country = binding.countryInput.text.toString().trim(),
             )
+
+            // Validate inputs before submitting request
             if (validateInputs()) {
+                // Call ViewModel to update profile if validation passes
                 editUserProfileViewModel.editUserProfile(token, request)
             }
         }
     }
 
+    // Function to validate user inputs before API call
     private fun validateInputs(): Boolean {
         var isValid = true
 
+        // Retrieve values from input fields
         val firstName = binding.firstNameInput.text.toString().trim()
         val lastName = binding.lastNameInput.text.toString().trim()
         val mobile = binding.mobileNumberInput.text.toString().trim()
@@ -94,6 +140,7 @@ class EditProfileActivity : AppCompatActivity() {
         val postcode = binding.postCodeInput.text.toString().trim()
         val country = binding.countryInput.text.toString().trim()
 
+        // Field validations
         if (firstName.isEmpty()) {
             binding.firstNameInput.error = "First name is required"
             isValid = false
@@ -145,36 +192,40 @@ class EditProfileActivity : AppCompatActivity() {
             isValid = false
         }
 
-        return isValid
+        return isValid // Return validation status
     }
 
+    // Function to observe LiveData responses from ViewModel
     private fun observeEditUserProfile() {
+        // Observe profile update response
         editUserProfileViewModel.userProfileResponse.observe(this) { response ->
             response?.let {
                 if (it.status) {
-
-                    if (it.user_detail == null){
-
-                    }else {
-
+                    if (it.user_detail == null) {
+                        // If no user details returned, do nothing
+                    } else {
+                        // Save updated user details back into SharedPreferences
                         val preferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE)
                         val gson = Gson()
-                        val jsonString = gson.toJson(it) // Convert object to JSON string
+                        val jsonString = gson.toJson(it) // Convert updated object to JSON string
                         preferences?.edit()?.putString("userResponse", jsonString)?.apply()
-                        finish()
+                        finish() // Close activity after successful update
                     }
                 }
             }
         }
 
+        // Observe loading state (can be used to show/hide loader)
         editUserProfileViewModel.isLoading.observe(this) {
             // Optional: handle shimmer or loader here
         }
 
+        // Observe API error messages
         editUserProfileViewModel.apiError.observe(this) {
             Toast.makeText(this, "API Error: $it", Toast.LENGTH_SHORT).show()
         }
 
+        // Observe network failure cases
         editUserProfileViewModel.onFailure.observe(this) {
             Toast.makeText(this, "Network Error: ${it?.message}", Toast.LENGTH_SHORT).show()
         }

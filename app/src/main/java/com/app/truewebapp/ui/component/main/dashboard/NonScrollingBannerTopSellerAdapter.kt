@@ -1,3 +1,4 @@
+// Importing required Android and Kotlin libraries for UI, context, lifecycle, etc.
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Paint
@@ -20,125 +21,146 @@ import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartViewModel
 import com.app.truewebapp.ui.component.main.shop.NewProductTopSellerAdapterListener
 import com.app.truewebapp.utils.GlideApp
 
+// Adapter class for RecyclerView to show Top Seller products in a non-scrolling banner
 class NonScrollingBannerTopSellerAdapter(
-    private val listener: NewProductTopSellerAdapterListener,
-    private var products: List<ProductBanner>,
-    private val cdnURL: String,
-    private val context: Context,
-    private val cartViewModel: CartViewModel,
-    private val lifecycleOwner: LifecycleOwner
+    private val listener: NewProductTopSellerAdapterListener, // Listener for handling user actions like wishlist/cart
+    private var products: List<ProductBanner>, // List of product banners to display
+    private val cdnURL: String, // Base URL for loading product images from CDN
+    private val context: Context, // Application/Activity context
+    private val cartViewModel: CartViewModel, // ViewModel for managing cart operations
+    private val lifecycleOwner: LifecycleOwner // LifecycleOwner to observe LiveData
 ) : RecyclerView.Adapter<NonScrollingBannerTopSellerAdapter.ViewHolder>() {
 
+    // ViewHolder class to hold references to the views for each item in the RecyclerView
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val llCartSign: LinearLayout = view.findViewById(R.id.llCartSign)
-        val btnAdd: ImageView = view.findViewById(R.id.btnAdd)
-        val btnMinus: ImageView = view.findViewById(R.id.btnMinus)
-        val btnAddMore: ImageView = view.findViewById(R.id.btnAddMore)
-        val imgProduct: ImageView = view.findViewById(R.id.imgProduct)
-        val textNoOfItems: TextView = view.findViewById(R.id.textNoOfItems)
-        val finalPrice: TextView = view.findViewById(R.id.finalPrice)
-        val comparePrice: TextView = view.findViewById(R.id.comparePrice)
-        val textBrand: TextView = view.findViewById(R.id.textBrand)
-        val textTitle: TextView = view.findViewById(R.id.textTitle)
-        val textFlavour: TextView = view.findViewById(R.id.textFlavour)
-        val lottieCheckmark: LottieAnimationView = view.findViewById(R.id.lottieCheckmark)
-        val btnFavorite: ImageView = view.findViewById(R.id.btnFavorite)
-        val btnFavoriteSelected: ImageView = view.findViewById(R.id.btnFavoriteSelected)
-        val llOffer: LinearLayout = view.findViewById(R.id.llOffer)
-        val tvOffer: TextView = view.findViewById(R.id.tvOffer)
+        val llCartSign: LinearLayout = view.findViewById(R.id.llCartSign) // Layout for cart controls
+        val btnAdd: ImageView = view.findViewById(R.id.btnAdd) // "Add to cart" button
+        val btnMinus: ImageView = view.findViewById(R.id.btnMinus) // Decrease quantity button
+        val btnAddMore: ImageView = view.findViewById(R.id.btnAddMore) // Increase quantity button
+        val imgProduct: ImageView = view.findViewById(R.id.imgProduct) // Product image
+        val textNoOfItems: TextView = view.findViewById(R.id.textNoOfItems) // Text showing number of items in cart
+        val finalPrice: TextView = view.findViewById(R.id.finalPrice) // Final selling price
+        val comparePrice: TextView = view.findViewById(R.id.comparePrice) // Original/compare price (for discounts)
+        val textBrand: TextView = view.findViewById(R.id.textBrand) // Brand name
+        val textTitle: TextView = view.findViewById(R.id.textTitle) // Product title
+        val textFlavour: TextView = view.findViewById(R.id.textFlavour) // Product flavor/options
+        val lottieCheckmark: LottieAnimationView = view.findViewById(R.id.lottieCheckmark) // Lottie animation for deal tags
+        val btnFavorite: ImageView = view.findViewById(R.id.btnFavorite) // Add to favorites button
+        val btnFavoriteSelected: ImageView = view.findViewById(R.id.btnFavoriteSelected) // Remove from favorites button
+        val llOffer: LinearLayout = view.findViewById(R.id.llOffer) // Layout for offer text
+        val tvOffer: TextView = view.findViewById(R.id.tvOffer) // Offer text view
     }
 
+    // Inflates the item layout and creates a ViewHolder instance
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_dashboard_products, parent, false)
-        return ViewHolder(v)
+            .inflate(R.layout.item_dashboard_products, parent, false) // Inflate product layout
+        return ViewHolder(v) // Return ViewHolder with inflated view
     }
 
-    @SuppressLint("SetTextI18n")
+    // Binds data to the ViewHolder at the given position
+    @SuppressLint("SetTextI18n") // Suppressing warning for string concatenation in setText
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val banner = products[position]
-        val product = banner.product
+        val banner = products[position] // Get product banner at position
+        val product = banner.product // Get product from banner
 
+        // Set brand name
         holder.textBrand.text = product.brand_name
+
+        // Set product title using HTML formatting
         holder.textTitle.text = Html.fromHtml(product.mproduct_title, Html.FROM_HTML_MODE_LEGACY)
+
+        // Format and set flavor/options text (capitalize words, join with "/")
         holder.textFlavour.text = product.options
-            .take(2)
-            .mapNotNull { product.option_value[it] }.joinToString("/") {
+            .take(2) // Take first 2 options
+            .mapNotNull { product.option_value[it] } // Get option values
+            .joinToString("/") {
                 it.split(" ").joinToString(" ") { s -> s.replaceFirstChar(Char::uppercaseChar) }
             }
 
+        // Construct image URL (use fallback if image is null)
         val imageUrl = cdnURL + (product.image ?: product.mproduct_image)
+
+        // Load image with Glide
         GlideApp.with(context)
             .load(imageUrl)
-            .placeholder(R.drawable.ic_logo_red_blue)
-            .error(R.drawable.ic_logo_red_blue)
+            .placeholder(R.drawable.ic_logo_red_blue) // Show placeholder while loading
+            .error(R.drawable.ic_logo_red_blue) // Show fallback if error occurs
             .into(holder.imgProduct)
 
-        updateWishlistUI(holder, product)
-        updatePriceUI(holder, product)
-        updateDealTagUI(holder, product)
-        updateOfferUI(holder, product)
-        holder.finalPrice.text = "£%.2f".format(product.price)
+        // Update different parts of the UI
+        updateWishlistUI(holder, product) // Update wishlist icon
+        updatePriceUI(holder, product) // Update price and compare price
+        updateDealTagUI(holder, product) // Update deal tag animation
+        updateOfferUI(holder, product) // Update offers
+        holder.finalPrice.text = "£%.2f".format(product.price) // Set formatted price
 
-        // Set default visibility
+        // Default visibility for cart controls
         holder.llCartSign.visibility = View.GONE
         holder.btnAdd.visibility = View.VISIBLE
 
-        // Observe quantity LiveData
+        // Observe quantity from cart and update UI accordingly
         cartViewModel.quantityLiveData(product.mvariant_id)
             .observe(lifecycleOwner) { qty ->
-                updateCartUI(holder, product, qty ?: 0)
+                updateCartUI(holder, product, qty ?: 0) // Update cart UI when quantity changes
             }
 
+        // Handle favorite button click (add to wishlist)
         holder.btnFavorite.setOnClickListener {
             holder.btnFavorite.performHapticFeedback(
-                HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.VIRTUAL_KEY, // Provide haptic feedback
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            listener.onUpdateWishlist(product.mvariant_id.toString(), "Top Seller")
+            listener.onUpdateWishlist(product.mvariant_id.toString(), "Top Seller") // Notify listener
         }
+
+        // Handle favorite selected button click (remove from wishlist)
         holder.btnFavoriteSelected.setOnClickListener {
             holder.btnFavoriteSelected.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            listener.onUpdateWishlist(product.mvariant_id.toString(), "Top Seller")
+            listener.onUpdateWishlist(product.mvariant_id.toString(), "Top Seller") // Notify listener
         }
 
+        // Handle add button click (add product to cart)
         holder.btnAdd.setOnClickListener {
             holder.btnAdd.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            holder.textNoOfItems.text = "1"
-
-            listener.onUpdateCart(1, product.mvariant_id)
-            cartViewModel.addOrUpdateCart(toEntity(product, 1))
+            holder.textNoOfItems.text = "1" // Set quantity text to 1
+            listener.onUpdateCart(1, product.mvariant_id) // Notify listener
+            cartViewModel.addOrUpdateCart(toEntity(product, 1)) // Add to database
         }
 
+        // Handle add more button click (increase product quantity)
         holder.btnAddMore.setOnClickListener {
-            val newQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0) + 1
-            cartViewModel.addOrUpdateCart(toEntity(product, newQty))
+            val newQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0) + 1 // Increase qty
+            cartViewModel.addOrUpdateCart(toEntity(product, newQty)) // Update DB
             holder.btnAddMore.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
         }
+
+        // Handle minus button click (decrease product quantity or remove)
         holder.btnMinus.setOnClickListener {
-            val currentQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0)
+            val currentQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0) // Get current qty
             if (currentQty > 1) {
-                cartViewModel.addOrUpdateCart(toEntity(product, currentQty - 1))
+                cartViewModel.addOrUpdateCart(toEntity(product, currentQty - 1)) // Reduce qty
             } else {
-                cartViewModel.deleteCartByVariant(product.mvariant_id)
-                listener.onUpdateCart(0, product.mvariant_id)
+                cartViewModel.deleteCartByVariant(product.mvariant_id) // Remove from DB
+                listener.onUpdateCart(0, product.mvariant_id) // Notify listener
             }
             holder.btnMinus.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
         }
     }
 
+    // Converts a Product object into a CartItemEntity for DB storage
     private fun toEntity(product: Product, qty: Int): CartItemEntity {
         return CartItemEntity(
             variantId = product.mvariant_id,
@@ -155,25 +177,30 @@ class NonScrollingBannerTopSellerAdapter(
         )
     }
 
+    // Updates UI for cart visibility and stock status
     private fun updateCartUI(holder: ViewHolder, product: Product, quantity: Int) {
         if (product.quantity == 0) {
+            // Show out of stock message
             holder.tvOffer.text = "Out of stock"
             holder.tvOffer.visibility = View.VISIBLE
             holder.llOffer.visibility = View.VISIBLE
             holder.btnAdd.visibility = View.GONE
             holder.llCartSign.visibility = View.GONE
         } else {
+            // If quantity > 0, show cart controls
             if (quantity > 0) {
                 holder.btnAdd.visibility = View.GONE
                 holder.llCartSign.visibility = View.VISIBLE
                 holder.textNoOfItems.text = quantity.toString()
             } else if (quantity == 0) {
+                // If not in cart, show add button
                 holder.llCartSign.visibility = View.GONE
                 holder.btnAdd.visibility = View.VISIBLE
             }
         }
     }
 
+    // Updates wishlist icons based on product state
     private fun updateWishlistUI(holder: ViewHolder, product: Product) {
         if (product.user_info_wishlist) {
             holder.btnFavoriteSelected.visibility = View.VISIBLE
@@ -184,6 +211,7 @@ class NonScrollingBannerTopSellerAdapter(
         }
     }
 
+    // Updates price UI and compare price (strike-through)
     private fun updatePriceUI(holder: ViewHolder, product: Product) {
         if (product.compare_price == null || product.compare_price == 0.0) {
             holder.comparePrice.visibility = View.GONE
@@ -197,16 +225,19 @@ class NonScrollingBannerTopSellerAdapter(
         }
     }
 
+    // Updates UI for showing deal tags (flash deal/sale)
     private fun updateDealTagUI(holder: ViewHolder, product: Product) {
         if (product.product_deal_tag.isNullOrEmpty()) {
             holder.lottieCheckmark.visibility = View.INVISIBLE
         } else {
             holder.lottieCheckmark.visibility = View.VISIBLE
-            val animRes = if (product.product_deal_tag.lowercase() == "flash deal") R.raw.flash_deals else R.raw.sale
+            val animRes = if (product.product_deal_tag.lowercase() == "flash deal")
+                R.raw.flash_deals else R.raw.sale
             holder.lottieCheckmark.setAnimation(animRes)
         }
     }
 
+    // Updates offer-related UI
     private fun updateOfferUI(holder: ViewHolder, product: Product) {
         if (product.product_offer.isNullOrEmpty()) {
             holder.llOffer.visibility = View.INVISIBLE
@@ -218,5 +249,6 @@ class NonScrollingBannerTopSellerAdapter(
         }
     }
 
+    // Returns total number of items in the adapter
     override fun getItemCount(): Int = products.size
 }

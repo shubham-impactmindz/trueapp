@@ -11,6 +11,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -217,38 +218,42 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                 if (it.status) {
                     val banners = it.roundSliders
 
-                    if (banners.isEmpty()) {
+                    if ((banners.isEmpty())){
                         binding.shimmerLayoutRoundImages.visibility = View.GONE
-                        binding.shimmerLayoutSmallBanner.visibility = View.GONE
-                        binding.shimmerLayoutBigBanner.visibility = View.GONE
-                        binding.shimmerLayoutDealsBanner.visibility = View.GONE
-                        binding.shimmerLayoutFruitsBanner.visibility = View.GONE
+                        binding.rvRoundImages.visibility = View.GONE
+                    }else{
 
-                    } else {
                         binding.shimmerLayoutRoundImages.visibility = View.GONE
                         binding.rvRoundImages.visibility = View.VISIBLE
                         roundImageAdapter = RoundImageAdapter(this,banners,it.cdnURL)
-
                         binding.rvRoundImages.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
                         binding.rvRoundImages.adapter = roundImageAdapter
+                    }
 
+                    if ((it.smallSliders.isEmpty())){
+                        binding.shimmerLayoutSmallBanner.visibility = View.GONE
+                        binding.viewPagerNonScrolling.visibility = View.VISIBLE
+                    }else{
                         binding.shimmerLayoutSmallBanner.visibility = View.GONE
                         binding.viewPagerNonScrolling.visibility = View.VISIBLE
                         nonScrollingBannerAdapter = NonScrollingBannerAdapter(this,it.smallSliders, it.cdnURL)
                         binding.viewPagerNonScrolling.adapter = nonScrollingBannerAdapter
-
                         binding.dotsIndicator.attachTo(binding.viewPagerNonScrolling)
 
                         // Set up smooth scrolling without large jumps
                         binding.viewPagerNonScrolling.offscreenPageLimit = 1
                         binding.viewPagerNonScrolling.setCurrentItem(0, false)
+                    }
+
+                    if ((it.bigSliders.isEmpty())){
+                        binding.shimmerLayoutBigBanner.visibility = View.GONE
+                        binding.viewPager.visibility = View.VISIBLE
+                    }else{
 
                         binding.shimmerLayoutBigBanner.visibility = View.GONE
                         binding.viewPager.visibility = View.VISIBLE
                         bannerAdapter = DashboardBannerAdapter(this,it.bigSliders, it.cdnURL, )
                         binding.viewPager.adapter = bannerAdapter
-
-
                         // Set up smooth scrolling without large jumps
                         binding.viewPager.offscreenPageLimit = 3
                         binding.viewPager.setCurrentItem(0, false)
@@ -261,14 +266,20 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                             }
                         }
                         binding.viewPager.setPageTransformer(pageTransformer)
-
                         initializeAutoScrollRunnable()
                         startAutoScroll()
+                    }
 
-
+                    if ((it.dealsSliders.isEmpty())){
+                        binding.shimmerLayoutDealsBanner.visibility = View.GONE
+                        binding.frameDeals.visibility = View.GONE
+                        binding.recyclerViewDeals.visibility = View.GONE
+                        binding.viewDeals.visibility = View.GONE
+                    }else{
                         binding.shimmerLayoutDealsBanner.visibility = View.GONE
                         binding.viewDeals.visibility = View.GONE
                         binding.recyclerViewDeals.visibility = View.VISIBLE
+                        binding.frameDeals.visibility = View.VISIBLE
                         binding.tvDealsCenter.visibility = View.VISIBLE
                         binding.tvDealsCenter.text = it.dealsHeader
                         binding.recyclerViewDeals.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -276,11 +287,18 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                         // Setup ViewPager with adapter
                         nonScrollingBannerDealsAdapter = NonScrollingBannerDealsAdapter(this,it.dealsSliders, it.cdnURL)
                         binding.recyclerViewDeals.adapter = nonScrollingBannerDealsAdapter
+                    }
 
-
+                    if ((it.fruitSliders.isEmpty())){
+                        binding.shimmerLayoutFruitsBanner.visibility = View.GONE
+                        binding.recyclerViewFruits.visibility = View.GONE
+                        binding.viewFruits.visibility = View.GONE
+                        binding.frameFruits.visibility = View.GONE
+                    }else{
                         binding.shimmerLayoutFruitsBanner.visibility = View.GONE
                         binding.viewFruits.visibility = View.GONE
                         binding.recyclerViewFruits.visibility = View.VISIBLE
+                        binding.frameFruits.visibility = View.VISIBLE
                         binding.tvFruitsCenter.visibility = View.VISIBLE
                         binding.tvFruitsCenter.text = it.fruitHeader
                         binding.recyclerViewFruits.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -290,7 +308,7 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
                         binding.recyclerViewFruits.adapter = nonScrollingBannerFruitsAdapter
                     }
                 } else {
-
+                    Log.e("TAG", "observeHomeBanners: ")
                 }
             }
         }
@@ -347,22 +365,29 @@ class DashboardFragment : Fragment(), BigBannerListener, SmallBannerListener, Ro
 
                     if (originalCategoryList.isEmpty()) {
                         binding.shimmerLayoutNewProducts.visibility = View.GONE
-                        binding.shimmerLayoutTopSeller.visibility = View.GONE
+                        binding.frameProducts.visibility = View.GONE
                     } else {
                         binding.shimmerLayoutNewProducts.visibility = View.GONE
                         binding.viewNewProducts.visibility = View.GONE
                         binding.recyclerViewDrinks.visibility = View.VISIBLE
+                        binding.frameProducts.visibility = View.VISIBLE
                         binding.tvNewProducts.visibility = View.VISIBLE
                         binding.tvNewProducts.text = it.newProductHeader
+                        setupNewProductsAdapter()
+                        // UPDATE the existing adapter's data
+                    }
+
+                    if (originalTopSellerList.isEmpty()) {
+                        binding.shimmerLayoutNewProducts.visibility = View.GONE
+                        binding.frameSeller.visibility = View.GONE
+                    } else {
                         binding.shimmerLayoutTopSeller.visibility = View.GONE
                         binding.viewTopSeller.visibility = View.GONE
                         binding.recyclerViewNutrition.visibility = View.VISIBLE
+                        binding.frameSeller.visibility = View.VISIBLE
                         binding.tvTopSeller.visibility = View.VISIBLE
                         binding.tvTopSeller.text = it.topSellerHeader
-
-                        setupNewProductsAdapter()
                         setupTopSellerAdapter()
-
                         // UPDATE the existing adapter's data
                     }
                 } else {

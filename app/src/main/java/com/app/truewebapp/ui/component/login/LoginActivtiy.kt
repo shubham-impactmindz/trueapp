@@ -1,9 +1,5 @@
 package com.app.truewebapp.ui.component.login
-
-//import com.app.truewebapp.ui.component.dashboard.MainActivity
-//import com.app.truewebapp.ui.component.otp.OtpVerifyActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,8 +12,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var adapter: AuthPagerAdapter
-
-//    private lateinit var loginViewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,9 +52,5 @@ class LoginActivity : AppCompatActivity() {
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
 
-    }
-
-    private fun showMessage(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }

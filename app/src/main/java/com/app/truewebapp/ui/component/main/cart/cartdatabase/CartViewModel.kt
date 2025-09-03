@@ -7,12 +7,8 @@ import kotlinx.coroutines.launch
 
 class CartViewModel(private val repository: CartRepository) : ViewModel() {
 
-    val allCartItems: LiveData<List<CartItemEntity>> = repository.allItemsLiveData
     val totalCount: LiveData<Int> = repository.totalCountLiveData
 
-    fun getQuantityFlow(variantId: Int): LiveData<Int?> {
-        return repository.quantityLiveData(variantId)
-    }
     fun quantityLiveData(variantId: Int): LiveData<Int?> = repository.quantityLiveData(variantId)
 
     fun addOrUpdateCart(item: CartItemEntity) = viewModelScope.launch {

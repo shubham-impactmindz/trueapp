@@ -182,6 +182,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 ?.map { it.mbrand_id }
                 ?.joinToString(",").orEmpty()
 
+            if (applyFilter) toggleFilterOverlay()
             filters = if (filtersType == "Favourites") selectedIds else ""
             applyFilter = true
             categoriesViewModel.categories(search, token, filters)
@@ -298,7 +299,6 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     binding.shimmerLayoutMainCategory.visibility = View.GONE
-                    if (applyFilter) toggleFilterOverlay()
 
                     if (it.main_categories.isEmpty()) {
                         showNoDataView(true)

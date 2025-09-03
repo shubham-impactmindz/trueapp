@@ -3,6 +3,7 @@ package com.app.truewebapp.ui.component.main.account
 import android.content.Intent
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -100,6 +101,7 @@ class MyOrdersActivity : AppCompatActivity() {
             response?.let {
                 if (it.status) {
                     if (it.orders.isNotEmpty()) {
+                        binding.tvNoData.visibility = View.GONE
                         val newOrders = it.orders
                         cdnURL = it.cdnURL
                         allOrders.addAll(newOrders)
@@ -114,6 +116,7 @@ class MyOrdersActivity : AppCompatActivity() {
                         isLoadingMore = false
                     } else {
                         hasMorePages = false
+                        binding.tvNoData.visibility = View.VISIBLE
                     }
                 } else {
                     Toast.makeText(this, "No more orders found", Toast.LENGTH_SHORT).show()

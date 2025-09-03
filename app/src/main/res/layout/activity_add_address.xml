@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white"
     tools:context=".ui.component.main.account.AddAddressActivity">
@@ -15,8 +16,7 @@
         android:background="@color/white"
         android:orientation="horizontal"
         android:padding="@dimen/margin5"
-        android:elevation="@dimen/elevation10"
-        app:layout_constraintTop_toTopOf="parent">
+        android:elevation="@dimen/elevation10">
 
         <LinearLayout
             android:id="@+id/backLayout"
@@ -25,7 +25,6 @@
             android:orientation="horizontal"
             android:layout_centerVertical="true"
             android:gravity="center">
-
 
             <ImageView
                 android:id="@+id/backButton"
@@ -41,7 +40,6 @@
                 android:text="Back"
                 android:textSize="@dimen/headingTextSize"
                 android:textColor="@color/colorPrimaryDark">
-
             </TextView>
 
         </LinearLayout>
@@ -58,16 +56,20 @@
             android:gravity="center"/>
     </RelativeLayout>
 
+    <ImageView
+        android:id="@+id/bannerImage"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/height120"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_banner"/>
+
+
     <ScrollView
         android:id="@+id/mainLayout"
         android:layout_width="match_parent"
-        android:layout_height="0sp"
+        android:layout_height="match_parent"
         android:fillViewport="true"
-        android:scrollbars="vertical"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:nestedScrollingEnabled="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,12 +77,6 @@
             android:layout_marginTop="@dimen/margin10"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/bannerImage"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/height120"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_banner"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/companyNameInputLayout"
@@ -104,7 +100,7 @@
                     android:inputType="textPersonName"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -130,7 +126,7 @@
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -156,7 +152,7 @@
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -182,7 +178,7 @@
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -208,7 +204,7 @@
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -234,7 +230,7 @@
                     android:inputType="textPostalAddress"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
+                    android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -271,4 +267,4 @@
 
     </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

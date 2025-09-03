@@ -59,7 +59,7 @@ class CartAdapter(
         val optionText = item.options.values
             .take(2).joinToString(" ") { value ->
                 value.split(" ")
-                    .joinToString("/") { word -> word.replaceFirstChar(Char::uppercaseChar) }
+                    .joinToString(" ") { word -> word.replaceFirstChar(Char::uppercaseChar) }
             } // Join the two option strings with a space
 
 // Compose full title with options in brackets, only if options exist

@@ -5,10 +5,6 @@ import androidx.lifecycle.asLiveData
 
 class CartRepository(private val cartDao: CartDao) {
 
-    // LiveData for full list (e.g. cart screen)
-    val allItemsLiveData: LiveData<List<CartItemEntity>> =
-        cartDao.getAllItems().asLiveData()
-
     // LiveData for total count badge
     val totalCountLiveData: LiveData<Int> =
         cartDao.getCartItemCount().asLiveData()
