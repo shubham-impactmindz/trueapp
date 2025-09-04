@@ -1,5 +1,6 @@
 package com.app.truewebapp.ui.component.main.shop
 
+// Import necessary classes, adapters, Android framework libraries, ViewModels, utilities, etc.
 import BannerAdapter
 import android.annotation.SuppressLint
 import android.content.Context
@@ -47,32 +48,50 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+/**
+ * ShopFragment displays categories, banners, brands and products.
+ * - Integrates with ViewModels for categories, banners, brands, and wishlist
+ * - Handles search, filters, swipe refresh, auto-scrolling banners
+ * - Provides cart and wishlist updates
+ */
 class ShopFragment : Fragment(), ProductAdapterListener {
 
+    // View binding object for accessing views in fragment_shop.xml
     private lateinit var binding: FragmentShopBinding
+
+    // ViewModels for categories, banners, wishlist, and brands
     lateinit var categoriesViewModel: CategoriesViewModel
     private lateinit var bannersViewModel: BannersViewModel
     private lateinit var wishlistViewModel: WishlistViewModel
     private lateinit var brandsViewModel: BrandsViewModel
+
+    // RecyclerView adapters
     private var adapter: ShopMainCategoryAdapter? = null
     private var bannerAdapter: BannerAdapter? = null
+
+    // Interfaces for tab switching and cart updates
     private var tabSwitcher: TabSwitcher? = null
     private var cartUpdateListener: CartUpdateListener? = null
-    private var originalCategoryList: List<MainCategories> = listOf()
-    private val handler = Handler(Looper.getMainLooper())
-    private var autoScrollRunnable: Runnable? = null
-    private val AUTO_SCROLL_DELAY: Long = 3000
-    private var search = ""
-    private var token = ""
-    private var variantId = ""
-    var filters = ""
-    var filtersType = "All"
-    var applyFilter = false
-    var cdnUrl = ""
 
-    // Add a flag to track the visibility state of content when filter is shown
+    // Data holders
+    private var originalCategoryList: List<MainCategories> = listOf() // Stores original categories
+    private val handler = Handler(Looper.getMainLooper())             // Handler for auto-scroll
+    private var autoScrollRunnable: Runnable? = null                  // Runnable for auto-scroll
+    private val AUTO_SCROLL_DELAY: Long = 3000                        // Auto-scroll delay in ms
+    private var search = ""                                           // Search query
+    private var token = ""                                            // Auth token
+    private var variantId = ""                                        // Product variant ID
+    var filters = ""                                                  // Selected filters
+    var filtersType = "All"                                           // Filter type (All / Favourites)
+    var applyFilter = false                                           // Flag for applied filter
+    var cdnUrl = ""                                                   // CDN base URL for images
+
+    // Tracks content visibility state when filter overlay is toggled
     private var wasContentVisibleBeforeFilter = false
 
+    /**
+     * Inflate the fragment layout using view binding
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -81,16 +100,24 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         return binding.root
     }
 
+    /**
+     * Called when view is created.
+     * - Initializes cart listeners using Room DB
+     * - Initializes ViewModels, views, observers, and loads initial data
+     */
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Access cart DAO
         val cartDao = CartDatabase.getInstance(requireContext()).cartDao()
+
+        // Launch coroutines tied to fragment lifecycle
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Collect cart count in a separate coroutine
+            // Collect cart item count and update badge
             launch {
                 cartDao.getCartItemCount().collect { totalCount ->
                     val actualCount = totalCount ?: 0
-
                     if (actualCount == 0) {
                         binding.tvCartBadge.visibility = View.GONE
                     } else {
@@ -100,26 +127,30 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 }
             }
 
-            // Collect all cart items in another coroutine
+            // Collect all cart items and update total price
             launch {
                 cartDao.getAllItems().collectLatest { cartItems ->
                     Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
-
                     if (cartItems.isNotEmpty()) {
-                        updateTotalAmount(cartItems) // Update total price
+                        updateTotalAmount(cartItems)
                     } else {
-                        binding.tvTotalAmount.text = "£0.00" // Reset total price for empty cart
+                        binding.tvTotalAmount.text = "£0.00"
                     }
                 }
             }
         }
 
+        // Setup ViewModels, views, observers, and load data
         initializeViewModels()
         setupViews()
         setupObservers()
         loadInitialData()
     }
 
+    /**
+     * Called when fragment is attached to activity
+     * - Ensures context implements TabSwitcher and CartUpdateListener
+     */
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is TabSwitcher) {
@@ -132,12 +163,20 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
     }
 
+    /**
+     * Called when fragment is detached
+     * - Nullifies interface references
+     */
     override fun onDetach() {
         super.onDetach()
         tabSwitcher = null
         cartUpdateListener = null
     }
 
+    /**
+     * Initialize ViewModels using ViewModelProvider
+     * Also retrieves auth token from SharedPreferences
+     */
     private fun initializeViewModels() {
         categoriesViewModel = ViewModelProvider(this)[CategoriesViewModel::class.java]
         bannersViewModel = ViewModelProvider(this)[BannersViewModel::class.java]
@@ -148,34 +187,43 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         token = "Bearer " + preferences?.getString("token", "").orEmpty()
     }
 
+    /**
+     * Setup UI interactions like filter, cart, cancel, apply, refresh, search, radio buttons
+     */
     private fun setupViews() {
+        // Filter button click
         binding.filterButton.setOnClickListener {
             binding.filterButton.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
             toggleFilterOverlay()
         }
+
+        // Cart button click
         binding.cart.setOnClickListener {
             binding.cart.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
             tabSwitcher?.switchToCartTab()
         }
+
+        // Cancel filter click
         binding.cancelLayout.setOnClickListener {
             binding.cancelLayout.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
             toggleFilterOverlay()
             applyFilter = false
         }
 
+        // Apply filter click
         binding.applyLayout.setOnClickListener {
             binding.applyLayout.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
             val selectedIds = brandsViewModel.brandsResponse.value?.mbrands
                 ?.filter { it.isSelected }
@@ -188,6 +236,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             categoriesViewModel.categories(search, token, filters)
         }
 
+        // Swipe refresh reloads data
         binding.swipeRefreshLayout.setOnRefreshListener {
             stopAutoScroll()
             applyFilter = false
@@ -198,153 +247,197 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         setupRadioGroup()
     }
 
+    // Called when the Fragment comes to the foreground and becomes interactive
     override fun onResume() {
-        super.onResume()
+        super.onResume() // Always call the parent class's onResume()
 
+        // Refresh the adapter data when returning to this screen
         adapter?.notifyDataSetChanged()
     }
 
+    // Called when the Fragment is no longer in the foreground
     override fun onPause() {
-        super.onPause()
-        stopAutoScroll() // Stop auto-scrolling when the fragment is paused
+        super.onPause() // Always call the parent class's onPause()
+        stopAutoScroll() // Stop auto-scrolling when the fragment is paused (to save resources)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility") // Suppresses warning about touch accessibility
     private fun setupSearchView() {
+        // Load drawable icons for close and search buttons
         val closeIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_close)
         val searchIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_search)
 
+        // Add a text change listener to the search input field
         binding.searchInput.addTextChangedListener(object : TextWatcher {
+            // Called after the text is changed
             override fun afterTextChanged(s: Editable?) {
+                // Save the current search query (trimmed)
                 search = s.toString().trim()
+
+                // Dynamically set left (search) and right (close) icons based on text presence
                 binding.searchInput.setCompoundDrawablesWithIntrinsicBounds(
-                    if (search.isEmpty()) searchIcon else null,
+                    if (search.isEmpty()) searchIcon else null, // Show search icon when empty
                     null,
-                    if (search.isNotEmpty()) closeIcon else null,
+                    if (search.isNotEmpty()) closeIcon else null, // Show close icon when text exists
                     null
                 )
+
+                // Trigger API call to fetch filtered categories based on search input
                 categoriesViewModel.categories(search, token, filters)
             }
 
+            // Not used but must be overridden: before text changes
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            // Not used but must be overridden: while text is changing
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
+        // Handle touch events inside the search input field
         binding.searchInput.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                val drawableEnd = binding.searchInput.compoundDrawables[2]
+            if (event.action == MotionEvent.ACTION_UP) { // When finger lifts
+                val drawableEnd = binding.searchInput.compoundDrawables[2] // Right drawable (close icon)
                 drawableEnd?.let {
                     val drawableWidth = it.bounds.width()
+                    // Calculate touch area where the drawable (close button) is located
                     val touchAreaStart = binding.searchInput.width - binding.searchInput.paddingEnd - drawableWidth
                     if (event.x > touchAreaStart) {
+                        // Clear the search input when close icon is tapped
                         binding.searchInput.text?.clear()
                         return@setOnTouchListener true
                     }
                 }
             }
-            false
+            false // Allow other touch events to proceed
         }
     }
 
+    // Setup filtering options using a RadioGroup
     private fun setupRadioGroup() {
         binding.allRadioGroup.setOnCheckedChangeListener { _, checkedId ->
+            // Determine which filter option is selected
             filtersType = when (checkedId) {
                 R.id.radioAllProducts -> "All"
                 R.id.radioFavourites -> "Favourites"
                 else -> "All"
             }
 
+            // Get the latest response from brandsViewModel (if null, exit)
             val response = brandsViewModel.brandsResponse.value ?: return@setOnCheckedChangeListener
 
+            // Apply filter logic based on selected type
             if (filtersType == "Favourites") {
+                // Collect IDs of brands in the wishlist
                 val wishlistIds = response.wishlistbrand.map { it.mbrand_id }
+                // Mark brands as selected if they exist in wishlist
                 response.mbrands.forEach { brand ->
                     brand.isSelected = wishlistIds.contains(brand.mbrand_id)
                 }
             } else {
+                // Reset selection for all brands when "All" is selected
                 response.mbrands.forEach { brand ->
                     brand.isSelected = false
                 }
             }
 
+            // Create and set the adapter with updated brand list
             val brandsAdapter = BrandsAdapter(
                 response.mbrands,
                 response.cdnURL,
                 filtersType,
                 response
             )
-            binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5)
+            binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5) // 5 columns grid
             binding.brandsRecyclerView.adapter = brandsAdapter
         }
     }
 
+    // Load required initial data when the fragment starts
     private fun loadInitialData() {
+        // Retrieve SharedPreferences for persistent data
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+
+        // Trigger API calls to fetch initial data
         categoriesViewModel.categories(search, token, filters)
         bannersViewModel.banners(token)
-        brandsViewModel.brands(token, preferences?.getString("userId", ""))
+        brandsViewModel.brands(token, preferences?.getString("userId", "")) // Pass stored userId if available
     }
 
+    // Attach observers for ViewModels to handle LiveData changes
     private fun setupObservers() {
-        observeCategories()
-        observeBanners()
-        observeWishlist()
-        observeBrands()
-//        observeCart()
+        observeCategories() // Observe category changes
+        observeBanners()    // Observe banner updates
+        observeWishlist()   // Observe wishlist changes
+        observeBrands()     // Observe brand updates
+//        observeCart()     // (Currently disabled) Observe cart updates
     }
 
+    // Observe category LiveData updates
     private fun observeCategories() {
+        // Observe categories response
         categoriesViewModel.categoriesModel.observe(viewLifecycleOwner) { response ->
             response?.let {
+                // Stop pull-to-refresh loader
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
+                    // Hide shimmer loader
                     binding.shimmerLayoutMainCategory.visibility = View.GONE
 
+                    // If no categories found, show "no data" UI
                     if (it.main_categories.isEmpty()) {
                         showNoDataView(true)
                     } else {
+                        // Categories found → update UI
                         cdnUrl = it.cdnURL
                         binding.shimmerLayoutMainCategory.visibility = View.GONE
                         showNoDataView(false)
                         originalCategoryList = it.main_categories
-                        setupShopUI(originalCategoryList, it.cdnURL)
+                        setupShopUI(originalCategoryList, it.cdnURL) // Populate RecyclerView
                     }
                 }
             }
         }
 
+        // Observe loading state
         categoriesViewModel.isLoading.observe(viewLifecycleOwner) {
             if (it == true) {
+                // Show shimmer loader while loading data
                 binding.shimmerLayoutMainCategory.visibility = View.VISIBLE
                 binding.shopMainCategoryRecycler.visibility = View.GONE
             }
         }
 
+        // Observe API error messages
         categoriesViewModel.apiError.observe(viewLifecycleOwner) {
             binding.shimmerLayoutMainCategory.visibility = View.GONE
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
+        // Observe general failures
         categoriesViewModel.onFailure.observe(viewLifecycleOwner) {
             binding.shimmerLayoutMainCategory.visibility = View.GONE
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
+    // Observe banner LiveData updates
     private fun observeBanners() {
         bannersViewModel.bannersModel.observe(viewLifecycleOwner) { response ->
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
+                    // Hide shimmer loader
                     binding.shimmerLayoutBanner.visibility = View.GONE
                     val banners = it.browseBanners
 
+                    // Show/hide banner section based on data availability
                     if (banners.isEmpty()) {
                         showBannerView(false)
                     } else {
                         binding.shimmerLayoutBanner.visibility = View.GONE
                         binding.viewPager.visibility = View.VISIBLE
                         showBannerView(true)
+                        // Setup adapter with fetched banners
                         setUpNonScrollingBannerAdapter(banners, it.cdnURL)
                     }
                 } else {
@@ -353,55 +446,66 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             }
         }
 
+        // Observe loading state for banners
         bannersViewModel.isLoading.observe(viewLifecycleOwner) {
-            // Show shimmer while loading, hide ViewPager
+            // Show shimmer while loading, hide banner ViewPager
             if (it == true) {
                 binding.shimmerLayoutBanner.visibility = View.VISIBLE
                 binding.viewPager.visibility = View.GONE
             }
         }
 
+        // Observe API error messages for banners
         bannersViewModel.apiError.observe(viewLifecycleOwner) {
             binding.shimmerLayoutBanner.visibility = View.GONE
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
+        // Observe general failures for banners
         bannersViewModel.onFailure.observe(viewLifecycleOwner) {
             binding.shimmerLayoutBanner.visibility = View.GONE
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
+    // Observe wishlist LiveData updates
     private fun observeWishlist() {
         wishlistViewModel.wishlistResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
                 if (it.status) {
+                    // Update wishlist in adapter if response is successful
                     updateWishlistInAdapter(variantId)
                 } else {
+                    // Show error message if operation failed
                     Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+        // Observe loading state for wishlist (currently commented UI update)
         wishlistViewModel.isLoading.observe(viewLifecycleOwner) {
 //            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
         }
 
+        // Observe API error messages for wishlist
         wishlistViewModel.apiError.observe(viewLifecycleOwner) {
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
+        // Observe general failures for wishlist
         wishlistViewModel.onFailure.observe(viewLifecycleOwner) {
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
+    // Observe brand LiveData updates
     private fun observeBrands() {
         brandsViewModel.brandsResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     if (it.mbrands.isNotEmpty()) {
+                        // Show brands if available
                         binding.brandsRecyclerView.visibility = View.VISIBLE
                         val brandsAdapter = BrandsAdapter(
                             it.mbrands,
@@ -412,42 +516,62 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                         binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5)
                         binding.brandsRecyclerView.adapter = brandsAdapter
                     } else {
+                        // Hide brands if none available
                         binding.brandsRecyclerView.visibility = View.GONE
                     }
                 } else {
+                    // Hide brands if API response failed
                     binding.brandsRecyclerView.visibility = View.GONE
                 }
             }
         }
 
+        // Observe loading state for brands (currently commented UI update)
         brandsViewModel.isLoading.observe(viewLifecycleOwner) {
 //            binding.progressBarLayout.visibility = if (it == true) View.VISIBLE else View.GONE
         }
 
+        // Observe API error messages for brands
         brandsViewModel.apiError.observe(viewLifecycleOwner) {
             showTopSnackBar(it ?: "Unexpected API error")
         }
 
+        // Observe general failures for brands
         brandsViewModel.onFailure.observe(viewLifecycleOwner) {
             showTopSnackBar(ApiFailureTypes().getFailureMessage(it, context))
         }
     }
 
+    // Function to update wishlist status for a product in the nested adapters
     private fun updateWishlistInAdapter(variantId: String) {
+        // Loop through the list of main categories with their indices
         originalCategoryList.forEachIndexed { mainCatIndex, mainCategory ->
+            // Loop through the child categories of each main category
             mainCategory.categories.forEachIndexed { catIndex, category ->
+                // Loop through the subcategories of each category
                 category.subcategories.forEachIndexed { subCatIndex, subCategory ->
+                    // Loop through the products of each subcategory
                     subCategory.products.forEachIndexed { prodIndex, product ->
+                        // Check if the product's variant ID matches the one passed
                         if (product.mvariant_id.toString() == variantId) {
+                            // Toggle wishlist state (add/remove)
                             product.user_info_wishlist = !product.user_info_wishlist
 
-                            (binding.shopMainCategoryRecycler.findViewHolderForAdapterPosition(mainCatIndex) as? ShopMainCategoryAdapter.MainCategoryViewHolder)?.let { mainCatViewHolder ->
-                                (mainCatViewHolder.getCategoryRecycler().findViewHolderForAdapterPosition(catIndex) as? ShopCategoryAdapter.CategoryViewHolder)?.let { categoryViewHolder ->
-                                    (categoryViewHolder.getSubCategoryRecycler().findViewHolderForAdapterPosition(subCatIndex) as? SubCategoryAdapter.SubCategoryViewHolder)?.let { subCatViewHolder ->
+                            // Find the ViewHolder for the main category
+                            (binding.shopMainCategoryRecycler.findViewHolderForAdapterPosition(mainCatIndex)
+                                    as? ShopMainCategoryAdapter.MainCategoryViewHolder)?.let { mainCatViewHolder ->
+                                // Find the ViewHolder for the category inside the main category
+                                (mainCatViewHolder.getCategoryRecycler().findViewHolderForAdapterPosition(catIndex)
+                                        as? ShopCategoryAdapter.CategoryViewHolder)?.let { categoryViewHolder ->
+                                    // Find the ViewHolder for the subcategory inside the category
+                                    (categoryViewHolder.getSubCategoryRecycler().findViewHolderForAdapterPosition(subCatIndex)
+                                            as? SubCategoryAdapter.SubCategoryViewHolder)?.let { subCatViewHolder ->
+                                        // Notify product adapter to refresh the changed item
                                         subCatViewHolder.getProductAdapter()?.notifyItemChanged(prodIndex)
                                     }
                                 }
                             }
+                            // Exit the loop once the product is found and updated
                             return@forEachIndexed
                         }
                     }
@@ -456,21 +580,28 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
     }
 
+    // Function to set up the banner ViewPager with custom adapter and auto-scroll
     private fun setUpNonScrollingBannerAdapter(browseBanners: List<BrowseBanners>, cdnURL: String) {
+        // Stop any existing auto-scrolling before setting a new adapter
         stopAutoScroll()
 
+        // Initialize the banner adapter with click listener
         bannerAdapter = BannerAdapter(browseBanners, cdnURL, object : BannerAdapter.OnBannerClickListener {
+            // Handle banner click event
             override fun onBannerClick(mainCatid: String, catid: String, subcatid: String, productid: String) {
-                scrollToProduct(mainCatid,catid, subcatid, productid)
+                scrollToProduct(mainCatid, catid, subcatid, productid)
             }
         })
 
+        // Attach adapter and indicator to ViewPager
         binding.viewPager.adapter = bannerAdapter
         binding.dotsIndicator.setViewPager2(binding.viewPager)
 
+        // Set ViewPager properties
         binding.viewPager.offscreenPageLimit = 3
         binding.viewPager.setCurrentItem(0, false)
 
+        // Add custom page transformer for scaling and margin effect
         val pageTransformer = CompositePageTransformer().apply {
             addTransformer(MarginPageTransformer(30))
             addTransformer { page, position ->
@@ -480,52 +611,66 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
         binding.viewPager.setPageTransformer(pageTransformer)
 
+        // Initialize and start auto-scroll for banners
         initializeAutoScrollRunnable()
         startAutoScroll()
     }
 
+    // Function to create a runnable for auto-scrolling banners
     private fun initializeAutoScrollRunnable() {
         if (autoScrollRunnable == null) {
             autoScrollRunnable = object : Runnable {
                 override fun run() {
+                    // Move to next item cyclically
                     val nextItem = (binding.viewPager.currentItem + 1) % (bannerAdapter?.itemCount ?: 1)
                     binding.viewPager.setCurrentItem(nextItem, true)
-                    handler.postDelayed(this, AUTO_SCROLL_DELAY) // THIS works correctly here
+                    // Post again after delay
+                    handler.postDelayed(this, AUTO_SCROLL_DELAY)
                 }
             }
         }
     }
 
+    // Function to programmatically scroll to a product in nested RecyclerViews
     fun scrollToProduct(mainCatid: String, catid: String, subcatid: String, productid: String) {
+        // Find index of main category matching the given ID
         val mainCatIndex = originalCategoryList.indexOfFirst {
             it.main_mcat_id.toString() == mainCatid
         }
-        if (mainCatIndex == -1) return
+        if (mainCatIndex == -1) return // Return if not found
 
+        // Check if currently expanded category is the same
         val currentlyExpandedIndex = adapter?.getExpandedCategoryIndex()
         if (currentlyExpandedIndex != mainCatIndex) {
+            // Collapse current and expand new after delay
             adapter?.collapseCategory()
             binding.shopMainCategoryRecycler.postDelayed({
                 proceedScrollTo(mainCatIndex, catid, subcatid, productid)
             }, 350)
         } else {
+            // Directly proceed if already expanded
             proceedScrollTo(mainCatIndex, catid, subcatid, productid)
         }
     }
 
+    // Function that handles expanding categories/subcategories and scrolling to the product
     private fun proceedScrollTo(mainCatIndex: Int, catid: String, subcatid: String, productid: String) {
+        // Expand the main category
         adapter?.expandCategory(mainCatIndex)
         binding.shopMainCategoryRecycler.scrollToPosition(mainCatIndex)
 
         binding.shopMainCategoryRecycler.postDelayed({
+            // Find main category ViewHolder
             val mainCatVH = binding.shopMainCategoryRecycler
                 .findViewHolderForAdapterPosition(mainCatIndex) as? ShopMainCategoryAdapter.MainCategoryViewHolder
                 ?: return@postDelayed
 
+            // Get category adapter and find index of category
             val shopCatAdapter = mainCatVH.getCategoryAdapter()
             val shopCatIndex = shopCatAdapter?.getCategoryIndex(catid) ?: -1
             if (shopCatIndex == -1) return@postDelayed
 
+            // Expand selected category
             val categoryId = shopCatAdapter?.getCategoryIdAt(shopCatIndex)
             if (categoryId != null) {
                 shopCatAdapter.expandCategory(categoryId)
@@ -534,27 +679,33 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             mainCatVH.getCategoryRecycler().scrollToPosition(shopCatIndex)
 
             mainCatVH.getCategoryRecycler().postDelayed({
+                // Find category ViewHolder
                 val shopCatVH = mainCatVH.getCategoryRecycler()
                     .findViewHolderForAdapterPosition(shopCatIndex) as? ShopCategoryAdapter.CategoryViewHolder
                     ?: return@postDelayed
 
+                // Get subcategory adapter and find index
                 val subCatAdapter = shopCatVH.getSubCategoryAdapter()
                 val subCatIndex = subCatAdapter?.getSubCategoryIndex(subcatid) ?: -1
                 if (subCatIndex == -1) return@postDelayed
 
+                // Expand subcategory and scroll to position
                 subCatAdapter?.expandSubCategory(subCatIndex)
                 shopCatVH.getSubCategoryRecycler().scrollToPosition(subCatIndex)
 
                 shopCatVH.getSubCategoryRecycler().postDelayed({
+                    // Find subcategory ViewHolder
                     val subCatVH = shopCatVH.getSubCategoryRecycler()
                         .findViewHolderForAdapterPosition(subCatIndex) as? SubCategoryAdapter.SubCategoryViewHolder
                         ?: return@postDelayed
 
+                    // Find product index inside product adapter
                     val productAdapter = subCatVH.getProductAdapter()
                     val productIndex = productAdapter?.getProductIndex(productid) ?: -1
                     if (productIndex == -1) return@postDelayed
 
                     Log.e("TAG", "proceedScrollTo: "+productIndex)
+                    // Scroll product RecyclerView to product
                     subCatVH.getProductRecycler().post {
                         (subCatVH.getProductRecycler().layoutManager as? LinearLayoutManager)
                             ?.scrollToPositionWithOffset(productIndex, 100)
@@ -564,16 +715,18 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }, 400)
     }
 
-
-
+    // Function to stop banner auto-scrolling
     private fun stopAutoScroll() {
         autoScrollRunnable?.let { handler.removeCallbacks(it) }
     }
 
+    // Function to start banner auto-scrolling
     private fun startAutoScroll() {
-        stopAutoScroll()
+        stopAutoScroll() // Stop existing before starting again
         autoScrollRunnable?.let { handler.postDelayed(it, AUTO_SCROLL_DELAY) }
     }
+
+    // Function to show a snackbar at the bottom with custom styling
     private fun showTopSnackBar(message: String) {
         val snackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT)
 
@@ -583,8 +736,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         params.bottomMargin = 50
         view.layoutParams = params
 
-        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark)) // customize color
+        // Customize background color
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark))
 
+        // Customize text color and alignment
         val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         textView.setTextColor(Color.WHITE)
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
@@ -592,53 +747,45 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         snackBar.show()
     }
 
+    // Function to toggle the filter overlay view
     private fun toggleFilterOverlay() {
         val isFilterVisible = binding.filterLayout.visibility == View.VISIBLE
 
         if (isFilterVisible) {
-            // Filter is currently visible, so hide it
+            // Hide filter layout and restore other views
             binding.filterLayout.visibility = View.GONE
-            // Restore visibility of other views based on their state before the filter was shown
             binding.shopMainCategoryRecycler.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
             binding.shopCategoryLayout.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
-            // Restore banner visibility based on its own data/loading state, not just a fixed value
-            // This is handled better by observeBanners() and showBannerView()
-            showBannerView(bannerAdapter?.itemCount ?: 0 > 0) // Re-evaluate banner visibility
+            showBannerView(bannerAdapter?.itemCount ?: 0 > 0)
         } else {
-            // Filter is currently hidden, so show it
-            // Before showing the filter, store the current visibility of content views
+            // Show filter layout and hide other content
             wasContentVisibleBeforeFilter = binding.shopMainCategoryRecycler.visibility == View.VISIBLE || binding.layoutBanner.visibility == View.VISIBLE
-
             binding.filterLayout.visibility = View.VISIBLE
-            // Hide the content views when the filter is active
             binding.shopMainCategoryRecycler.visibility = View.GONE
             binding.shopCategoryLayout.visibility = View.GONE
             binding.layoutBanner.visibility = View.GONE
         }
     }
 
-
+    // Function to show or hide "No Data" view
     private fun showNoDataView(show: Boolean) {
         binding.noDataTextView.visibility = if (show) View.VISIBLE else View.GONE
-        // Ensure main category recycler is hidden if no data, and visible otherwise,
-        // unless the filter is active
         if (binding.filterLayout.visibility == View.GONE) {
             binding.shopMainCategoryRecycler.visibility = if (show) View.GONE else View.VISIBLE
         }
     }
 
+    // Function to show or hide banner section
     private fun showBannerView(show: Boolean) {
         binding.viewPager.visibility = if (show) View.VISIBLE else View.GONE
-        // Ensure layoutBanner visibility is tied to its content,
-        // but only if the filter is not currently active.
         if (binding.filterLayout.visibility == View.GONE) {
             binding.layoutBanner.visibility = if (show) View.VISIBLE else View.GONE
         } else {
-            binding.layoutBanner.visibility = View.GONE // Keep hidden if filter is active
+            binding.layoutBanner.visibility = View.GONE
         }
     }
 
-
+    // Function to setup Shop UI with categories
     private fun setupShopUI(categories: List<MainCategories>, cdnUrl: String) {
         if (adapter == null) {
             adapter = ShopMainCategoryAdapter(this, categories, cdnUrl)
@@ -647,12 +794,12 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         } else {
             adapter?.updateCategoriesPreserveExpansion(categories)
         }
-        // Ensure visibility is correct after setting up UI, unless filter is active
         if (binding.filterLayout.visibility == View.GONE) {
             binding.shopMainCategoryRecycler.visibility = View.VISIBLE
         }
     }
 
+    // Callback to update wishlist from adapter
     override fun onUpdateWishlist(mvariant_id: String) {
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
         val userId = preferences?.getString("userId", "").orEmpty()
@@ -660,14 +807,15 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         wishlistViewModel.wishlist(token, WishlistRequest(userId, mvariant_id))
     }
 
+    // Callback to update cart and observe cart DB changes
     override fun onUpdateCart(totalItems: Int, productId: Int) {
         val dao = context?.let { CartDatabase.getInstance(it).cartDao() } ?: return
 
         lifecycleScope.launch {
+            // Collect cart item count from DB
             launch {
                 dao.getCartItemCount().collect { totalCount ->
                     val actualCount = totalCount ?: 0
-
                     if (actualCount == 0) {
                         binding.tvCartBadge.visibility = View.GONE
                     } else {
@@ -678,10 +826,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 }
             }
 
+            // Collect cart items and calculate total
             launch {
                 dao.getAllItems().collectLatest { cartItems ->
                     Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
-
                     if (cartItems.isNotEmpty()) {
                         updateTotalAmount(cartItems)
                     } else {
@@ -692,14 +840,16 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
     }
 
+    // Function to calculate and update total cart amount
     private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
         val totalAmount = cartItems.sumOf { it.price * it.quantity }
         binding.tvTotalAmount.text = "£%.2f".format(totalAmount)
     }
 
+    // Lifecycle callback to clean up when view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
-        stopAutoScroll()
-        handler.removeCallbacksAndMessages(null)
+        stopAutoScroll() // Stop banner auto-scrolling
+        handler.removeCallbacksAndMessages(null) // Remove all handler messages
     }
 }
