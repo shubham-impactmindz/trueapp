@@ -30,7 +30,8 @@ class ProductsAdapter(
     private var products: List<Product>, // List of product objects to display
     private val title: String?, // Optional title for section/category
     private val cdnURL: String, // Base CDN URL for product images
-    private val context: Context // Context required for DB, resources, etc.
+    private val context: Context, // Context required for DB, resources, etc.
+    private val productsRecycler: RecyclerView
 ) : RecyclerView.Adapter<ProductsAdapter.ViewHolder>() {
 
     // DAO instance to access cart database
@@ -135,6 +136,12 @@ class ProductsAdapter(
                 }
             }
             listener.onUpdateWishlist(product.mvariant_id.toString())
+        }
+        productsRecycler.postDelayed({
+            productsRecycler.scrollToPosition(0)
+        }, 100) // 100ms delay to ensure proper layout
+        productsRecycler.post {
+            productsRecycler.scrollToPosition(0)
         }
     }
 

@@ -19,6 +19,7 @@
     <color name="colorSecondary">#BB0000</color>
     <color name="colorSecondaryOpacity">#33BB0000</color>
     <color name="colorGreen">#008000</color>
+    <color name="colorGreenLight">#33008000</color>
     <color name="textGrey">#686B76</color>
     <color name="borderGrey">#434343</color>
     <color name="searchGrey">#E5E5EA</color>

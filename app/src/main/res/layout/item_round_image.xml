@@ -16,12 +16,12 @@
         android:background="@drawable/round_image_background"/>
 
     <TextView
-        android:visibility="gone"
         android:id="@+id/tvCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Handmade"
-        android:textColor="@color/black"
-        android:textSize="@dimen/buttonTextSize"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:layout_marginTop="@dimen/margin5"
         android:fontFamily="@font/roboto_regular"/>
 </LinearLayout>

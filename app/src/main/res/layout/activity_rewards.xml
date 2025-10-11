@@ -183,6 +183,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/margin10"
@@ -198,6 +199,7 @@
                     android:padding="10dp">
 
                     <LinearLayout
+                        android:visibility="gone"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -236,8 +238,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Earn 500 points to achieve this tier with exclusive rewards and benefits."
+                        android:text="Total Reward Points Earned So Far: 1000"
                         android:textSize="@dimen/headingTextSize"
+                        android:fontFamily="@font/roboto_bold"
                         android:textColor="@color/black" />
 
                     <ProgressBar
@@ -251,6 +254,7 @@
                         android:scaleY="2" />
 
                     <TextView
+                        android:visibility="gone"
                         android:id="@+id/tvPointsToNextTierBronze"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -260,6 +264,7 @@
                         android:text="Earn 1500 more points to reach Silver" />
 
                     <TextView
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -272,10 +277,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Free shipping up to £30 Use the code at checkout for free shipping."
+                        android:textColor="@color/black"
                         android:textSize="@dimen/baseTextSize"
-                        android:textColor="@color/black" />
+                        android:visibility="gone" />
 
                     <TextView
+                        android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -297,6 +304,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/margin10"
@@ -411,6 +419,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/margin10"

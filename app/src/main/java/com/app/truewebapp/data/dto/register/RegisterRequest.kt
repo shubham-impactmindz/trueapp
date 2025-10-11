@@ -12,5 +12,6 @@ data class RegisterRequest(
     val address2: String,
     val city: String,
     val country: String,
-    val postcode: String
+    val postcode: String,
+    val referral_code: String
 )

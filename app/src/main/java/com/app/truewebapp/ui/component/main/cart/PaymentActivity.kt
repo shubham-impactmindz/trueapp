@@ -173,17 +173,32 @@ class PaymentActivity : AppCompatActivity() {
 
     // Create OrderRequest object and trigger API call
     private fun placeOrder() {
-        val orderRequest = OrderRequest(
-            wallet_discount = walletDeduction.toString(),   // Wallet deduction value
-            coupon_discount = couponDiscount.toString(),    // Coupon discount value
-            user_company_address_id = addressId,            // Delivery address ID
-            delivery_method_id = deliveryMethodId,          // Delivery method ID
-            delivery_instructions = deliveryInstructions,   // Special instructions
-            couponId                                       // Coupon ID
-        )
+        if (binding.payByBank.isChecked) {
+            val orderRequest = OrderRequest(
+                wallet_discount = walletDeduction.toString(),   // Wallet deduction value
+                coupon_discount = couponDiscount.toString(),    // Coupon discount value
+                user_company_address_id = addressId,            // Delivery address ID
+                delivery_method_id = deliveryMethodId,          // Delivery method ID
+                delivery_instructions = deliveryInstructions,   // Special instructions
+                couponId = couponId, // Coupon ID
+                pay_by_bank = true
+            )
+            // Call ViewModel to place order
+            orderPlaceViewModel.orderPlace(token, orderRequest)
+        }else {
+            val orderRequest = OrderRequest(
+                wallet_discount = walletDeduction.toString(),   // Wallet deduction value
+                coupon_discount = couponDiscount.toString(),    // Coupon discount value
+                user_company_address_id = addressId,            // Delivery address ID
+                delivery_method_id = deliveryMethodId,          // Delivery method ID
+                delivery_instructions = deliveryInstructions,   // Special instructions
+                couponId = couponId, // Coupon ID
+                pay_by_bank = false
+            )
+            // Call ViewModel to place order
+            orderPlaceViewModel.orderPlace(token, orderRequest)
+        }
 
-        // Call ViewModel to place order
-        orderPlaceViewModel.orderPlace(token, orderRequest)
     }
 
     // Navigate to order success screen

@@ -31,6 +31,8 @@ import com.app.truewebapp.data.dto.order.OrderRequest
 import com.app.truewebapp.data.dto.order.OrdersResponse
 import com.app.truewebapp.data.dto.profile.ProfileRequest
 import com.app.truewebapp.data.dto.profile.UserProfileResponse
+import com.app.truewebapp.data.dto.referral.ReferralRequest
+import com.app.truewebapp.data.dto.referral.ReferralResponse
 import com.app.truewebapp.data.dto.register.RegisterRequest
 import com.app.truewebapp.data.dto.register.RegisterResponse
 import com.app.truewebapp.data.dto.register.VerifyRepResponse
@@ -40,7 +42,14 @@ import com.app.truewebapp.data.dto.wallet.WalletBalanceResponse
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.data.dto.wishlist.WishlistResponse
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.HTTP
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Query
 
 
 /**
@@ -226,4 +235,10 @@ interface WebService {
     fun fetchWalletBalance(
         @Header("Authorization") token: String
     ): Call<WalletBalanceResponse>
+
+    @POST("/api/send-referral")
+    fun sendReferral(
+        @Header("Authorization") token: String,
+        @Body referralRequest: ReferralRequest
+    ): Call<ReferralResponse>
 }

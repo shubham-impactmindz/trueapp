@@ -132,17 +132,32 @@
                         android:textColor="@color/black"
                         android:fontFamily="@font/roboto_bold" />
 
-                    <TextView
-                        android:visibility="gone"
-                        android:id="@+id/tvAddAddress"
+                    <LinearLayout
+                        android:id="@+id/llAddAddress"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:text="Add New Address"
-                        android:gravity="end"
-                        android:textSize="@dimen/headingTextSize"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/roboto_bold" />
+                        android:gravity="end">
+
+                        <ImageView
+                            android:layout_width="12sp"
+                            android:layout_height="12sp"
+                            android:src="@drawable/add"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:layout_gravity="center">
+
+                        </ImageView>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Add Address"
+                            android:gravity="center"
+                            android:textSize="@dimen/headingTextSize"
+                            android:textColor="@color/black"
+                            android:fontFamily="@font/roboto_bold" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -674,7 +689,10 @@
                     android:id="@+id/walletToggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"/>
+                    android:checked="false"
+                    app:thumbTint="@color/switch_thumb_color"
+                    app:trackTint="@color/switch_track_color"/>
+
             </LinearLayout>
 
             <TextView

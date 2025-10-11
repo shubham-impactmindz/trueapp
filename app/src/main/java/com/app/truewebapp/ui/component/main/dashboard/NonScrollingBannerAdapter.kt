@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 // Import the SmallSlider data model (for small banner details)
 import com.app.truewebapp.data.dto.dashboard_banners.SmallSlider
 // Import ViewBinding for banner item layout
-import com.app.truewebapp.databinding.ItemBannerBinding
+import com.app.truewebapp.databinding.ItemBannerMultipleBinding
 // Import listener interface to handle banner click events
 import com.app.truewebapp.ui.component.main.dashboard.SmallBannerListener
 // Import Glide for image loading
@@ -32,7 +32,7 @@ class NonScrollingBannerAdapter(
      *
      * @param binding Binding object for the banner item layout
      */
-    inner class BannerViewHolder(private val binding: ItemBannerBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class BannerViewHolder(private val binding: ItemBannerMultipleBinding) : RecyclerView.ViewHolder(binding.root) {
         /**
          * Binds a banner image and sets up click listeners.
          *
@@ -75,7 +75,7 @@ class NonScrollingBannerAdapter(
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
         // Inflate the banner layout using ViewBinding
-        val binding = ItemBannerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemBannerMultipleBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BannerViewHolder(binding) // Return new ViewHolder
     }
 

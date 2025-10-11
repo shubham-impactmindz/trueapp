@@ -94,6 +94,11 @@ class SubCategoryAdapter(
             cdnURL: String,
             productAdapterListener: ProductAdapterListener
         ) {
+            // Remove this line from here - it's too early
+            // productsRecycler.post {
+            //     productsRecycler.scrollToPosition(0)
+            // }
+
             // Set subcategory name using HTML parsing for styled text
             tvProduct.text = Html.fromHtml(subCategory.msubcat_name ?: "", Html.FROM_HTML_MODE_LEGACY).toString()
 
@@ -120,7 +125,7 @@ class SubCategoryAdapter(
                 .into(iconBrand)
 
             // Initialize products RecyclerView with ProductsAdapter and GridLayoutManager
-            productsRecycler.adapter = ProductsAdapter(productAdapterListener, subCategory.products, subCategory.msubcat_name, cdnURL, itemView.context)
+            productsRecycler.adapter = ProductsAdapter(productAdapterListener, subCategory.products, subCategory.msubcat_name, cdnURL, itemView.context, productsRecycler)
             productsRecycler.layoutManager = GridLayoutManager(itemView.context, 2)
 
             // Handle expanded/collapsed UI
@@ -208,20 +213,20 @@ class SubCategoryAdapter(
 
         // Handle click for expand/collapse
         holder.linearSubCategory.setOnClickListener {
-            // Provide haptic feedback
             holder.linearSubCategory.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore global haptic settings
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
 
             val subcatId = subCategory.msubcat_id.toString()
             val wasExpanded = expandedMap[subcatId] ?: false
 
-            // Collapse all others before expanding
-            expandedMap.clear()
-            if (!wasExpanded) expandedMap[subcatId] = true
+            // ❌ remove this
+            // expandedMap.clear()
 
-            // Refresh entire list (not optimized but functional)
+            // ✅ just toggle this one
+            expandedMap[subcatId] = !wasExpanded
+
             notifyDataSetChanged()
         }
     }

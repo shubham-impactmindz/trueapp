@@ -39,7 +39,7 @@
                 android:text="Browse"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/mainHeadingTextSize"
-                android:fontFamily="@font/roboto_bold" />
+                android:fontFamily="@font/roboto_bold_italic" />
         </LinearLayout>
 
         <!-- Shopping Cart Layout (Badge on Shopping Bag) -->

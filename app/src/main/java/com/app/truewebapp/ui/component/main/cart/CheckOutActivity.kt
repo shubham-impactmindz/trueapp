@@ -1,6 +1,7 @@
 package com.app.truewebapp.ui.component.main.cart // Package declaration for organizing project structure
 
 // Importing necessary Android and project-specific libraries
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -9,6 +10,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -24,6 +27,7 @@ import com.app.truewebapp.data.dto.company_address.DeliveryMethods
 import com.app.truewebapp.data.dto.coupons.Data
 import com.app.truewebapp.data.dto.order.OrderRequest
 import com.app.truewebapp.databinding.ActivityCheckOutBinding
+import com.app.truewebapp.ui.component.main.account.AddAddressActivity
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.viewmodel.CompanyAddressViewModel
@@ -58,6 +62,7 @@ class CheckOutActivity : AppCompatActivity() {
     private var walletBalanceAmount = 0.0 // User's wallet balance
     private var isWalletSelected = false // Whether wallet payment option is selected
     private var couponBottomSheet: BottomSheetDialog? = null // Bottom sheet for coupons
+    private lateinit var addAddressLauncher: ActivityResultLauncher<Intent>
 
     // Lazy initialization of Cart DAO from Room database
     private val cartDao by lazy { CartDatabase.getInstance(this).cartDao() }
@@ -78,6 +83,17 @@ class CheckOutActivity : AppCompatActivity() {
         binding.tvWalletBalance.text = formatCurrency(walletBalanceAmount) // Show wallet balance
         binding.tvWalletDiscount.text = formatCurrency(0.0) // Start with no wallet discount
 
+
+        // Register launcher to handle results from AddAddressActivity
+        addAddressLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Check if address was added and refresh list
+                val isAdded = result.data?.getBooleanExtra("address_added", false) ?: false
+                if (isAdded) {
+                    companyAddressViewModel.companyAddress(token)
+                }
+            }
+        }
         // Set up system window insets for proper padding
         setupWindowInsets()
 
@@ -115,6 +131,17 @@ class CheckOutActivity : AppCompatActivity() {
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
             handlePaymentButtonClick()
+        }
+
+        // Payment button
+        binding.llAddAddress.setOnClickListener {
+            binding.llAddAddress.performHapticFeedback(
+                HapticFeedbackConstants.VIRTUAL_KEY, // Provide haptic feedback
+                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+            )
+            // Launch AddAddressActivity for result
+            val intent = Intent(this, AddAddressActivity::class.java)
+            addAddressLauncher.launch(intent)
         }
 
         // Place order button
@@ -230,7 +257,8 @@ class CheckOutActivity : AppCompatActivity() {
             addressId.toString(),
             deliveryMethodId.toString(),
             deliveryInstructions,
-            appliedCoupon?.coupon_id?.toString() ?: ""
+            appliedCoupon?.coupon_id?.toString() ?: "",
+            false
         )
 
         // Call API to place order

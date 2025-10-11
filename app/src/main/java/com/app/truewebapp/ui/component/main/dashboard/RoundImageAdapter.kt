@@ -4,6 +4,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.truewebapp.R
 import com.app.truewebapp.data.dto.dashboard_banners.RoundSlider
@@ -16,7 +17,7 @@ class RoundImageAdapter(
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: CircleImageView = view.findViewById(R.id.ivRoundImage)
-//        val tvCategory: TextView = view.findViewById(R.id.tvCategory)
+        val tvCategory: TextView = view.findViewById(R.id.tvCategory)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,7 +40,7 @@ class RoundImageAdapter(
             .thumbnail(0.1f)
             .dontAnimate()
             .into(holder.imageView)
-
+        holder.tvCategory.text = images[position].home_round_banner_name
         holder.imageView.setOnClickListener {
             holder.imageView.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,

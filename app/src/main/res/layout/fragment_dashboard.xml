@@ -185,87 +185,100 @@
 
             </LinearLayout>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin10">
-
-
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmerLayoutBigBanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="180sp"
-                    android:layout_marginLeft="@dimen/margin10"
-                    android:layout_marginRight="@dimen/margin10"
-                    android:layout_marginBottom="@dimen/margin10"
-                    android:visibility="visible">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/shimmer_color" />
-                </com.facebook.shimmer.ShimmerFrameLayout>
-
-                <androidx.viewpager2.widget.ViewPager2
-                    android:visibility="gone"
-                    android:id="@+id/viewPager"
-                    android:layout_width="match_parent"
-                    android:layout_height="180sp"
-                    android:clipToPadding="false" />
-
-
-
-            </FrameLayout>
-
             <LinearLayout
-                android:id="@+id/layoutBanner"
                 android:layout_width="match_parent"
-                android:layout_height="125sp">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <com.facebook.shimmer.ShimmerFrameLayout
-                        android:id="@+id/shimmerLayoutSmallBanner"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="@dimen/margin10"
-                        android:layout_marginRight="@dimen/margin10"
-                        android:layout_marginBottom="@dimen/margin10"
-                        android:visibility="visible">
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@color/shimmer_color" />
-                    </com.facebook.shimmer.ShimmerFrameLayout>
-
-
-                    <androidx.viewpager2.widget.ViewPager2
-                        android:id="@+id/viewPagerNonScrolling"
-                        android:visibility="gone"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false" />
-
-                </FrameLayout>
-            </LinearLayout>
-
-            <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
-                android:id="@+id/dotsIndicator"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center"
-                android:layout_marginBottom="@dimen/margin20"
-                app:dotsColor="@color/lightGrey"
-                app:dotsSize="10sp"
-                app:progressMode="true"
-                app:selectedDotColor="@color/colorPrimaryDark" />
+                android:background="#063978"
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_gradient_rounded"
+                    android:orientation="vertical">
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/margin10">
+
+
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/shimmerLayoutBigBanner"
+                            android:layout_width="match_parent"
+                            android:layout_height="180sp"
+                            android:layout_marginLeft="@dimen/margin10"
+                            android:layout_marginRight="@dimen/margin10"
+                            android:layout_marginBottom="@dimen/margin10"
+                            android:visibility="visible">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@color/shimmer_color" />
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <androidx.viewpager2.widget.ViewPager2
+                            android:visibility="gone"
+                            android:id="@+id/viewPager"
+                            android:layout_width="match_parent"
+                            android:layout_height="180sp"
+                            android:clipToPadding="false" />
 
 
 
+                    </FrameLayout>
 
+                    <LinearLayout
+                        android:id="@+id/layoutBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="140sp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <com.facebook.shimmer.ShimmerFrameLayout
+                                android:id="@+id/shimmerLayoutSmallBanner"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="@dimen/margin10"
+                                android:layout_marginRight="@dimen/margin10"
+                                android:layout_marginBottom="@dimen/margin10"
+                                android:visibility="visible">
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@color/shimmer_color" />
+                            </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/viewPagerNonScrolling"
+                                android:visibility="gone"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="@dimen/margin10"
+                                android:layout_marginEnd="@dimen/margin10"
+                                android:clipToPadding="false" />
+
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
+                        android:id="@+id/dotsIndicator"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|center"
+                        android:layout_marginBottom="@dimen/margin20"
+                        app:dotsColor="@color/lightGrey"
+                        app:dotsSize="10sp"
+                        app:progressMode="true"
+                        app:selectedDotColor="@color/colorPrimaryDark" />
+
+                </LinearLayout>
             <FrameLayout
                 android:id="@+id/frameDeals"
                 android:layout_width="match_parent"
@@ -274,12 +287,8 @@
                 <com.facebook.shimmer.ShimmerFrameLayout
                     android:id="@+id/shimmerLayoutDealsBanner"
                     android:layout_width="match_parent"
-                    android:layout_height="240sp"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:visibility="visible"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_height="250sp"
+                    android:visibility="visible">
 
 
                     <LinearLayout
@@ -292,26 +301,16 @@
                             android:id="@+id/viewDeals"
                             android:layout_width="match_parent"
                             android:layout_height="20dp"
-                            android:layout_marginBottom="10dp"
                             android:background="@color/shimmer_color" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:background="@color/shimmer_color" />
-
 
                     </LinearLayout>
                 </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="240sp"
+                    android:layout_height="250sp"
                     android:orientation="vertical"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10">
+                    android:background="#063978">
 
 
 
@@ -320,9 +319,12 @@
                         android:visibility="gone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
+                        android:fontFamily="@font/roboto_bold_italic"
                         android:text="EXPLORE THE DEALS CENTRE"
-                        android:textColor="@color/black"
+                        android:textColor="@color/white"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:layout_marginStart="@dimen/margin10"
+                        android:layout_marginEnd="@dimen/margin10"
                         android:textSize="@dimen/headingTextSize" />
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -330,242 +332,310 @@
                         android:id="@+id/recyclerViewDeals"
                         android:layout_width="match_parent"
                         android:layout_height="220sp"
+                        android:layout_marginLeft="10sp"
+                        android:layout_marginRight="10sp"
                         android:clipToPadding="false" />
 
 
                 </LinearLayout>
             </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/frameProducts"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmerLayoutNewProducts"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="240sp"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:visibility="visible"
-                    app:layout_constraintTop_toTopOf="parent">
-
-
-                    <LinearLayout
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_gradient_top_rounded"
+                    android:orientation="vertical">
+                    <FrameLayout
+                        android:id="@+id/frameProducts"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
-
-
-                        <View
-                            android:id="@+id/viewNewProducts"
+                        android:layout_height="match_parent">
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/shimmerLayoutNewProducts"
                             android:layout_width="match_parent"
-                            android:layout_height="20dp"
-                            android:layout_marginBottom="10dp"
-                            android:background="@color/shimmer_color" />
+                            android:layout_height="240sp"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:layout_marginTop="@dimen/margin10"
+                            android:visibility="visible"
+                            android:background="@drawable/bg_gradient_top_rounded"
+                            app:layout_constraintTop_toTopOf="parent">
+
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+
+
+                                <View
+                                    android:id="@+id/viewNewProducts"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="20dp"
+                                    android:layout_marginBottom="10dp"
+                                    android:background="@color/shimmer_color" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="horizontal"
+                                    android:background="@color/shimmer_color" />
+
+
+                            </LinearLayout>
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:layout_marginTop="@dimen/margin10">
+
+                            <!-- Header Row: Text + Arrows -->
+                            <LinearLayout
+                                android:id="@+id/llNewProducts"
+                                android:visibility="gone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:id="@+id/tvNewProducts"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/roboto_bold_italic"
+                                    android:text="NEW PRODUCTS"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/headingTextSize"
+                                    android:visibility="visible" />
+
+                                <!-- Left Arrow -->
+                                <ImageView
+                                    android:id="@+id/ivLeftArrow"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_arrow_left"
+                                    android:padding="4dp"
+                                    android:contentDescription="Previous" />
+
+                                <!-- Right Arrow -->
+                                <ImageView
+                                    android:id="@+id/ivRightArrow"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_arrow_right"
+                                    android:padding="4dp"
+                                    android:contentDescription="Next" />
+                            </LinearLayout>
+
+                            <!-- RecyclerView under header -->
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerViewDrinks"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:clipToPadding="false"
+                                android:visibility="gone" />
+
+                        </LinearLayout>
+
+                    </FrameLayout>
+
+                </LinearLayout>
+                <FrameLayout
+                    android:id="@+id/frameFruits"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmerLayoutFruitsBanner"
+                        android:layout_width="match_parent"
+                        android:layout_height="240sp"
+                        android:layout_marginStart="@dimen/margin10"
+                        android:layout_marginEnd="@dimen/margin10"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:visibility="visible"
+                        app:layout_constraintTop_toTopOf="parent">
+
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:background="@color/shimmer_color" />
+                            android:orientation="vertical">
+
+
+                            <View
+                                android:id="@+id/viewFruits"
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:layout_marginBottom="10dp"
+                                android:background="@color/shimmer_color" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="horizontal"
+                                android:background="@color/shimmer_color" />
+
+
+                        </LinearLayout>
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="240sp"
+                        android:layout_marginStart="@dimen/margin10"
+                        android:layout_marginEnd="@dimen/margin10"
+                        android:layout_marginTop="@dimen/margin10"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvFruitsCenter"
+                            android:visibility="gone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/roboto_bold_italic"
+                            android:text="FRUITS"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/headingTextSize" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:visibility="gone"
+                            android:id="@+id/recyclerViewFruits"
+                            android:layout_width="match_parent"
+                            android:layout_height="220sp"
+                            android:clipToPadding="false" />
 
 
                     </LinearLayout>
-                </com.facebook.shimmer.ShimmerFrameLayout>
+
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
+                    android:background="@drawable/bg_gradient_top_rounded"
                     android:orientation="vertical">
 
-
-                    <TextView
-                        android:visibility="gone"
-                        android:id="@+id/tvNewProducts"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/margin10"
-                        android:layout_marginTop="@dimen/margin10"
-                        android:layout_marginRight="@dimen/margin10"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="NEW PRODUCTS"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/headingTextSize" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:visibility="gone"
-                        android:id="@+id/recyclerViewDrinks"
+                    <FrameLayout
+                        android:id="@+id/frameSeller"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false" />
-
-
-                </LinearLayout>
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/frameFruits"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmerLayoutFruitsBanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="240sp"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:visibility="visible"
-                    app:layout_constraintTop_toTopOf="parent">
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
-
-
-                        <View
-                            android:id="@+id/viewFruits"
+                        android:layout_height="match_parent">
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:id="@+id/shimmerLayoutTopSeller"
                             android:layout_width="match_parent"
-                            android:layout_height="20dp"
-                            android:layout_marginBottom="10dp"
-                            android:background="@color/shimmer_color" />
+                            android:layout_height="240sp"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:layout_marginTop="@dimen/margin10"
+                            android:visibility="visible"
+                            app:layout_constraintTop_toTopOf="parent">
+
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+
+
+                                <View
+                                    android:id="@+id/viewTopSeller"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="20dp"
+                                    android:layout_marginBottom="10dp"
+                                    android:background="@color/shimmer_color" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:orientation="horizontal"
+                                    android:background="@color/shimmer_color" />
+
+
+                            </LinearLayout>
+                        </com.facebook.shimmer.ShimmerFrameLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:background="@color/shimmer_color" />
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/margin10"
+                            android:layout_marginEnd="@dimen/margin10"
+                            android:layout_marginTop="@dimen/margin10"
+                            android:orientation="vertical">
 
+                            <!-- Header Row: Text + Arrows -->
+                            <LinearLayout
+                                android:id="@+id/llTopProducts"
+                                android:visibility="gone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
 
-                    </LinearLayout>
-                </com.facebook.shimmer.ShimmerFrameLayout>
+                                <TextView
+                                    android:id="@+id/tvTopSeller"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/roboto_bold_italic"
+                                    android:text="TOP SELLER"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/headingTextSize"
+                                    android:visibility="visible" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="240sp"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
-                    android:layout_marginTop="@dimen/margin10"
-                    android:orientation="vertical">
+                                <!-- Left Arrow -->
+                                <ImageView
+                                    android:id="@+id/ivLeftArrowTopSeller"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_arrow_left"
+                                    android:padding="4dp"
+                                    android:contentDescription="Previous" />
 
-                    <TextView
-                        android:id="@+id/tvFruitsCenter"
-                        android:visibility="gone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="FRUITS"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/headingTextSize" />
+                                <!-- Right Arrow -->
+                                <ImageView
+                                    android:id="@+id/ivRightArrowTopSeller"
+                                    android:layout_width="32dp"
+                                    android:layout_height="32dp"
+                                    android:src="@drawable/ic_arrow_right"
+                                    android:padding="4dp"
+                                    android:contentDescription="Next" />
+                            </LinearLayout>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:visibility="gone"
-                        android:id="@+id/recyclerViewFruits"
-                        android:layout_width="match_parent"
-                        android:layout_height="220sp"
-                        android:clipToPadding="false" />
+                            <!-- RecyclerView under header -->
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerViewNutrition"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:clipToPadding="false"
+                                android:visibility="gone" />
 
+                        </LinearLayout>
+
+                    </FrameLayout>
 
                 </LinearLayout>
-
-            </FrameLayout>
-
-            <FrameLayout
-                android:id="@+id/frameSeller"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:id="@+id/shimmerLayoutTopSeller"
-                    android:layout_width="match_parent"
-                    android:layout_height="240sp"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10"
-                    android:visibility="visible"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_marginRight="@dimen/margin10"
+                    android:fontFamily="@font/roboto_bold_italic"
+                    android:text="@string/recent_notifications"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/headingTextSize" />
 
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
-
-
-                        <View
-                            android:id="@+id/viewTopSeller"
-                            android:layout_width="match_parent"
-                            android:layout_height="20dp"
-                            android:layout_marginBottom="10dp"
-                            android:background="@color/shimmer_color" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal"
-                            android:background="@color/shimmer_color" />
-
-
-                    </LinearLayout>
-                </com.facebook.shimmer.ShimmerFrameLayout>
-
-                <LinearLayout
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recentNotificationsRecycler"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin10"
-                    android:layout_marginEnd="@dimen/margin10"
                     android:layout_marginTop="@dimen/margin10"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="@dimen/margin10"
+                    android:nestedScrollingEnabled="false">
 
-                    <TextView
-                        android:visibility="gone"
-                        android:id="@+id/tvTopSeller"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/margin10"
-                        android:layout_marginTop="@dimen/margin10"
-                        android:layout_marginRight="@dimen/margin10"
-                        android:fontFamily="@font/roboto_bold"
-                        android:text="TOP SELLER"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/headingTextSize" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:visibility="gone"
-                        android:id="@+id/recyclerViewNutrition"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clipToPadding="false" />
-
-                </LinearLayout>
-
-            </FrameLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/margin10"
-                android:layout_marginTop="@dimen/margin10"
-                android:layout_marginRight="@dimen/margin10"
-                android:fontFamily="@font/roboto_bold"
-                android:text="@string/recent_notifications"
-                android:textColor="@color/black"
-                android:textSize="@dimen/headingTextSize" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recentNotificationsRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin10"
-                android:layout_marginBottom="@dimen/margin10"
-                android:nestedScrollingEnabled="false">
-
-            </androidx.recyclerview.widget.RecyclerView>
+                </androidx.recyclerview.widget.RecyclerView>
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -608,4 +678,3 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

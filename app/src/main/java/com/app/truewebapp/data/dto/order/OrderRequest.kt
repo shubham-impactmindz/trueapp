@@ -7,4 +7,5 @@ data class OrderRequest(
     val delivery_method_id: String,
     val delivery_instructions: String,
     val couponId: String,
+    val pay_by_bank: Boolean,
 )

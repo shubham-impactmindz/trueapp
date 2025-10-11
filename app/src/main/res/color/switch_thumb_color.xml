@@ -1,0 +1,6 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Active (checked) -->
+    <item android:color="@color/colorGreen" android:state_checked="true"/>
+    <!-- Inactive (unchecked) -->
+    <item android:color="?attr/colorSecondary" android:state_checked="false"/>
+</selector>

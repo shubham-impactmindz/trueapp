@@ -1,13 +1,17 @@
 package com.app.truewebapp.ui.component.main.dashboard
 
 // Importing custom adapters for banners and product sections
+
+// Android core and UI components
+
+// AppCompat for compatibility support
+
+// Project-specific resources and constants
 import DashboardBannerAdapter
 import NonScrollingBannerAdapter
 import NonScrollingBannerDealsAdapter
 import NonScrollingBannerFruitsAdapter
 import NonScrollingBannerTopSellerAdapter
-
-// Android core and UI components
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -23,8 +27,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-
-// AppCompat for compatibility support
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -32,8 +34,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
-
-// Project-specific resources and constants
 import com.app.truewebapp.R
 import com.app.truewebapp.SHARED_PREF_NAME
 import com.app.truewebapp.data.dto.brands.WishlistBrand
@@ -323,13 +323,14 @@ class DashboardFragment : Fragment(),
                         // Show banners in ViewPager2
                         binding.shimmerLayoutSmallBanner.visibility = View.GONE
                         binding.viewPagerNonScrolling.visibility = View.VISIBLE
-                        nonScrollingBannerAdapter = NonScrollingBannerAdapter(this, it.smallSliders, it.cdnURL)
-                        binding.viewPagerNonScrolling.adapter = nonScrollingBannerAdapter
-                        binding.dotsIndicator.attachTo(binding.viewPagerNonScrolling)
+                        binding.shimmerLayoutSmallBanner.visibility = View.GONE
+                        binding.viewPagerNonScrolling.visibility = View.VISIBLE
+                        val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,false) // 2 columns
+                        binding.viewPagerNonScrolling.layoutManager = layoutManager
 
-                        // Set smooth scrolling configs
-                        binding.viewPagerNonScrolling.offscreenPageLimit = 1
-                        binding.viewPagerNonScrolling.setCurrentItem(0, false)
+// Set the adapter as before
+                        val adapter = NonScrollingBannerAdapter(this, it.smallSliders, it.cdnURL)
+                        binding.viewPagerNonScrolling.adapter = adapter
                     }
 
                     // ---------- Big Banners ----------
@@ -369,11 +370,11 @@ class DashboardFragment : Fragment(),
                         binding.shimmerLayoutDealsBanner.visibility = View.GONE
                         binding.frameDeals.visibility = View.GONE
                         binding.recyclerViewDeals.visibility = View.GONE
-                        binding.viewDeals.visibility = View.GONE
+//                        binding.viewDeals.visibility = View.GONE
                     } else {
                         // Show deals data
                         binding.shimmerLayoutDealsBanner.visibility = View.GONE
-                        binding.viewDeals.visibility = View.GONE
+//                        binding.viewDeals.visibility = View.GONE
                         binding.recyclerViewDeals.visibility = View.VISIBLE
                         binding.frameDeals.visibility = View.VISIBLE
                         binding.tvDealsCenter.visibility = View.VISIBLE
@@ -426,7 +427,7 @@ class DashboardFragment : Fragment(),
                 binding.shimmerLayoutBigBanner.visibility = View.VISIBLE
                 binding.viewPager.visibility = View.GONE
                 binding.shimmerLayoutDealsBanner.visibility = View.VISIBLE
-                binding.viewDeals.visibility = View.VISIBLE
+//                binding.viewDeals.visibility = View.VISIBLE
                 binding.recyclerViewDeals.visibility = View.GONE
                 binding.tvDealsCenter.visibility = View.GONE
                 binding.shimmerLayoutFruitsBanner.visibility = View.VISIBLE
@@ -483,9 +484,30 @@ class DashboardFragment : Fragment(),
                         binding.viewNewProducts.visibility = View.GONE
                         binding.recyclerViewDrinks.visibility = View.VISIBLE
                         binding.frameProducts.visibility = View.VISIBLE
+                        binding.llNewProducts.visibility = View.VISIBLE
                         binding.tvNewProducts.visibility = View.VISIBLE
                         binding.tvNewProducts.text = it.newProductHeader
+
                         setupNewProductsAdapter()
+
+                        val layoutManager = binding.recyclerViewDrinks.layoutManager as? LinearLayoutManager
+
+                        // Left Arrow click → scroll left
+                        binding.ivLeftArrow.setOnClickListener {
+                            val firstVisible = layoutManager?.findFirstVisibleItemPosition() ?: 0
+                            if (firstVisible > 0) {
+                                binding.recyclerViewDrinks.smoothScrollToPosition(firstVisible - 1)
+                            }
+                        }
+
+                        // Right Arrow click → scroll right
+                        binding.ivRightArrow.setOnClickListener {
+                            val lastVisible = layoutManager?.findLastVisibleItemPosition() ?: 0
+                            val totalItems = layoutManager?.itemCount ?: 0
+                            if (lastVisible < totalItems - 1) {
+                                binding.recyclerViewDrinks.smoothScrollToPosition(lastVisible + 1)
+                            }
+                        }
                     }
 
                     // ---------- Top Sellers ----------
@@ -498,8 +520,28 @@ class DashboardFragment : Fragment(),
                         binding.recyclerViewNutrition.visibility = View.VISIBLE
                         binding.frameSeller.visibility = View.VISIBLE
                         binding.tvTopSeller.visibility = View.VISIBLE
+                        binding.llTopProducts.visibility = View.VISIBLE
                         binding.tvTopSeller.text = it.topSellerHeader
                         setupTopSellerAdapter()
+
+                        val layoutManager = binding.recyclerViewNutrition.layoutManager as? LinearLayoutManager
+
+                        // Left Arrow click → scroll left
+                        binding.ivLeftArrowTopSeller.setOnClickListener {
+                            val firstVisible = layoutManager?.findFirstVisibleItemPosition() ?: 0
+                            if (firstVisible > 0) {
+                                binding.recyclerViewNutrition.smoothScrollToPosition(firstVisible - 1)
+                            }
+                        }
+
+                        // Right Arrow click → scroll right
+                        binding.ivRightArrowTopSeller.setOnClickListener {
+                            val lastVisible = layoutManager?.findLastVisibleItemPosition() ?: 0
+                            val totalItems = layoutManager?.itemCount ?: 0
+                            if (lastVisible < totalItems - 1) {
+                                binding.recyclerViewNutrition.smoothScrollToPosition(lastVisible + 1)
+                            }
+                        }
                     }
                 }
             }
@@ -513,6 +555,8 @@ class DashboardFragment : Fragment(),
                 binding.viewNewProducts.visibility = View.VISIBLE
                 binding.recyclerViewDrinks.visibility = View.GONE
                 binding.tvNewProducts.visibility = View.GONE
+                binding.llTopProducts.visibility = View.GONE
+                binding.llNewProducts.visibility = View.GONE
                 binding.shimmerLayoutTopSeller.visibility = View.VISIBLE
                 binding.viewTopSeller.visibility = View.VISIBLE
                 binding.recyclerViewNutrition.visibility = View.GONE

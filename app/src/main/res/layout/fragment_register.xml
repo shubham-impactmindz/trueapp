@@ -10,7 +10,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16sp"
+        android:layout_marginRight="16sp">
 
         <LinearLayout
             android:id="@+id/nameLayout"
@@ -249,12 +251,42 @@
                 android:fontFamily="@font/roboto_regular"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/referralCodeInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            app:layout_constraintTop_toBottomOf="@id/repCodeInputLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="12sp"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/referralCodeInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Referral code"
+                android:background="@drawable/border_primary"
+                android:inputType="text"
+                android:textSize="@dimen/baseTextSize"
+                android:padding="10sp"
+                android:textColorHint="@color/borderGrey"
+                android:drawableTint="@color/colorPrimaryDark"
+                android:drawableStart="@drawable/rep"
+                android:drawablePadding="@dimen/padding10"
+                android:fontFamily="@font/roboto_regular"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Email Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/companyNameInputLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height60"
-            app:layout_constraintTop_toBottomOf="@id/repCodeInputLayout"
+            app:layout_constraintTop_toBottomOf="@id/referralCodeInputLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:boxStrokeWidth="0sp"

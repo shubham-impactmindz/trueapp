@@ -100,6 +100,7 @@ class RegisterFragment : Fragment() {
                         city = binding.cityInput.text.toString().trim(),
                         postcode = binding.postCodeInput.text.toString().trim(),
                         country = binding.countryInput.text.toString().trim(),
+                        referral_code = binding.referralCodeInput.text.toString().trim(),
                     )
                     registerViewModel.register(request)
                 } else {
@@ -272,6 +273,7 @@ class RegisterFragment : Fragment() {
                             city = binding.cityInput.text.toString().trim(),
                             postcode = binding.postCodeInput.text.toString().trim(),
                             country = binding.countryInput.text.toString().trim(),
+                            referral_code = binding.referralCodeInput.text.toString().trim(),
                         )
                         registerViewModel.register(request)
                     } else {
