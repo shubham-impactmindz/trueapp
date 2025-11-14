@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.app.truewebapp.utils.Converters
 
-@Database(entities = [CartItemEntity::class], version = 2, exportSchema = false)
+@Database(entities = [CartItemEntity::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class CartDatabase : RoomDatabase() {
 
@@ -24,11 +24,18 @@ abstract class CartDatabase : RoomDatabase() {
                     context.applicationContext,
                     CartDatabase::class.java,
                     "cart_database"
-                ).fallbackToDestructiveMigration()
+                )
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 instance
             }
+        }
+        
+        // Helper method to clear database instance (useful for testing or forced resets)
+        fun clearInstance() {
+            INSTANCE?.close()
+            INSTANCE = null
         }
     }
 }

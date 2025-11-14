@@ -88,10 +88,11 @@ class ProductsAdapter(
             .error(R.drawable.ic_logo_red_blue)
             .into(holder.imgProduct)
 
-        // Update different UI sections for wishlist, price, deal tags
+        // Update different UI sections for wishlist, price, deal tags, and offers
         updateWishlistUI(holder, product)
         updatePriceUI(holder, product)
         updateDealTagUI(holder, product)
+        updateOfferUI(holder, product)
 
         // Display formatted product price
         holder.finalPrice.text = "£%.2f".format(product.price)
@@ -149,12 +150,18 @@ class ProductsAdapter(
     private fun updateCartUI(holder: ViewHolder, product: Product, initialCount: Int) {
         var quantity = initialCount
 
-        if (product.quantity == 0) { // Handle "out of stock" state
+        if (product.quantity < 0) { // Handle "out of stock" state
             holder.tvOffer.text = "Out of stock"
             holder.textBrand.setTextColor(context.getColor(android.R.color.darker_gray))
             holder.textTitle.setTextColor(context.getColor(android.R.color.darker_gray))
             holder.textFlavour.setTextColor(context.getColor(android.R.color.darker_gray))
             holder.finalPrice.setTextColor(context.getColor(android.R.color.darker_gray))
+            // Fade text for out of stock items
+            holder.textBrand.alpha = 0.5f
+            holder.textTitle.alpha = 0.5f
+            holder.textFlavour.alpha = 0.5f
+            holder.finalPrice.alpha = 0.5f
+            holder.comparePrice.alpha = 0.5f
             holder.tvOffer.visibility = View.VISIBLE
             holder.llOffer.visibility = View.VISIBLE
             holder.btnAdd.isEnabled = false
@@ -163,6 +170,15 @@ class ProductsAdapter(
             holder.llCartSign.visibility = View.GONE
             holder.btnAdd.visibility = View.GONE
         } else { // Product is available
+            // Reset alpha and text colors for in-stock items
+            holder.textBrand.alpha = 1.0f
+            holder.textTitle.alpha = 1.0f
+            holder.textFlavour.alpha = 1.0f
+            holder.finalPrice.alpha = 1.0f
+            holder.comparePrice.alpha = 1.0f
+            holder.textBrand.setTextColor(context.getColor(R.color.black))
+            holder.textTitle.setTextColor(context.getColor(R.color.black))
+            holder.textFlavour.setTextColor(context.getColor(R.color.black))
             updateOfferUI(holder, product)
             holder.finalPrice.setTextColor(context.getColor(android.R.color.black))
             holder.btnAdd.isEnabled = true
@@ -238,7 +254,12 @@ class ProductsAdapter(
                     isWishlisted = product.user_info_wishlist,
                     cdnURL = cdnURL,
                     quantity = quantity,
-                    taxable = product.taxable
+                    taxable = product.taxable,
+                    dealType = product.deal_type,
+                    dealBuyQuantity = product.deal_buy_quantity,
+                    dealGetQuantity = product.deal_get_quantity,
+                    dealQuantity = product.deal_quantity,
+                    dealPrice = product.deal_price
                 )
                 cartDao.insertOrUpdateItem(cartItem) // Save to DB
             } catch (e: Exception) {
@@ -262,7 +283,12 @@ class ProductsAdapter(
                     isWishlisted = b,
                     cdnURL = cdnURL,
                     quantity = quantity,
-                    taxable = product.taxable
+                    taxable = product.taxable,
+                    dealType = product.deal_type,
+                    dealBuyQuantity = product.deal_buy_quantity,
+                    dealGetQuantity = product.deal_get_quantity,
+                    dealQuantity = product.deal_quantity,
+                    dealPrice = product.deal_price
                 )
                 cartDao.insertOrUpdateItem(cartItem) // Save updated wishlist state
 
@@ -312,13 +338,43 @@ class ProductsAdapter(
 
     // Update UI for product offers
     private fun updateOfferUI(holder: ViewHolder, product: Product) {
-        if (product.product_offer.isNullOrEmpty()) {
+        val dealText = calculateDealText(product)
+        
+        if (dealText.isNullOrEmpty()) {
             holder.llOffer.visibility = View.INVISIBLE
             holder.tvOffer.visibility = View.INVISIBLE
         } else {
             holder.llOffer.visibility = View.VISIBLE
             holder.tvOffer.visibility = View.VISIBLE
-            holder.tvOffer.text = product.product_offer
+            holder.tvOffer.text = dealText
+        }
+    }
+    
+    // Calculate deal text based on deal type and parameters
+    private fun calculateDealText(product: Product): String? {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> {
+                val buyQty = product.deal_buy_quantity
+                val getQty = product.deal_get_quantity
+                if (buyQty != null && getQty != null && buyQty > 0 && getQty > 0) {
+                    "Buy $buyQty Get $getQty Free"
+                } else {
+                    product.product_offer // Fallback to original offer text
+                }
+            }
+            "volume_discount" -> {
+                val dealQty = product.deal_quantity
+                val dealPrice = product.deal_price
+                if (dealQty != null && dealPrice != null && dealQty > 0 && dealPrice > 0) {
+                    "Any $dealQty for £%.2f".format(dealPrice)
+                } else {
+                    product.product_offer // Fallback to original offer text
+                }
+            }
+            else -> {
+                // If no deal_type or unknown type, use original product_offer
+                product.product_offer
+            }
         }
     }
 

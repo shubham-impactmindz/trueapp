@@ -97,11 +97,16 @@ class RepDetailActivity : AppCompatActivity() {
                         binding.repLayout.visibility = View.GONE
                         binding.phoneNumberLayout.visibility = View.GONE
                         binding.emailLayout.visibility = View.GONE
-                        binding.viewRep.visibility = View.GONE
-                        binding.viewEmail.visibility = View.GONE
                         binding.repCodeLayout.visibility = View.GONE
-                        binding.noDataTextView.visibility = View.VISIBLE
+                        binding.noDataLayout.visibility = View.VISIBLE
                     } else {
+                        // Show rep-related views
+                        binding.repLayout.visibility = View.VISIBLE
+                        binding.phoneNumberLayout.visibility = View.VISIBLE
+                        binding.emailLayout.visibility = View.VISIBLE
+                        binding.repCodeLayout.visibility = View.VISIBLE
+                        binding.noDataLayout.visibility = View.GONE
+                        
                         // Extract representative name
                         val name = it.rep_details.name.trim()
 

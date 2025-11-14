@@ -1,5 +1,6 @@
 package com.app.truewebapp.data.dto.dashboard_banners
 
+
 data class TopSellerBannersResponse (
     val status: Boolean,
     val message: String,

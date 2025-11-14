@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -33,6 +34,7 @@ import com.app.truewebapp.R
 import com.app.truewebapp.SHARED_PREF_NAME
 import com.app.truewebapp.data.dto.browse.BrowseBanners
 import com.app.truewebapp.data.dto.browse.MainCategories
+import com.app.truewebapp.data.dto.browse.Product
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.FragmentShopBinding
 import com.app.truewebapp.ui.component.main.cart.CartUpdateListener
@@ -88,6 +90,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     // Tracks content visibility state when filter overlay is toggled
     private var wasContentVisibleBeforeFilter = false
+    
+    // Track shown deals to prevent duplicate popups
+    private val shownDeals = mutableMapOf<Int, Int>() // variantId to quantity when deal was shown
 
     /**
      * Inflate the fragment layout using view binding
@@ -239,7 +244,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Swipe refresh reloads data
         binding.swipeRefreshLayout.setOnRefreshListener {
             stopAutoScroll()
-            applyFilter = false
+            // Don't reset applyFilter - preserve current filter state
             loadInitialData()
         }
 
@@ -250,6 +255,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     // Called when the Fragment comes to the foreground and becomes interactive
     override fun onResume() {
         super.onResume() // Always call the parent class's onResume()
+
+        // Reset to default state when Browse tab is tapped
+        resetToDefaultState()
 
         // Refresh the adapter data when returning to this screen
         adapter?.notifyDataSetChanged()
@@ -325,24 +333,27 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             // Get the latest response from brandsViewModel (if null, exit)
             val response = brandsViewModel.brandsResponse.value ?: return@setOnCheckedChangeListener
 
+            // Add null safety check for mbrands
+            val mbrands = response.mbrands ?: return@setOnCheckedChangeListener
+
             // Apply filter logic based on selected type
             if (filtersType == "Favourites") {
-                // Collect IDs of brands in the wishlist
-                val wishlistIds = response.wishlistbrand.map { it.mbrand_id }
+                // Collect IDs of brands in the wishlist (with null safety)
+                val wishlistIds = (response.wishlistbrand ?: emptyList()).map { it.mbrand_id }
                 // Mark brands as selected if they exist in wishlist
-                response.mbrands.forEach { brand ->
+                mbrands.forEach { brand ->
                     brand.isSelected = wishlistIds.contains(brand.mbrand_id)
                 }
             } else {
                 // Reset selection for all brands when "All" is selected
-                response.mbrands.forEach { brand ->
+                mbrands.forEach { brand ->
                     brand.isSelected = false
                 }
             }
 
             // Create and set the adapter with updated brand list
             val brandsAdapter = BrandsAdapter(
-                response.mbrands,
+                mbrands,
                 response.cdnURL,
                 filtersType,
                 response
@@ -357,8 +368,11 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Retrieve SharedPreferences for persistent data
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
 
-        // Trigger API calls to fetch initial data
-        categoriesViewModel.categories(search, token, filters)
+        // Preserve current filter state when refreshing
+        val currentFilters = if (applyFilter) filters else ""
+        
+        // Trigger API calls to fetch initial data with preserved filters
+        categoriesViewModel.categories(search, token, currentFilters)
         bannersViewModel.banners(token)
         brandsViewModel.brands(token, preferences?.getString("userId", "")) // Pass stored userId if available
     }
@@ -504,19 +518,39 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
-                    if (it.mbrands.isNotEmpty()) {
-                        // Show brands if available
-                        binding.brandsRecyclerView.visibility = View.VISIBLE
-                        val brandsAdapter = BrandsAdapter(
-                            it.mbrands,
-                            it.cdnURL,
-                            filtersType,
-                            it
-                        )
-                        binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5)
-                        binding.brandsRecyclerView.adapter = brandsAdapter
-                    } else {
-                        // Hide brands if none available
+                    // Use let block to safely handle nullable mbrands
+                    it.mbrands?.let { mbrands ->
+                        // Only proceed if mbrands is not empty
+                        if (mbrands.isNotEmpty()) {
+                            // Show brands if available
+                            binding.brandsRecyclerView.visibility = View.VISIBLE
+                            
+                            // Restore radio button selection if filters are applied
+                            if (applyFilter && filtersType == "Favourites") {
+                                binding.radioFavourites.isChecked = true
+                                // Apply wishlist filter to brands (with null safety)
+                                val wishlistIds = (it.wishlistbrand ?: emptyList()).map { brand -> brand.mbrand_id }
+                                mbrands.forEach { brand ->
+                                    brand.isSelected = wishlistIds.contains(brand.mbrand_id)
+                                }
+                            } else if (applyFilter && filtersType == "All") {
+                                binding.radioAllProducts.isChecked = true
+                            }
+                            
+                            val brandsAdapter = BrandsAdapter(
+                                mbrands,
+                                it.cdnURL,
+                                filtersType,
+                                it
+                            )
+                            binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5)
+                            binding.brandsRecyclerView.adapter = brandsAdapter
+                        } else {
+                            // Hide brands if empty
+                            binding.brandsRecyclerView.visibility = View.GONE
+                        }
+                    } ?: run {
+                        // Hide brands if mbrands is null
                         binding.brandsRecyclerView.visibility = View.GONE
                     }
                 } else {
@@ -832,6 +866,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                     Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
                     if (cartItems.isNotEmpty()) {
                         updateTotalAmount(cartItems)
+                        // Check for deal applications
+                        checkAndShowDealPopup(cartItems, productId)
                     } else {
                         binding.tvTotalAmount.text = "£0.00"
                     }
@@ -845,11 +881,146 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val totalAmount = cartItems.sumOf { it.price * it.quantity }
         binding.tvTotalAmount.text = "£%.2f".format(totalAmount)
     }
+    
+    // Check if any deals are triggered and show popup
+    private fun checkAndShowDealPopup(cartItems: List<CartItemEntity>, updatedProductId: Int) {
+        // Find the product that was just updated
+        val updatedProduct = findProductByVariantId(updatedProductId) ?: return
+        
+        // Check if this product has a deal
+        if (updatedProduct.deal_type.isNullOrEmpty()) return
+        
+        // Find the cart item for this product
+        val cartItem = cartItems.find { it.variantId == updatedProductId } ?: return
+        
+        // Calculate deal application
+        val dealResult = calculateDealApplication(updatedProduct, cartItem.quantity)
+        
+        // Show popup if deal is triggered and not already shown for this quantity
+        if (dealResult.isTriggered) {
+            val lastShownQuantity = shownDeals[updatedProductId] ?: 0
+            if (cartItem.quantity > lastShownQuantity) {
+                showDealAppliedDialog(dealResult)
+                shownDeals[updatedProductId] = cartItem.quantity
+            }
+        }
+    }
+    
+    // Find product by variant ID in the current category list
+    private fun findProductByVariantId(variantId: Int): Product? {
+        originalCategoryList.forEach { mainCategory ->
+            mainCategory.categories.forEach { category ->
+                category.subcategories.forEach { subcategory ->
+                    subcategory.products.forEach { product ->
+                        if (product.mvariant_id == variantId) {
+                            return product
+                        }
+                    }
+                }
+            }
+        }
+        return null
+    }
+    
+    // Calculate if deal is triggered and how many free items
+    private fun calculateDealApplication(product: Product, quantity: Int): DealResult {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> {
+                val buyQty = product.deal_buy_quantity ?: 0
+                val getQty = product.deal_get_quantity ?: 0
+                
+                if (buyQty > 0 && getQty > 0 && quantity >= buyQty) {
+                    val freeItems = (quantity / buyQty) * getQty
+                    val dealName = "Buy $buyQty Get $getQty"
+                    DealResult(true, freeItems, dealName)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            "volume_discount" -> {
+                val dealQty = product.deal_quantity ?: 0
+                val dealPrice = product.deal_price ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && quantity >= dealQty) {
+                    val dealName = "Buy $dealQty for £%.2f".format(dealPrice)
+                    DealResult(true, 0, dealName, isVolumeDiscount = true)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            else -> DealResult(false, 0, "")
+        }
+    }
+    
+    // Show deal applied dialog
+    private fun showDealAppliedDialog(dealResult: DealResult) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_deal_applied, null)
+        val tvDealDescription = dialogView.findViewById<TextView>(R.id.tvDealDescription)
+        val tvHeading = dialogView.findViewById<TextView>(R.id.tvHeading)
+        val btnOk = dialogView.findViewById<View>(R.id.btnOk)
+        
+        // Set heading with emoji on both sides
+        tvHeading?.text = "🎉 Deals Applied 🎉"
+        
+        // Set description text based on deal type
+        val descriptionText = if (dealResult.isVolumeDiscount) {
+            "Volume discount applied!\n${dealResult.dealName} deal activated"
+        } else {
+            "You got ${dealResult.freeItems} free items!\n${dealResult.dealName} applied"
+        }
+        
+        tvDealDescription.text = descriptionText
+        
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+        
+        // Set dialog background to transparent for custom styling
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        
+        btnOk.setOnClickListener {
+            dialog.dismiss()
+        }
+        
+        dialog.show()
+    }
+    
+    // Data class to hold deal calculation results
+    private data class DealResult(
+        val isTriggered: Boolean,
+        val freeItems: Int,
+        val dealName: String,
+        val isVolumeDiscount: Boolean = false
+    )
+
+    // Reset fragment to default state (show all categories)
+    private fun resetToDefaultState() {
+        // Only reset if filters are currently applied
+        if (applyFilter) {
+            // Reset filter variables
+            applyFilter = false
+            filters = ""
+            filtersType = "All"
+            search = ""
+            
+            // Reset UI elements
+            binding.searchInput.text?.clear()
+            binding.radioAllProducts.isChecked = true
+            
+            // Load all categories without filters
+            categoriesViewModel.categories("", token, "")
+        }
+        
+        // Clear deal tracking when resetting
+        shownDeals.clear()
+    }
 
     // Lifecycle callback to clean up when view is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
         stopAutoScroll() // Stop banner auto-scrolling
         handler.removeCallbacksAndMessages(null) // Remove all handler messages
+        shownDeals.clear() // Clear deal tracking
     }
 }

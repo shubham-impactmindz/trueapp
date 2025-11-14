@@ -30,7 +30,7 @@ class CartAdapter(
 
     // Removed direct cartDao usage here, as data comes via updateData from Fragment
     // private val cartDao = CartDatabase.getInstance(context).cartDao()
-    private val cartItemList = mutableListOf<CartItemEntity>()
+    private val cartItemList = mutableListOf<CartDisplayItem>()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textTitle: TextView = view.findViewById(R.id.textTitle)
@@ -74,19 +74,27 @@ class CartAdapter(
 
         holder.textNoOfItems.text = item.quantity.toString()
 
-        // Calculate total price for the item (price per unit * quantity)
-        holder.finalPrice.text = "£%.2f".format(item.price)
-
-        // Compare price logic
-        if (item.comparePrice != 0.0) {
-            holder.comparePrice.visibility = View.VISIBLE
-            holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-            holder.comparePrice.setTextColor(context.getColor(R.color.black))
-            holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
-            holder.comparePrice.text = "£%.2f".format(item.comparePrice) // Display original compare price
-        } else {
+        // Handle free items vs paid items
+        if (item.isFreeItem) {
+            // For free items, show "FREE" instead of price
+            holder.finalPrice.text = "FREE"
+            holder.finalPrice.setTextColor(context.getColor(R.color.colorGreen))
             holder.comparePrice.visibility = View.GONE
-            holder.finalPrice.setTextColor(context.getColor(R.color.black))
+        } else {
+            // Calculate total price for the item (price per unit * quantity)
+            holder.finalPrice.text = "£%.2f".format(item.price)
+
+            // Compare price logic
+            if (item.comparePrice != 0.0) {
+                holder.comparePrice.visibility = View.VISIBLE
+                holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+                holder.comparePrice.setTextColor(context.getColor(R.color.black))
+                holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
+                holder.comparePrice.text = "£%.2f".format(item.comparePrice) // Display original compare price
+            } else {
+                holder.comparePrice.visibility = View.GONE
+                holder.finalPrice.setTextColor(context.getColor(R.color.black))
+            }
         }
 
         // Image loading logic
@@ -131,56 +139,89 @@ class CartAdapter(
             listener.onUpdateWishlist(item.variantId.toString())
         }
 
-        // Click listeners for quantity change
-        holder.btnAddMore.setOnClickListener {
-            holder.btnAddMore.performHapticFeedback(
-                HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
-            )
-            // Here, the adapter needs to interact with the database directly.
-            // So, cartDao needs to be initialized.
-            val cartDao = CartDatabase.getInstance(context).cartDao()
-            val newQty = item.quantity + 1
-            updateCartQuantity(cartDao, item, newQty) // Pass cartDao
-        }
-
-        holder.btnMinus.setOnClickListener {
-            holder.btnMinus.performHapticFeedback(
-                HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
-            // Here, the adapter needs to interact with the database directly.
-            val cartDao = CartDatabase.getInstance(context).cartDao()
-            val newQty = item.quantity - 1
-            if (newQty > 0) {
+        // Disable controls for free items
+        if (item.isFreeItem) {
+            holder.btnAddMore.isEnabled = false
+            holder.btnMinus.isEnabled = false
+            holder.linearDelete.visibility = View.GONE
+            holder.btnAddMore.alpha = 0.5f
+            holder.btnMinus.alpha = 0.5f
+        } else {
+            holder.btnAddMore.isEnabled = true
+            holder.btnMinus.isEnabled = true
+            holder.linearDelete.visibility = View.VISIBLE
+            holder.btnAddMore.alpha = 1.0f
+            holder.btnMinus.alpha = 1.0f
+            
+            // Click listeners for quantity change (only for paid items)
+            holder.btnAddMore.setOnClickListener {
+                holder.btnAddMore.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
+                // Here, the adapter needs to interact with the database directly.
+                // So, cartDao needs to be initialized.
+                val cartDao = CartDatabase.getInstance(context).cartDao()
+                val newQty = item.quantity + 1
                 updateCartQuantity(cartDao, item, newQty) // Pass cartDao
-            } else {
+            }
+
+            holder.btnMinus.setOnClickListener {
+                holder.btnMinus.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING)
+                // Here, the adapter needs to interact with the database directly.
+                val cartDao = CartDatabase.getInstance(context).cartDao()
+                val newQty = item.quantity - 1
+                if (newQty > 0) {
+                    updateCartQuantity(cartDao, item, newQty) // Pass cartDao
+                } else {
+                    deleteCartItem(cartDao, item.variantId) // Pass cartDao
+                }
+            }
+
+            // Click listener for delete button
+            holder.linearDelete.setOnClickListener {
+                holder.linearDelete.performHapticFeedback(
+                    HapticFeedbackConstants.VIRTUAL_KEY,
+                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
+                )
+                // Here, the adapter needs to interact with the database directly.
+                val cartDao = CartDatabase.getInstance(context).cartDao()
                 deleteCartItem(cartDao, item.variantId) // Pass cartDao
             }
-        }
-
-        // Click listener for delete button
-        holder.linearDelete.setOnClickListener {
-            holder.linearDelete.performHapticFeedback(
-                HapticFeedbackConstants.VIRTUAL_KEY,
-                HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag
-            )
-            // Here, the adapter needs to interact with the database directly.
-            val cartDao = CartDatabase.getInstance(context).cartDao()
-            deleteCartItem(cartDao, item.variantId) // Pass cartDao
         }
     }
 
     // Modified updateCartQuantity to accept CartDao
-    private fun updateCartQuantity(cartDao: CartDao, item: CartItemEntity, quantity: Int) {
+    private fun updateCartQuantity(cartDao: CartDao, item: CartDisplayItem, quantity: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            val updatedItem = item.copy(quantity = quantity)
-            cartDao.insertOrUpdateItem(updatedItem)
+            // Convert CartDisplayItem back to CartItemEntity for database operations
+            val cartEntity = CartItemEntity(
+                variantId = item.variantId,
+                title = item.title,
+                options = item.options,
+                image = item.image,
+                fallbackImage = item.fallbackImage,
+                price = item.price,
+                comparePrice = item.comparePrice,
+                isWishlisted = item.isWishlisted,
+                cdnURL = item.cdnURL,
+                quantity = quantity,
+                taxable = item.taxable,
+                dealType = item.dealType,
+                dealBuyQuantity = item.dealBuyQuantity,
+                dealGetQuantity = item.dealGetQuantity,
+                dealQuantity = item.dealQuantity,
+                dealPrice = item.dealPrice
+            )
+            cartDao.insertOrUpdateItem(cartEntity)
             withContext(Dispatchers.Main) {
                 // This local list update is for immediate responsiveness,
                 // but the primary refresh comes from the Flow in the Fragment.
                 val index = cartItemList.indexOfFirst { it.variantId == item.variantId }
                 if (index != -1) {
-                    cartItemList[index] = updatedItem
+                    cartItemList[index] = item.copy(quantity = quantity)
                     notifyItemChanged(index)
                     listener.onUpdateCart(quantity, item.variantId)
                 }
@@ -209,7 +250,7 @@ class CartAdapter(
      * Updates the adapter's data set and notifies changes.
      * This method should be called whenever the cart data changes from the database.
      */
-    fun updateData(newCartItems: List<CartItemEntity>) {
+    fun updateData(newCartItems: List<CartDisplayItem>) {
         // Using DiffUtil might be more efficient for large lists,
         // but for a cart, notifyDataSetChanged is often sufficient.
         cartItemList.clear()

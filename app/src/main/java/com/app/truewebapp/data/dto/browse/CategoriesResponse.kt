@@ -69,5 +69,10 @@ data class Product(
     val mlocation_id: Int,
     val product_deal_tag: String?,
     val product_offer: String?,
-    var user_info_wishlist: Boolean
+    var user_info_wishlist: Boolean,
+    val deal_type: String?,
+    val deal_buy_quantity: Int?,
+    val deal_get_quantity: Int?,
+    val deal_quantity: Int?,
+    val deal_price: Double?
 )

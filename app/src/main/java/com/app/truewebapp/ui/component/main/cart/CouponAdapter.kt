@@ -35,7 +35,7 @@ class CouponAdapter(
     // Build a display list mixing headers ("Eligible"/"Not Eligible") and coupons
     private val displayList = buildList {
         if (eligibleCoupons.isNotEmpty()) {
-            add("Eligible Coupons")        // Header text
+            add("Eligible")        // Header text
             addAll(eligibleCoupons)        // Add eligible coupons list
         }
         if (ineligibleCoupons.isNotEmpty()) {
@@ -95,7 +95,7 @@ class CouponAdapter(
             holder.title.text = "${coupon.code} - $discountText"
 
             // Show coupon description as "Valid above minimum value"
-            holder.desc.text = "Valid above £${coupon.min_cart_value}"
+            holder.desc.text = "Valid for orders above- £${coupon.min_cart_value}"
 
             // Configure Apply button behavior based on coupon state
             holder.applyBtn.apply {

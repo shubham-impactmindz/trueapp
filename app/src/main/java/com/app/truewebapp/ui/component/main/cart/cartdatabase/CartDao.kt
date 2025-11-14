@@ -29,10 +29,10 @@ interface CartDao {
     @Query("DELETE FROM cart_items")
     suspend fun clearCart()
 
-    // --- NEW: Query to get the total count of items (sum of quantities) ---
+    // --- NEW: Query to get the total units (sum of quantities) ---
     // This will emit a new total count every time the cart items change.
-    @Query("SELECT COUNT(*) FROM cart_items")
-    fun getCartItemCount(): Flow<Int> // COUNT(*) will never return null, it's 0 if table is empty
+    @Query("SELECT COALESCE(SUM(quantity), 0) FROM cart_items")
+    fun getCartItemCount(): Flow<Int> // COALESCE ensures we get 0 instead of null when table is empty
 
     @Query("SELECT * FROM cart_items")
     suspend fun getAllItemsOnce(): List<CartItemEntity>

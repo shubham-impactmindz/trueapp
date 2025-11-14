@@ -69,6 +69,9 @@ class CartFragment : Fragment(), ProductAdapterListener {
 
     // Minimum order value required for free delivery
     private var minOrderValue: String? = null
+    
+    // Minimum order value required to place an order
+    private var minOrderPlace: String? = null
 
     // Inflate the fragment's layout and initialize view binding
     override fun onCreateView(
@@ -163,38 +166,109 @@ class CartFragment : Fragment(), ProductAdapterListener {
         viewLifecycleOwner.lifecycleScope.launch {
             cartDao?.getAllItems()?.collectLatest { cartItems ->
                 Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
-                cartAdapter.updateData(cartItems) // Update adapter data
+                
+                // Convert to display items and calculate free items
+                val displayItems = convertToDisplayItems(cartItems)
+                cartAdapter.updateData(displayItems) // Update adapter data
 
-                if (cartItems.isNotEmpty()) {
+                if (displayItems.isNotEmpty()) {
                     binding.cartListRecycler.visibility = View.VISIBLE
                     binding.linearCartDetail.visibility = View.VISIBLE
                     binding.textEmptyCart.visibility = View.GONE
                     binding.imageCart.visibility = View.GONE
-                    updateTotalAmount(cartItems) // Update price details
+                    updateTotalAmount(cartItems) // Update price details (use original items for total calculation)
                 } else {
                     binding.cartListRecycler.visibility = View.GONE
                     binding.linearCartDetail.visibility = View.GONE
                     binding.textEmptyCart.visibility = View.VISIBLE
                     binding.imageCart.visibility = View.VISIBLE
                     binding.textItems.text = "0 Units"
-                    binding.textSKU.text = "0 SKUs"
                     binding.textTotal.text = "£0.00" // Reset price
                 }
             }
         }
+    }
+    
+    // Convert CartItemEntity to CartDisplayItem and add free items
+    private fun convertToDisplayItems(cartItems: List<CartItemEntity>): List<CartDisplayItem> {
+        val displayItems = mutableListOf<CartDisplayItem>()
+        
+        cartItems.forEach { item ->
+            // Add the original paid item
+            val paidItem = CartDisplayItem(
+                variantId = item.variantId,
+                title = item.title,
+                options = item.options,
+                image = item.image,
+                fallbackImage = item.fallbackImage,
+                price = item.price,
+                comparePrice = item.comparePrice,
+                isWishlisted = item.isWishlisted,
+                cdnURL = item.cdnURL,
+                quantity = item.quantity,
+                taxable = item.taxable,
+                isFreeItem = false,
+                dealType = item.dealType,
+                dealBuyQuantity = item.dealBuyQuantity,
+                dealGetQuantity = item.dealGetQuantity,
+                dealQuantity = item.dealQuantity,
+                dealPrice = item.dealPrice
+            )
+            displayItems.add(paidItem)
+            
+            // Calculate and add free items if applicable
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    val freeItems = (item.quantity / buyQty) * getQty
+                    if (freeItems > 0) {
+                        val freeItem = CartDisplayItem(
+                            variantId = item.variantId + 100000, // Unique ID for free item
+                            title = item.title,
+                            options = item.options,
+                            image = item.image,
+                            fallbackImage = item.fallbackImage,
+                            price = 0.0,
+                            comparePrice = 0.0,
+                            isWishlisted = item.isWishlisted,
+                            cdnURL = item.cdnURL,
+                            quantity = freeItems,
+                            taxable = item.taxable,
+                            isFreeItem = true,
+                            originalVariantId = item.variantId,
+                            dealType = item.dealType,
+                            dealBuyQuantity = item.dealBuyQuantity,
+                            dealGetQuantity = item.dealGetQuantity,
+                            dealQuantity = item.dealQuantity,
+                            dealPrice = item.dealPrice
+                        )
+                        displayItems.add(freeItem)
+                    }
+                }
+            }
+        }
+        
+        return displayItems
     }
 
     // Calculate total cart value, apply delivery conditions, and update UI
     private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
         val totalQuantity = cartItems.sumOf { it.quantity }
         binding.textItems.text = "$totalQuantity Units"
-        binding.textSKU.text = "${cartItems.size} SKUs"
 
         val totalAmount = cartItems.sumOf { it.price * it.quantity }
         var deliveryFee = 0.0
         val minOrder = minOrderValue?.toDoubleOrNull() ?: 0.0
+        val minOrderPlaceValue = minOrderPlace?.toDoubleOrNull() ?: 0.0
 
-        if (totalAmount < minOrder) {
+        // Check if minimum order place value is not met first
+        if (totalAmount < minOrderPlaceValue) {
+            val amountNeeded = minOrderPlaceValue - totalAmount
+            binding.textDelivery.text = "Add £%.2f for checkout".format(amountNeeded)
+            binding.textDelivery.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorSecondary))
+        } else if (totalAmount < minOrder) {
             deliveryFee = 0.0
             val amountLeft = minOrder - totalAmount
             binding.textDelivery.text = "Spend £%.2f more for FREE delivery".format(amountLeft)
@@ -206,7 +280,23 @@ class CartFragment : Fragment(), ProductAdapterListener {
 
         val finalTotal = totalAmount + deliveryFee
         binding.textTotal.text = "£%.2f".format(finalTotal)
-        Log.d("CartFragment", "Total: £$totalAmount, Delivery: £$deliveryFee, Final: £$finalTotal")
+        
+        // Check minimum order place value and enable/disable checkout button
+        if (totalAmount >= minOrderPlaceValue) {
+            binding.checkoutLayout.isEnabled = true
+            binding.checkoutLayout.alpha = 1.0f
+            binding.checkoutLayout.setBackgroundResource(R.drawable.border_solid_secondary)
+            // Reset text color to original for the TextView inside checkoutLayout
+            (binding.checkoutLayout.getChildAt(0) as? TextView)?.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
+        } else {
+            binding.checkoutLayout.isEnabled = false
+            binding.checkoutLayout.alpha = 1.0f // Keep full opacity but change colors
+            binding.checkoutLayout.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.lightGrey))
+            // Set text color to grey for the TextView inside checkoutLayout
+            (binding.checkoutLayout.getChildAt(0) as? TextView)?.setTextColor(ContextCompat.getColor(requireContext(), R.color.textGrey))
+        }
+        
+        Log.d("CartFragment", "Total: £$totalAmount, Delivery: £$deliveryFee, Final: £$finalTotal, MinOrderPlace: £$minOrderPlaceValue")
     }
 
     // Setup checkout button click listener
@@ -216,6 +306,14 @@ class CartFragment : Fragment(), ProductAdapterListener {
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
+            
+            // Check if checkout button is enabled
+            if (!binding.checkoutLayout.isEnabled) {
+                val minOrderPlaceValue = minOrderPlace?.toDoubleOrNull() ?: 0.0
+                Toast.makeText(context, "Minimum order value is £%.2f to place an order".format(minOrderPlaceValue), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
             lifecycleScope.launch {
                 val cartItems = withContext(Dispatchers.IO) { cartDao?.getAllItemsOnce() }
                 if (cartItems?.isEmpty() == true) {
@@ -275,6 +373,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
             response?.let {
                 if (it.status) {
                     minOrderValue = it.min_order_free_delivery
+                    minOrderPlace = it.min_order_place
                     observeCartItems() // Start observing cart again
                 }
             }

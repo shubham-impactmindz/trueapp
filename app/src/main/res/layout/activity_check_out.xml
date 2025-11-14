@@ -151,7 +151,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Add Address"
+                            android:text="New Addresses"
                             android:gravity="center"
                             android:textSize="@dimen/headingTextSize"
                             android:textColor="@color/black"
@@ -181,6 +181,8 @@
                 app:boxStrokeWidthFocused="0sp"
                 app:boxStrokeColor="@color/colorPrimaryDark"
                 app:boxBackgroundMode="filled"
+                app:hintTextColor="@color/borderGrey"
+                app:hintEnabled="false"
                 android:layout_marginTop="@dimen/margin20"
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10">
@@ -189,12 +191,11 @@
                     android:id="@+id/deliveryInstructionsInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="Additional Delivery Instructions..."
                     android:background="@drawable/border_primary"
+                    android:hint="Additional Delivery Instructions..."
                     android:inputType="text"
                     android:textSize="@dimen/baseTextSize"
                     android:padding="10sp"
-            android:textColorHint="@color/borderGrey"
                     android:fontFamily="@font/roboto_regular"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -577,7 +578,7 @@
                     android:id="@+id/couponInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="See All Coupons"
+                    android:hint="See Promo Codes"
                     android:background="@drawable/border_primary"
                     android:gravity="center_vertical"
                     android:textSize="@dimen/baseTextSize"

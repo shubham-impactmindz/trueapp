@@ -44,7 +44,7 @@ class OrdersAdapter(
         val option = orders[position]
         holder.textOrderNo.text = option.order_id.toString()
         val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("hh:mm a, dd/MM/yyyy", Locale.getDefault())
 
         val parsedDate = inputFormat.parse(option.order_date)
         val formattedDate = parsedDate?.let { outputFormat.format(it) } ?: option.order_date

@@ -49,6 +49,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
     <androidx.appcompat.widget.AppCompatSpinner
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height50"
         android:layout_marginTop="@dimen/margin10"
@@ -57,6 +58,7 @@
     </androidx.appcompat.widget.AppCompatSpinner>
 
     <TextView
+        android:id="@+id/tvRegisterInterest"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height40"
         android:text="@string/register_interest"

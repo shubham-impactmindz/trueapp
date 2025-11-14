@@ -26,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -255,8 +254,8 @@ class DashboardFragment : Fragment(),
             response?.let {
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
-                    // Store original brands list
-                    originalBrandsList = it.wishlistbrand
+                    // Store original brands list (with null safety)
+                    originalBrandsList = it.wishlistbrand ?: emptyList()
                 }
             }
         }
@@ -589,7 +588,7 @@ class DashboardFragment : Fragment(),
                 if (it.status) {
                     updateWishlistInAdapter(variantId)
                 } else {
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+
                 }
             }
         }
@@ -637,19 +636,19 @@ class DashboardFragment : Fragment(),
     private fun updateWishlistInAdapter(variantId: String) {
         var updated = false
 
-        if (type == "New Product") {
-            // Iterate through new products list
-            originalCategoryList.forEachIndexed { prodIndex, product ->
-                if (product.mvariant_id.toString() == variantId) {
-                    // Toggle wishlist flag
-                    product.product.user_info_wishlist = !product.product.user_info_wishlist
-                    nonScrollingBannerDrinksAdapter?.notifyItemChanged(prodIndex) // Efficient update
-                    updated = true
-                    return@forEachIndexed
-                }
+        // Check New Products first
+        originalCategoryList.forEachIndexed { prodIndex, product ->
+            if (product.mvariant_id.toString() == variantId) {
+                // Toggle wishlist flag
+                product.product.user_info_wishlist = !product.product.user_info_wishlist
+                nonScrollingBannerDrinksAdapter?.notifyItemChanged(prodIndex) // Efficient update
+                updated = true
+                return@forEachIndexed
             }
-        } else {
-            // Iterate through top sellers list
+        }
+
+        // If not found in New Products, check Top Sellers
+        if (!updated) {
             originalTopSellerList.forEachIndexed { prodIndex, product ->
                 if (product.mvariant_id.toString() == variantId) {
                     product.product.user_info_wishlist = !product.product.user_info_wishlist
@@ -665,7 +664,7 @@ class DashboardFragment : Fragment(),
      * Sets up RecyclerView adapter for New Products.
      */
     private fun setupNewProductsAdapter() {
-        val adapter = NonScrollingBannerNewProductsAdapter(
+        nonScrollingBannerDrinksAdapter = NonScrollingBannerNewProductsAdapter(
             listener = this,
             products = originalCategoryList,
             cdnURL = cdnUrl,
@@ -675,14 +674,14 @@ class DashboardFragment : Fragment(),
         )
         binding.recyclerViewDrinks.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclerViewDrinks.adapter = adapter
+        binding.recyclerViewDrinks.adapter = nonScrollingBannerDrinksAdapter
     }
 
     /**
      * Sets up RecyclerView adapter for Top Seller products.
      */
     private fun setupTopSellerAdapter() {
-        val topSellerAdapter = NonScrollingBannerTopSellerAdapter(
+        nonScrollingBannerTopSellerAdapter = NonScrollingBannerTopSellerAdapter(
             listener = this,
             products = originalTopSellerList,
             cdnURL = cdnUrl,
@@ -692,7 +691,7 @@ class DashboardFragment : Fragment(),
         )
         binding.recyclerViewNutrition.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclerViewNutrition.adapter = topSellerAdapter
+        binding.recyclerViewNutrition.adapter = nonScrollingBannerTopSellerAdapter
     }
 
     /**
@@ -706,10 +705,11 @@ class DashboardFragment : Fragment(),
      * Handles wishlist update when user taps wishlist button.
      */
     override fun onUpdateWishlist(mvariant_id: String, type: String) {
-        val userId = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
-            ?.getString("userId", "") ?: ""
+        val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+        val userId = preferences?.getString("userId", "") ?: ""
         variantId = mvariant_id
-        wishlistViewModel.wishlist("Bearer " + userId, WishlistRequest(userId, mvariant_id))
+        this.type = type
+        wishlistViewModel.wishlist(token, WishlistRequest(userId, mvariant_id))
     }
 
     /**
@@ -803,10 +803,15 @@ class DashboardFragment : Fragment(),
                     .map { it.mbrand_id }
                     .joinToString(",")
 
-                filters = selectedIds
-
-                // Call categories API with brand filters applied
-                shopFragment?.categoriesViewModel?.categories("", token, filters)
+                // Set filter state in ShopFragment to preserve on refresh
+                shopFragment?.let { fragment ->
+                    fragment.filters = selectedIds
+                    fragment.filtersType = "Favourites"
+                    fragment.applyFilter = true
+                    
+                    // Call categories API with brand filters applied
+                    fragment.categoriesViewModel.categories("", token, selectedIds)
+                }
 
             }, 500) // Delay 500ms for stability
         }

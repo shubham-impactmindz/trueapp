@@ -179,14 +179,28 @@ class NonScrollingBannerTopSellerAdapter(
 
     // Updates UI for cart visibility and stock status
     private fun updateCartUI(holder: ViewHolder, product: Product, quantity: Int) {
-        if (product.quantity == 0) {
+        if (product.quantity < 0) {
             // Show out of stock message
             holder.tvOffer.text = "Out of stock"
             holder.tvOffer.visibility = View.VISIBLE
             holder.llOffer.visibility = View.VISIBLE
             holder.btnAdd.visibility = View.GONE
             holder.llCartSign.visibility = View.GONE
+            
+            // Fade text for out of stock items
+            holder.textBrand.alpha = 0.5f
+            holder.textTitle.alpha = 0.5f
+            holder.textFlavour.alpha = 0.5f
+            holder.finalPrice.alpha = 0.5f
+            holder.comparePrice.alpha = 0.5f
         } else {
+            // Reset alpha for in-stock items
+            holder.textBrand.alpha = 1.0f
+            holder.textTitle.alpha = 1.0f
+            holder.textFlavour.alpha = 1.0f
+            holder.finalPrice.alpha = 1.0f
+            holder.comparePrice.alpha = 1.0f
+            
             // If quantity > 0, show cart controls
             if (quantity > 0) {
                 holder.btnAdd.visibility = View.GONE
@@ -239,13 +253,43 @@ class NonScrollingBannerTopSellerAdapter(
 
     // Updates offer-related UI
     private fun updateOfferUI(holder: ViewHolder, product: Product) {
-        if (product.product_offer.isNullOrEmpty()) {
+        val dealText = calculateDealText(product)
+        
+        if (dealText.isNullOrEmpty()) {
             holder.llOffer.visibility = View.INVISIBLE
             holder.tvOffer.visibility = View.INVISIBLE
         } else {
             holder.llOffer.visibility = View.VISIBLE
             holder.tvOffer.visibility = View.VISIBLE
-            holder.tvOffer.text = product.product_offer
+            holder.tvOffer.text = dealText
+        }
+    }
+    
+    // Calculate deal text based on deal type and parameters
+    private fun calculateDealText(product: Product): String? {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> {
+                val buyQty = product.deal_buy_quantity
+                val getQty = product.deal_get_quantity
+                if (buyQty != null && getQty != null && buyQty > 0 && getQty > 0) {
+                    "Buy $buyQty Get $getQty Free"
+                } else {
+                    product.product_offer // Fallback to original offer text
+                }
+            }
+            "volume_discount" -> {
+                val dealQty = product.deal_quantity
+                val dealPrice = product.deal_price
+                if (dealQty != null && dealPrice != null && dealQty > 0 && dealPrice > 0) {
+                    "Any $dealQty for £%.2f".format(dealPrice)
+                } else {
+                    product.product_offer // Fallback to original offer text
+                }
+            }
+            else -> {
+                // If no deal_type or unknown type, use original product_offer
+                product.product_offer
+            }
         }
     }
 

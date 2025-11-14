@@ -27,6 +27,7 @@ import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.ActivityCartBinding
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
+import com.app.truewebapp.ui.component.main.cart.CartDisplayItem
 import com.app.truewebapp.ui.component.main.shop.ProductAdapterListener
 import com.app.truewebapp.ui.viewmodel.CartViewModel
 import com.app.truewebapp.ui.viewmodel.DeliverySettingsViewModel
@@ -146,16 +147,17 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
             cartDao.getAllItems().collectLatest { cartItems ->
                 Log.d("CartFragment", "Received ${cartItems.size} items from database Flow.")
 
-                // Update RecyclerView adapter with items
-                cartAdapter.updateData(cartItems)
+                // Convert to display items and calculate free items
+                val displayItems = convertToDisplayItems(cartItems)
+                cartAdapter.updateData(displayItems) // Update adapter data
 
-                if (cartItems.isNotEmpty()) {
+                if (displayItems.isNotEmpty()) {
                     // Show cart and hide empty state
                     binding.cartListRecycler.visibility = View.VISIBLE
                     binding.linearCartDetail.visibility = View.VISIBLE
                     binding.textEmptyCart.visibility = View.GONE
                     binding.imageCart.visibility = View.GONE
-                    updateTotalAmount(cartItems) // Update totals
+                    updateTotalAmount(cartItems) // Update totals (use original items for total calculation)
                 } else {
                     // Show empty cart UI
                     binding.cartListRecycler.visibility = View.GONE
@@ -166,6 +168,70 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
                 }
             }
         }
+    }
+    
+    // Convert CartItemEntity to CartDisplayItem and add free items
+    private fun convertToDisplayItems(cartItems: List<CartItemEntity>): List<CartDisplayItem> {
+        val displayItems = mutableListOf<CartDisplayItem>()
+        
+        cartItems.forEach { item ->
+            // Add the original paid item
+            val paidItem = CartDisplayItem(
+                variantId = item.variantId,
+                title = item.title,
+                options = item.options,
+                image = item.image,
+                fallbackImage = item.fallbackImage,
+                price = item.price,
+                comparePrice = item.comparePrice,
+                isWishlisted = item.isWishlisted,
+                cdnURL = item.cdnURL,
+                quantity = item.quantity,
+                taxable = item.taxable,
+                isFreeItem = false,
+                dealType = item.dealType,
+                dealBuyQuantity = item.dealBuyQuantity,
+                dealGetQuantity = item.dealGetQuantity,
+                dealQuantity = item.dealQuantity,
+                dealPrice = item.dealPrice
+            )
+            displayItems.add(paidItem)
+            
+            // Calculate and add free items if applicable
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    val freeItems = (item.quantity / buyQty) * getQty
+                    if (freeItems > 0) {
+                        val freeItem = CartDisplayItem(
+                            variantId = item.variantId + 100000, // Unique ID for free item
+                            title = item.title,
+                            options = item.options,
+                            image = item.image,
+                            fallbackImage = item.fallbackImage,
+                            price = 0.0,
+                            comparePrice = 0.0,
+                            isWishlisted = item.isWishlisted,
+                            cdnURL = item.cdnURL,
+                            quantity = freeItems,
+                            taxable = item.taxable,
+                            isFreeItem = true,
+                            originalVariantId = item.variantId,
+                            dealType = item.dealType,
+                            dealBuyQuantity = item.dealBuyQuantity,
+                            dealGetQuantity = item.dealGetQuantity,
+                            dealQuantity = item.dealQuantity,
+                            dealPrice = item.dealPrice
+                        )
+                        displayItems.add(freeItem)
+                    }
+                }
+            }
+        }
+        
+        return displayItems
     }
 
     // Calculate total amount, delivery, and update UI

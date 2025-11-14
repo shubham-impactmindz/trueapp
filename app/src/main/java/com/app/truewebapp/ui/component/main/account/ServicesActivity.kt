@@ -37,13 +37,13 @@ class ServicesActivity : AppCompatActivity() {
         }
 
         val options = listOf(
-            NotificationOption("Basic POS"),
-            NotificationOption("Advanced POS"),
-            NotificationOption("Premium POS"),
+            NotificationOption("Basic POS", 1),
+            NotificationOption("Advanced POS", 2),
+            NotificationOption("Premium POS", 3),
         )
         binding.servicesRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        servicesAdapter = ServicesAdapter(options)
+        servicesAdapter = ServicesAdapter(options, this, this)
         binding.servicesRecyclerView.adapter = servicesAdapter
     }
 }

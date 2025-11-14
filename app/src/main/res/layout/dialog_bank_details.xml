@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margin20"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header with primary color background -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/padding16">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bank Details"
+                android:textColor="@color/white"
+                android:textSize="@dimen/headingTextSize"
+                android:fontFamily="@font/roboto_bold"
+                android:gravity="center" />
+
+            <ImageView
+                android:id="@+id/btnClose"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_close"
+                android:tint="@color/white"
+                android:padding="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+
+        </LinearLayout>
+
+        <!-- Bank Details Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/padding16">
+
+            <!-- Bank Holder Name -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/margin16">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_document"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bank Holder Name"
+                    android:textSize="12sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:id="@+id/tvCompanyName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TRUEWEB PRO LTD"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end" />
+
+                <ImageView
+                    android:id="@+id/btnCopyCompanyName"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginStart="@dimen/margin8"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+
+            <!-- Bank Name -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/margin16">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_document"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bank Name"
+                    android:textSize="12sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:id="@+id/tvBankName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="NATWEST"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end" />
+
+                <ImageView
+                    android:id="@+id/btnCopyBankName"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginStart="@dimen/margin8"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+
+            <!-- Account Number -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/margin16">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_document"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Account Number"
+                    android:textSize="12sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:id="@+id/tvAccountNumber"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="123456789"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end" />
+
+                <ImageView
+                    android:id="@+id/btnCopyAccountNumber"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginStart="@dimen/margin8"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+
+            <!-- Sort Code -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/margin16">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_document"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sort Code"
+                    android:textSize="12sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:id="@+id/tvSortCode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="123456"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_bold"
+                    android:gravity="end" />
+
+                <ImageView
+                    android:id="@+id/btnCopySortCode"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginStart="@dimen/margin8"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+
+            <!-- Note (Optional) -->
+            <LinearLayout
+                android:id="@+id/noteLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_document"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Note"
+                    android:textSize="12sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular"
+                    android:layout_marginEnd="@dimen/margin12" />
+
+                <TextView
+                    android:id="@+id/tvNote"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Use your order no. as reference for transfer"
+                    android:textSize="@dimen/baseTextSize"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_regular"
+                    android:gravity="end" />
+
+                <ImageView
+                    android:id="@+id/btnCopyNote"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_copy"
+                    android:tint="@color/colorPrimaryDark"
+                    android:layout_marginStart="@dimen/margin8"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -535,7 +535,7 @@ class CheckOutActivity : AppCompatActivity() {
 
             val line3Parts = mutableListOf<String>()
             address.company_city.let { line3Parts.add(it) }
-            address.company_country.let { line3Parts.add(it) }
+            line3Parts.add("GB") // Fixed country as GB
             address.company_postcode.let { line3Parts.add(it) }
             val line3 = line3Parts.joinToString(", ")
 
@@ -560,7 +560,20 @@ class CheckOutActivity : AppCompatActivity() {
                 if (index == 0) {
                     if (address.company_address1.isNotEmpty()) {
                         isChecked = true
-                        binding.tvAddress.text = fullAddress
+                        // Use the same format as dispatch to radio buttons (multi-line)
+                        val line1 = address.user_company_name
+                        val line2Parts = mutableListOf<String>()
+                        address.company_address1.let { line2Parts.add(it) }
+                        address.company_address2?.takeIf { it.isNotBlank() }?.let { line2Parts.add(it) }
+                        val line2 = line2Parts.joinToString(", ")
+                        
+                        val line3Parts = mutableListOf<String>()
+                        address.company_city.let { line3Parts.add(it) }
+                        line3Parts.add("GB") // Fixed country as GB
+                        address.company_postcode.let { line3Parts.add(it) }
+                        val line3 = line3Parts.joinToString(", ")
+                        
+                        binding.tvAddress.text = "$line1\n$line2\n$line3"
                         addressId = address.user_company_address_id
                     } else {
                         isChecked = false
@@ -577,15 +590,20 @@ class CheckOutActivity : AppCompatActivity() {
             val address = selectedRadioButton?.tag as? CompanyAddresses
 
             address?.let {
-                val addressParts = listOfNotNull(
-                    it.user_company_name,
-                    it.company_address1,
-                    it.company_address2?.takeIf { addr -> addr.isNotBlank() },
-                    it.company_city,
-                    it.company_country,
-                    it.company_postcode
-                )
-                binding.tvAddress.text = addressParts.joinToString(", ")
+                // Use the same format as dispatch to radio buttons (multi-line)
+                val line1 = it.user_company_name
+                val line2Parts = mutableListOf<String>()
+                it.company_address1.let { line2Parts.add(it) }
+                it.company_address2?.takeIf { addr -> addr.isNotBlank() }?.let { line2Parts.add(it) }
+                val line2 = line2Parts.joinToString(", ")
+                
+                val line3Parts = mutableListOf<String>()
+                it.company_city.let { line3Parts.add(it) }
+                line3Parts.add("GB") // Fixed country as GB
+                it.company_postcode.let { line3Parts.add(it) }
+                val line3 = line3Parts.joinToString(", ")
+                
+                binding.tvAddress.text = "$line1\n$line2\n$line3"
                 addressId = it.user_company_address_id
             }
         }

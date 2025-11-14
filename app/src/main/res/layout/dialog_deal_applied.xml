@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/margin20"
+    android:background="@drawable/border_primary"
+    android:gravity="center">
+
+    <!-- Deal Applied Icon -->
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_tick"
+        app:tint="@color/colorGreen"
+        android:layout_marginBottom="@dimen/margin15" />
+
+    <!-- Heading -->
+    <TextView
+        android:id="@+id/tvHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deals Applied"
+        android:textSize="@dimen/headingTextSize"
+        android:textColor="@color/black"
+        android:fontFamily="@font/roboto_bold"
+        android:layout_marginBottom="@dimen/margin10"
+        android:gravity="center" />
+
+    <!-- Deal Description -->
+    <TextView
+        android:id="@+id/tvDealDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You got 2 free items!\nDeal Name (Buy 3 Get 2) applied"
+        android:textSize="@dimen/baseTextSize"
+        android:textColor="@color/textGrey"
+        android:fontFamily="@font/roboto_regular"
+        android:layout_marginBottom="@dimen/margin20"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp" />
+
+    <!-- OK Button -->
+    <LinearLayout
+        android:id="@+id/btnOk"
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:background="@drawable/border_solid_secondary"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OK"
+            android:textColor="@color/white"
+            android:textSize="@dimen/baseTextSize"
+            android:fontFamily="@font/roboto_bold" />
+
+    </LinearLayout>
+
+</LinearLayout>

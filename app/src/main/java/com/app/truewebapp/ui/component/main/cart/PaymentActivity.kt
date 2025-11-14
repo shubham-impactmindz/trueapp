@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,6 +19,10 @@ import com.app.truewebapp.databinding.ActivityPaymentBinding
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.viewmodel.BankDetailViewModel
 import com.app.truewebapp.ui.viewmodel.OrderPlaceViewModel
+import com.app.truewebapp.ui.viewmodel.StripeConfigViewModel
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,8 +35,9 @@ class PaymentActivity : AppCompatActivity() {
     // ViewBinding for accessing layout views safely
     private lateinit var binding: ActivityPaymentBinding
 
-    // ViewModels for bank details and order placement
+    // ViewModels for bank details, stripe config and order placement
     private lateinit var bankDetailViewModel: BankDetailViewModel
+    private lateinit var stripeConfigViewModel: StripeConfigViewModel
     private lateinit var orderPlaceViewModel: OrderPlaceViewModel
 
     // Variables for payment and order details
@@ -45,6 +51,13 @@ class PaymentActivity : AppCompatActivity() {
     private var useWallet = false                // Whether wallet is used for payment
     private var walletDeduction = 0.0            // Amount deducted from wallet
     private var originalTotalAmount = 0.0        // Original cart total before deductions
+    
+    // Stripe payment variables
+    private var paymentSheet: PaymentSheet? = null
+    private var stripePublishableKey: String? = null
+    private var stripeClientSecret: String? = null
+    private var hasBankDetails = false
+    private var hasStripeConfig = false
 
     // Lazy initialization of Cart DAO for database operations
     private val cartDao by lazy { CartDatabase.getInstance(this).cartDao() }
@@ -82,8 +95,14 @@ class PaymentActivity : AppCompatActivity() {
         // Update payment UI with correct values
         updatePaymentUI()
 
+        // Initially disable payment button until Stripe config is ready
+        binding.completePaymentButton.isEnabled = false
+
         // Observe bank details API response
         observeBankDetails()
+
+        // Observe Stripe config API response
+        observeStripeConfig()
 
         // Observe order placement API response
         observeOrderPlace()
@@ -124,13 +143,19 @@ class PaymentActivity : AppCompatActivity() {
             placeOrder()
         }
 
-        // Complete Payment button → navigates to success screen directly
+        // Complete Payment button → triggers Stripe payment
         binding.completePaymentButton.setOnClickListener {
             binding.completePaymentButton.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            navigateToOrderSuccess()
+            if (hasStripeConfig && stripeClientSecret != null && stripePublishableKey != null && paymentSheet != null) {
+                presentPaymentSheet()
+            } else {
+                Toast.makeText(this, "Payment configuration not ready. Please wait...", Toast.LENGTH_SHORT).show()
+                // Retry fetching Stripe config
+                stripeConfigViewModel.stripeConfig(token)
+            }
         }
     }
 
@@ -159,6 +184,13 @@ class PaymentActivity : AppCompatActivity() {
 
         // Update button text with payable amount
         binding.authorizePaymentButton.text = "Proceed Payment - $formattedAmount"
+        binding.completePaymentButton.text = "Proceed Payment - $formattedAmount"
+
+        // Hide manual card input fields since we're using Stripe PaymentSheet
+        binding.cardholderNameLayout.visibility = View.GONE
+        binding.cardNumberLayout.visibility = View.GONE
+        binding.expiresLayout.visibility = View.GONE
+        binding.cvvLayout.visibility = View.GONE
 
         // If wallet deduction is applied, update wallet section
         if (useWallet && walletDeduction > 0) {
@@ -208,9 +240,10 @@ class PaymentActivity : AppCompatActivity() {
         finish() // Close current activity
     }
 
-    // Initialize ViewModels and fetch bank details
+    // Initialize ViewModels and fetch bank details and Stripe config
     private fun initializeViewModels() {
         bankDetailViewModel = ViewModelProvider(this)[BankDetailViewModel::class.java]
+        stripeConfigViewModel = ViewModelProvider(this)[StripeConfigViewModel::class.java]
         orderPlaceViewModel = ViewModelProvider(this)[OrderPlaceViewModel::class.java]
 
         // Retrieve token from SharedPreferences
@@ -219,19 +252,26 @@ class PaymentActivity : AppCompatActivity() {
 
         // Fetch bank details for payment
         bankDetailViewModel.bankDetails(token)
+        
+        // Fetch Stripe config for card payment
+        stripeConfigViewModel.stripeConfig(token)
     }
 
     // Observe LiveData for Bank Details
     private fun observeBankDetails() {
         // Observe API response for bank details
         bankDetailViewModel.bankDetailResponse.observe(this) { response ->
-            response?.takeIf { it.status }?.let { bankDetail ->
-                // Bind data to UI if response is successful
-                binding.tvBankHolderName.text = bankDetail.bank_detail.company_name
-                binding.tvBankName.text = bankDetail.bank_detail.bank_name
-                binding.tvAccountNumber.text = bankDetail.bank_detail.account_number
-                binding.tvSortCode.text = bankDetail.bank_detail.sort_code
+            hasBankDetails = response?.status == true && response.bank_detail != null
+            if (hasBankDetails) {
+                response?.let { bankDetail ->
+                    // Bind data to UI if response is successful
+                    binding.tvBankHolderName.text = bankDetail.bank_detail.company_name
+                    binding.tvBankName.text = bankDetail.bank_detail.bank_name
+                    binding.tvAccountNumber.text = bankDetail.bank_detail.account_number
+                    binding.tvSortCode.text = bankDetail.bank_detail.sort_code
+                }
             }
+            updatePaymentMethodVisibility()
         }
 
         // Observe loading state
@@ -241,12 +281,178 @@ class PaymentActivity : AppCompatActivity() {
 
         // Observe API error
         bankDetailViewModel.apiError.observe(this) { error ->
-            // Handle error scenario
+            hasBankDetails = false
+            updatePaymentMethodVisibility()
         }
 
         // Observe network failure
         bankDetailViewModel.onFailure.observe(this) { throwable ->
-            // Handle throwable case
+            hasBankDetails = false
+            updatePaymentMethodVisibility()
+        }
+    }
+    
+    // Observe LiveData for Stripe Config
+    private fun observeStripeConfig() {
+        // Observe API response for Stripe config
+        stripeConfigViewModel.stripeConfigResponse.observe(this) { response ->
+            hasStripeConfig = response?.status == true && 
+                             response.stripe_config != null && 
+                             !response.stripe_config.publishable_key.isNullOrEmpty() &&
+                             !response.stripe_config.client_secret.isNullOrEmpty()
+            
+            if (hasStripeConfig) {
+                response?.stripe_config?.let { config ->
+                    stripePublishableKey = config.publishable_key
+                    stripeClientSecret = config.client_secret
+                    
+                    // Initialize Stripe with publishable key
+                    stripePublishableKey?.let { key ->
+                        try {
+                            // Initialize PaymentConfiguration (safe to call multiple times)
+                            PaymentConfiguration.init(applicationContext, key)
+                            
+                            // Initialize PaymentSheet after PaymentConfiguration is set
+                            // Create new instance to ensure it's properly initialized
+                            paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
+                            
+                            Log.d("StripePayment", "Stripe PaymentSheet initialized successfully")
+                            Log.d("StripePayment", "Publishable Key: ${key.take(20)}...")
+                            Log.d("StripePayment", "Client Secret: ${config.client_secret?.take(20) ?: "null"}...")
+                        } catch (e: Exception) {
+                            Log.e("StripePayment", "Failed to initialize Stripe", e)
+                            hasStripeConfig = false
+                            paymentSheet = null
+                            Toast.makeText(this, "Failed to initialize payment system: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else {
+                paymentSheet = null
+                stripePublishableKey = null
+                stripeClientSecret = null
+            }
+            updatePaymentMethodVisibility()
+        }
+
+        // Observe loading state
+        stripeConfigViewModel.isLoading.observe(this) { isLoading ->
+            // Can show/hide loading indicator if needed
+        }
+
+        // Observe API error
+        stripeConfigViewModel.apiError.observe(this) { error ->
+            hasStripeConfig = false
+            paymentSheet = null
+            stripePublishableKey = null
+            stripeClientSecret = null
+            Log.e("StripePayment", "Stripe config API error: $error")
+            Toast.makeText(this, "Failed to load payment configuration: $error", Toast.LENGTH_SHORT).show()
+            updatePaymentMethodVisibility()
+        }
+
+        // Observe network failure
+        stripeConfigViewModel.onFailure.observe(this) { throwable ->
+            hasStripeConfig = false
+            paymentSheet = null
+            stripePublishableKey = null
+            stripeClientSecret = null
+            Log.e("StripePayment", "Stripe config network failure", throwable)
+            Toast.makeText(this, "Network error. Please check your connection.", Toast.LENGTH_SHORT).show()
+            updatePaymentMethodVisibility()
+        }
+    }
+    
+    // Update payment method visibility based on API responses
+    private fun updatePaymentMethodVisibility() {
+        // Show/hide Pay by Bank option
+        if (hasBankDetails) {
+            binding.payByBank.visibility = View.VISIBLE
+            // If bank is available and card is not, select bank by default
+            if (!hasStripeConfig && !binding.payByBank.isChecked) {
+                binding.payByBank.isChecked = true
+            }
+        } else {
+            binding.payByBank.visibility = View.GONE
+            binding.bankPaymentLayout.visibility = View.GONE
+        }
+        
+        // Show/hide Pay by Card option
+        if (hasStripeConfig) {
+            binding.payByCard.visibility = View.VISIBLE
+            binding.completePaymentButton.isEnabled = true
+            // If card is available and bank is not, select card by default
+            if (!hasBankDetails && !binding.payByCard.isChecked) {
+                binding.payByCard.isChecked = true
+            }
+        } else {
+            binding.payByCard.visibility = View.GONE
+            binding.cardPaymentLayout.visibility = View.GONE
+            binding.completePaymentButton.isEnabled = false
+        }
+        
+        // If neither option is available, show error
+        if (!hasBankDetails && !hasStripeConfig) {
+            Toast.makeText(this, "No payment methods available", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    // Present Stripe Payment Sheet
+    private fun presentPaymentSheet() {
+        try {
+            val clientSecret = stripeClientSecret
+            val sheet = paymentSheet
+            
+            if (clientSecret == null || sheet == null) {
+                Toast.makeText(this, "Payment configuration not ready", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            // Validate client secret format (should start with "pi_")
+            if (!clientSecret.startsWith("pi_") && !clientSecret.startsWith("seti_")) {
+                Log.e("StripePayment", "Invalid client secret format: $clientSecret")
+                Toast.makeText(this, "Invalid payment configuration", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            val paymentSheetConfiguration = PaymentSheet.Configuration.Builder("TrueWebApp")
+                .build()
+            
+            sheet.presentWithPaymentIntent(
+                clientSecret,
+                paymentSheetConfiguration
+            )
+            
+            Log.d("StripePayment", "Payment sheet presented successfully")
+        } catch (e: Exception) {
+            Log.e("StripePayment", "Error presenting payment sheet", e)
+            Toast.makeText(this, "Failed to open payment screen: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    // Handle Stripe Payment Sheet result
+    private fun onPaymentSheetResult(paymentResult: PaymentSheetResult) {
+        when (paymentResult) {
+            is PaymentSheetResult.Completed -> {
+                // Payment succeeded - place order
+                val orderRequest = OrderRequest(
+                    wallet_discount = walletDeduction.toString(),
+                    coupon_discount = couponDiscount.toString(),
+                    user_company_address_id = addressId,
+                    delivery_method_id = deliveryMethodId,
+                    delivery_instructions = deliveryInstructions,
+                    couponId = couponId,
+                    pay_by_bank = false
+                )
+                orderPlaceViewModel.orderPlace(token, orderRequest)
+            }
+            is PaymentSheetResult.Canceled -> {
+                Toast.makeText(this, "Payment canceled", Toast.LENGTH_SHORT).show()
+            }
+            is PaymentSheetResult.Failed -> {
+                Toast.makeText(this, "Payment failed: ${paymentResult.error.message}", Toast.LENGTH_LONG).show()
+                Log.e("StripePayment", "Payment failed", paymentResult.error)
+            }
         }
     }
 
@@ -266,16 +472,25 @@ class PaymentActivity : AppCompatActivity() {
             // Disable/Enable button depending on loading
 //            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.authorizePaymentButton.isEnabled = !isLoading
+            binding.completePaymentButton.isEnabled = !isLoading && hasStripeConfig
         }
 
         // Observe API error
         orderPlaceViewModel.apiError.observe(this) { error ->
             // Handle API error
+            Log.e("OrderPlace", "Order placement API error: $error")
+            Toast.makeText(this, "Order failed: $error", Toast.LENGTH_SHORT).show()
+            binding.authorizePaymentButton.isEnabled = true
+            binding.completePaymentButton.isEnabled = hasStripeConfig
         }
 
         // Observe failure case
         orderPlaceViewModel.onFailure.observe(this) { throwable ->
             // Handle throwable error
+            Log.e("OrderPlace", "Order placement failed", throwable)
+            Toast.makeText(this, "Order failed: ${throwable.message}", Toast.LENGTH_SHORT).show()
+            binding.authorizePaymentButton.isEnabled = true
+            binding.completePaymentButton.isEnabled = hasStripeConfig
         }
     }
 

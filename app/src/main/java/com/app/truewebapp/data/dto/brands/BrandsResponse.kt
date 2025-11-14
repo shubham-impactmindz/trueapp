@@ -1,11 +1,15 @@
 package com.app.truewebapp.data.dto.brands
 
+import com.google.gson.annotations.SerializedName
+
 data class BrandsResponse (
     val status: Boolean,
     val message: String,
     val cdnURL: String,
-    val mbrands: List<MBrands>,
-    val wishlistbrand: List<WishlistBrand>,
+    @SerializedName("brands")
+    val mbrands: List<MBrands>?,
+    @SerializedName("favouritebrands")
+    val wishlistbrand: List<WishlistBrand>?,
 )
 
 data class MBrands(

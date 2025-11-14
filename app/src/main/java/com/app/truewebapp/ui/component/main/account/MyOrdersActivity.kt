@@ -115,11 +115,25 @@ class MyOrdersActivity : AppCompatActivity() {
                         currentPage++
                         isLoadingMore = false
                     } else {
+                        // No more orders to load
                         hasMorePages = false
-                        binding.tvNoData.visibility = View.VISIBLE
+                        isLoadingMore = false
+                        // Only show "No Data Found" if it's the first page and no orders exist
+                        if (currentPage == 1 && allOrders.isEmpty()) {
+                            binding.tvNoData.visibility = View.VISIBLE
+                        } else {
+                            binding.tvNoData.visibility = View.GONE
+                        }
                     }
                 } else {
-                    Toast.makeText(this, "No more orders found", Toast.LENGTH_SHORT).show()
+                    hasMorePages = false
+                    isLoadingMore = false
+                    // Only show "No Data Found" if it's the first page and no orders exist
+                    if (currentPage == 1 && allOrders.isEmpty()) {
+                        binding.tvNoData.visibility = View.VISIBLE
+                    } else {
+                        binding.tvNoData.visibility = View.GONE
+                    }
                 }
             }
         }

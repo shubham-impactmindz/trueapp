@@ -133,15 +133,6 @@
                     android:textColor="@color/black"/>
             </LinearLayout>
 
-            <View
-                android:id="@+id/viewRep"
-                android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:layout_marginTop="@dimen/margin20"
-                android:background="@color/lightGrey">
-
-            </View>
-
             <LinearLayout
                 android:id="@+id/phoneNumberLayout"
                 android:layout_width="match_parent"
@@ -232,27 +223,32 @@
                     android:textColor="@color/colorPrimaryDark"/>
             </LinearLayout>
 
-
-            <View
-                android:id="@+id/viewEmail"
+            <LinearLayout
+                android:id="@+id/noDataLayout"
                 android:layout_width="match_parent"
-                android:layout_height="1sp"
-                android:layout_marginTop="@dimen/margin20"
-                android:background="@color/lightGrey">
-
-            </View>
-
-            <TextView
-                android:id="@+id/noDataTextView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="No Data Found"
-                android:textAlignment="center"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:gravity="center"
                 android:padding="16dp"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:visibility="gone"/>
+                android:visibility="gone">
+                
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_profile"
+                    android:layout_marginBottom="@dimen/margin20"
+                    app:tint="@color/textGrey" />
+                
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You don't have any sales Representative"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="@color/textGrey"
+                    android:fontFamily="@font/roboto_regular" />
+            </LinearLayout>
 
         </LinearLayout>
 

@@ -41,6 +41,9 @@ import com.app.truewebapp.data.dto.reset_password.ResetPasswordResponse
 import com.app.truewebapp.data.dto.wallet.WalletBalanceResponse
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.data.dto.wishlist.WishlistResponse
+import com.app.truewebapp.data.dto.service.RegisterInterestRequest
+import com.app.truewebapp.data.dto.service.RegisterInterestResponse
+import com.app.truewebapp.data.dto.stripe.StripeConfigResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -207,6 +210,11 @@ interface WebService {
         @Header("Authorization") token: String
     ): Call<BankDetailResponse>
 
+    @GET("/api/stripe-config")
+    fun fetchStripeConfig(
+        @Header("Authorization") token: String
+    ): Call<StripeConfigResponse>
+
     @POST("/api/orders")
     fun fetchOrderPlace(
         @Header("Authorization") token: String,
@@ -241,4 +249,10 @@ interface WebService {
         @Header("Authorization") token: String,
         @Body referralRequest: ReferralRequest
     ): Call<ReferralResponse>
+
+    @POST("/api/service-solutions")
+    fun registerInterest(
+        @Header("Authorization") token: String,
+        @Body registerInterestRequest: RegisterInterestRequest
+    ): Call<RegisterInterestResponse>
 }

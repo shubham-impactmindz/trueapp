@@ -58,7 +58,7 @@ class AddressListAdapter(
         val item = companyAddresses[position]
 
         // Concatenate all address fields into a single string and set it to TextView
-        "${item.user_company_name}, ${item.company_address1}, ${item.company_address2}, ${item.company_city}, ${item.company_country}, ${item.company_postcode}"
+        "${item.user_company_name}, ${item.company_address1}, ${item.company_address2}, ${item.company_city}, GB, ${item.company_postcode}"
             .also { holder.tvAddress.text = it }
 
         // Handle click on the linear layout wrapping the address

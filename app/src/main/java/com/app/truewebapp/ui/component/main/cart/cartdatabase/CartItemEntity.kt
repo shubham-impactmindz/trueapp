@@ -18,5 +18,10 @@ data class CartItemEntity(
     var isWishlisted: Boolean, // Made 'var' so we can change it after fetching
     val cdnURL: String,
     val quantity: Int,
-    val taxable: Int
+    val taxable: Int,
+    val dealType: String? = null,
+    val dealBuyQuantity: Int? = null,
+    val dealGetQuantity: Int? = null,
+    val dealQuantity: Int? = null,
+    val dealPrice: Double? = null
 )

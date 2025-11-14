@@ -84,11 +84,19 @@
         app:layout_constraintTop_toBottomOf="@id/paymentMethodsTitle">
 
         <RadioButton
+            android:id="@+id/payByCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay by Card"
+            android:textSize="@dimen/baseTextSize"
+            android:fontFamily="@font/roboto_regular"
+            android:padding="@dimen/padding10" />
+        <RadioButton
             android:id="@+id/payByBank"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Pay by Bank\nQuick and easy, plus receive extra wallet credit."
+            android:text="Pay by Bank Transfer\nQuick and easy, plus receive extra wallet credit."
             android:textSize="@dimen/baseTextSize"
             android:fontFamily="@font/roboto_regular"
             android:padding="@dimen/padding10"/>
@@ -309,15 +317,6 @@
         </LinearLayout>
 
 
-        <RadioButton
-            android:visibility="gone"
-            android:id="@+id/payByCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pay by Card"
-            android:textSize="@dimen/baseTextSize"
-            android:fontFamily="@font/roboto_regular"
-            android:padding="@dimen/padding10" />
     </RadioGroup>
 
     <!-- Card Payment UI -->
@@ -337,6 +336,7 @@
         android:padding="@dimen/padding16">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cardholderNameLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height60"
             app:boxStrokeWidth="0sp"
@@ -357,6 +357,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/cardNumberLayout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height60"
             app:boxStrokeWidth="0sp"
@@ -382,6 +383,7 @@
             android:orientation="horizontal">
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/expiresLayout"
                 android:layout_width="0sp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -405,6 +407,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cvvLayout"
                 android:layout_width="0sp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -433,7 +436,7 @@
             android:id="@+id/completePaymentButton"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height40"
-            android:text="Complete Payment"
+            android:text="Proceed Payment"
             android:background="@drawable/border_solid_secondary"
             android:textColor="@color/white"
             android:layout_marginTop="@dimen/margin20"

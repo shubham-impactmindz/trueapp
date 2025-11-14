@@ -91,6 +91,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.7.2")
     //noinspection KaptUsageInsteadOfKsp
     kapt("com.github.bumptech.glide:compiler:4.16.0")
+    
+    // Stripe Payment SDK
+    implementation("com.stripe:stripe-android:21.28.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

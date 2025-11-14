@@ -13,12 +13,14 @@
     <dimen name="margin8">8sp</dimen>
     <dimen name="margin10">10sp</dimen>
     <dimen name="margin15">15sp</dimen>
+    <dimen name="margin16">16sp</dimen>
     <dimen name="margin20">20sp</dimen>
     <dimen name="margin30">30sp</dimen>
     <dimen name="padding8">8sp</dimen>
     <dimen name="padding10">10sp</dimen>
     <dimen name="padding12">12sp</dimen>
     <dimen name="padding16">16sp</dimen>
+    <dimen name="margin12">12sp</dimen>
     <dimen name="elevation10">10sp</dimen>
     <dimen name="elevation20">20sp</dimen>
     <dimen name="imageHeight15">15sp</dimen>

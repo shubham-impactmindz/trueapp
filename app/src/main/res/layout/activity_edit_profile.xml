@@ -65,6 +65,10 @@
         android:layout_height="0sp"
         android:fillViewport="true"
         android:scrollbars="vertical"
+        android:isScrollContainer="true"
+        android:overScrollMode="always"
+        android:clipToPadding="false"
+        android:scrollbarStyle="outsideOverlay"
         app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,7 +78,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin10"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="50dp"
+            android:clipToPadding="false">
 
             <ImageView
                 android:visibility="gone"

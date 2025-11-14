@@ -88,11 +88,15 @@ class ItemListAdapter(private val cdnURL: String?) : RecyclerView.Adapter<ItemLi
                 }
             }
 
-        // Build a variant text string if values are present (e.g., " (Red/XL)")
-        val variantText = if (values.isNotEmpty()) " (${values.joinToString("/")})" else ""
+        // Build product text with variant on next line
+        val productText = if (values.isNotEmpty()) {
+            "${item.product.mproduct_title}\n${values.joinToString("/")}"
+        } else {
+            item.product.mproduct_title
+        }
 
-        // Set product title + variant text
-        holder.productTitle.text = item.product.mproduct_title + variantText
+        // Set product title with variant on next line
+        holder.productTitle.text = productText
 
         // Display product quantity
         holder.quantity.text = item.quantity.toString()

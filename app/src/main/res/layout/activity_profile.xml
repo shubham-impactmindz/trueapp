@@ -56,7 +56,7 @@
 
         <!-- 🖉 Edit icon -->
         <ImageView
-            android:id="@+id/editButton"
+            android:visibility="gone"
             android:layout_width="@dimen/imageWidth24"
             android:layout_height="@dimen/imageHeight24"
             android:layout_alignParentEnd="true"
@@ -286,6 +286,23 @@
                     android:layout_marginTop="5sp"
                     android:textColor="@color/colorPrimaryDark"/>
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/editButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height40"
+                android:text="Edit Profile"
+                android:background="@drawable/border_solid_secondary"
+                android:textColor="@color/white"
+                android:textSize="@dimen/buttonTextSize"
+                android:gravity="center"
+                android:layout_marginLeft="16sp"
+                android:layout_marginRight="16sp"
+                android:fontFamily="@font/roboto_bold"
+                app:layout_constraintTop_toBottomOf="@id/passwordInputLayout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16sp"/>
 
         </LinearLayout>
 

@@ -174,7 +174,7 @@
                 android:id="@+id/textTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="start"
+                android:gravity="center"
                 android:layout_gravity="center"
                 android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
                 android:textSize="@dimen/smallTextSize"
@@ -192,7 +192,6 @@
                 android:gravity="center"
                 android:layout_marginTop="2dp"
                 android:lineSpacingExtra="2dp"
-                android:minLines="2"
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:scrollHorizontally="false"
@@ -257,7 +256,7 @@
                 android:layout_marginTop="@dimen/margin5"
                 android:layout_marginBottom="@dimen/margin3"
                 android:background="@drawable/border_solid_secondary_opacity"
-                android:gravity="center_vertical">
+                android:gravity="center">
 
 
                 <TextView

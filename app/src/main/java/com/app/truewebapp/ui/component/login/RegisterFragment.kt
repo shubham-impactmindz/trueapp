@@ -15,6 +15,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -74,6 +76,12 @@ class RegisterFragment : Fragment() {
         // Initialize ViewModels for registration and rep code verification
         registerViewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
         verifyRepViewModel = ViewModelProvider(this)[VerifyRepViewModel::class.java]
+
+        // Setup keyboard detection for dynamic padding
+        setupKeyboardDetection()
+
+        // Setup focus change listeners for auto-scrolling
+        setupFocusListeners()
 
         // Setup terms and privacy policy text with clickable spans
         setupTermsAndPrivacy()
@@ -278,7 +286,7 @@ class RegisterFragment : Fragment() {
                         registerViewModel.register(request)
                     } else {
                         // If verification fails, show message
-                        showTopSnackBar("Please Check Rep Code Again")
+                        showTopSnackBar("Please Check Sales Representative Code Again")
                     }
                 }
             }
@@ -403,5 +411,83 @@ class RegisterFragment : Fragment() {
         textView.textAlignment = View.TEXT_ALIGNMENT_CENTER
 
         snackBar.show()
+    }
+
+    /**
+     * Sets up focus change listeners to auto-scroll to focused fields
+     */
+    private fun setupFocusListeners() {
+        val scrollView = binding.root as android.widget.ScrollView
+        
+        // List of all input fields
+        val inputFields = listOf(
+            binding.firstNameInput,
+            binding.lastNameInput,
+            binding.mobileNumberInput,
+            binding.emailAddressInput,
+            binding.passwordInput,
+            binding.reenterPasswordInput,
+            binding.repCodeInput,
+            binding.referralCodeInput,
+            binding.companyNameInput,
+            binding.address1Input,
+            binding.address2Input,
+            binding.cityInput,
+            binding.postCodeInput,
+            binding.countryInput
+        )
+        
+        // Add focus change listeners to all input fields
+        inputFields.forEach { inputField ->
+            inputField.setOnFocusChangeListener { view, hasFocus ->
+                if (hasFocus) {
+                    // Post with delay to ensure keyboard is shown and layout is adjusted
+                    view.postDelayed({
+                        // Scroll to make the focused field visible with some extra space
+                        val location = IntArray(2)
+                        view.getLocationInWindow(location)
+                        val fieldY = location[1]
+                        
+                        // Calculate scroll position to center the field in the visible area
+                        val scrollY = fieldY - (scrollView.height / 3)
+                        scrollView.smoothScrollTo(0, maxOf(0, scrollY))
+                    }, 300) // Delay to allow keyboard animation to complete
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets up keyboard detection to dynamically adjust bottom padding
+     */
+    private fun setupKeyboardDetection() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            
+             // Calculate additional padding needed when keyboard is visible
+             val keyboardHeight = imeInsets.bottom
+             val density = resources.displayMetrics.density
+             val additionalPadding = if (keyboardHeight > 0) {
+                 // Keyboard is visible - add extra padding based on keyboard height
+                 // Use keyboard height + extra buffer to ensure all fields are accessible
+                 val extraBuffer = (100 * density).toInt()
+                 keyboardHeight + extraBuffer
+             } else {
+                 // Keyboard is hidden - use minimal padding
+                 (50 * density).toInt()
+             }
+            
+            // Apply the dynamic padding to the constraint layout (first child of ScrollView)
+            val scrollView = view as? android.widget.ScrollView
+            val constraintLayout = scrollView?.getChildAt(0) as? androidx.constraintlayout.widget.ConstraintLayout
+            constraintLayout?.setPadding(
+                constraintLayout.paddingLeft,
+                constraintLayout.paddingTop,
+                constraintLayout.paddingRight,
+                additionalPadding
+            )
+            
+            insets
+        }
     }
 }

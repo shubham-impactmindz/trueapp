@@ -24,7 +24,8 @@ data class Orders(
     val coupon: Coupon?,
     val delivery_instructions: String?,
     val summary: Summary,
-    val items: List<Items>
+    val items: List<Items>,
+    val invoice_pdf: String? = null
 ) : Parcelable
 
 @Parcelize

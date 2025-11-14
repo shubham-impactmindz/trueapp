@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/margin20"
+        android:background="@drawable/border_primary"
+        android:gravity="center">
+
+        <!-- Heading -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Register Interest"
+            android:textSize="@dimen/headingTextSize"
+            android:textColor="@color/black"
+            android:fontFamily="@font/roboto_bold"
+            android:layout_marginBottom="@dimen/margin20"
+            android:gravity="center" />
+
+        <!-- Name Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nameInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            android:layout_marginBottom="@dimen/margin10"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Name"
+                android:inputType="textPersonName"
+                android:textSize="@dimen/baseTextSize"
+                android:padding="10sp"
+                android:textColorHint="@color/borderGrey"
+                android:fontFamily="@font/roboto_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Email Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            android:layout_marginBottom="@dimen/margin10"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:textSize="@dimen/baseTextSize"
+                android:padding="10sp"
+                android:textColorHint="@color/borderGrey"
+                android:fontFamily="@font/roboto_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Mobile Number Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/mobileInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height60"
+            android:layout_marginBottom="@dimen/margin10"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/mobileInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_primary"
+                android:hint="Mobile Number"
+                android:inputType="phone"
+                android:textSize="@dimen/baseTextSize"
+                android:padding="10sp"
+                android:textColorHint="@color/borderGrey"
+                android:fontFamily="@font/roboto_regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Description Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/descriptionInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin20"
+            app:boxStrokeWidth="0sp"
+            app:boxStrokeWidthFocused="0sp"
+            app:boxStrokeColor="@color/colorPrimaryDark"
+            app:boxBackgroundMode="filled"
+            app:hintEnabled="false">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/descriptionInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="100dp"
+                android:background="@drawable/border_primary"
+                android:hint="Description"
+                android:inputType="textMultiLine"
+                android:textSize="@dimen/baseTextSize"
+                android:padding="10sp"
+                android:textColorHint="@color/borderGrey"
+                android:fontFamily="@font/roboto_regular"
+                android:gravity="top|start"
+                android:maxLines="5"
+                android:scrollbars="vertical" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Buttons Layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/margin10">
+
+            <!-- Cancel Button -->
+            <LinearLayout
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/margin5"
+                android:background="@drawable/border_solid_secondary"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_bold" />
+            </LinearLayout>
+
+            <!-- Submit Button -->
+            <LinearLayout
+                android:id="@+id/btnSubmit"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/margin5"
+                android:background="@drawable/border_solid_primary"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tvSubmitText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Submit"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/baseTextSize"
+                    android:fontFamily="@font/roboto_bold" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="@dimen/margin10"
+                    android:visibility="gone"
+                    android:indeterminateTint="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
+

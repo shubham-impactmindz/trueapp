@@ -28,6 +28,7 @@ import com.app.truewebapp.databinding.FragmentAccountBinding
 import com.app.truewebapp.ui.component.login.LoginActivity
 import com.app.truewebapp.ui.component.login.WebViewActivity
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.dashboard.ReferralActivity
 import com.app.truewebapp.ui.viewmodel.DeleteAccountViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
 import com.google.android.material.snackbar.Snackbar
@@ -172,7 +173,7 @@ class AccountFragment : Fragment() {
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            val intent = Intent(context, RewardsActivity::class.java)
+            val intent = Intent(context, ReferralActivity::class.java)
             startActivity(intent)
         }
 
