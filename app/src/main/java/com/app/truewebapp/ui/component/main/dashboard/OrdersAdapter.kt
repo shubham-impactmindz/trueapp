@@ -49,7 +49,7 @@ class OrdersAdapter(
         val parsedDate = inputFormat.parse(option.order_date)
         val formattedDate = parsedDate?.let { outputFormat.format(it) } ?: option.order_date
 
-        holder.textOrderDate.text = formattedDate
+        holder.textOrderDate.text = formattedDate.uppercase()
         holder.textPayment.text = option.payment_status
         holder.textFullFill.text = option.fulfillment_status
         holder.textUnit.text = option.units.toString()

@@ -113,8 +113,8 @@ class OrderDetailActivity : AppCompatActivity() {
 
             // Set values to UI with formatting to 2 decimal places
             binding.tvTotal.text = "£${"%.2f".format(subtotal)}"
-            binding.tvWalletDiscount.text = "£${"%.2f".format(walletDiscount)}"
-            binding.tvCouponDiscount.text = "£${"%.2f".format(couponDiscount)}"
+            binding.tvWalletDiscount.text = "- £${"%.2f".format(walletDiscount)}"
+            binding.tvCouponDiscount.text = "- £${"%.2f".format(couponDiscount)}"
             binding.tvDelivery.text = "£${"%.2f".format(deliveryCost)}"
             binding.tvVat.text = "£${"%.2f".format(vat)}"
             binding.tvTotalPayment.text = "£${"%.2f".format(totalPayment)}"
@@ -227,10 +227,7 @@ class OrderDetailActivity : AppCompatActivity() {
         setupCopyButton(dialogView, R.id.btnCopyBankName, tvBankName.text.toString(), "Bank Name")
         setupCopyButton(dialogView, R.id.btnCopyAccountNumber, tvAccountNumber.text.toString(), "Account Number")
         setupCopyButton(dialogView, R.id.btnCopySortCode, tvSortCode.text.toString(), "Sort Code")
-        
-        bankDetail.note?.let {
-            setupCopyButton(dialogView, R.id.btnCopyNote, it, "Note")
-        }
+
         
         dialog.show()
     }

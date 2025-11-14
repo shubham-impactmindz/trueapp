@@ -61,7 +61,7 @@
                 android:layout_width="0sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Order Date"
+                android:text="Ordered"
                 android:textSize="@dimen/smallTextSize"
                 android:fontFamily="@font/roboto_regular"
                 android:textColor="@color/black"/>
