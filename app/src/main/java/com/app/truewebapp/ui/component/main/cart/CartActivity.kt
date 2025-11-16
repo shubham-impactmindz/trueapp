@@ -27,7 +27,6 @@ import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.databinding.ActivityCartBinding
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
-import com.app.truewebapp.ui.component.main.cart.CartDisplayItem
 import com.app.truewebapp.ui.component.main.shop.ProductAdapterListener
 import com.app.truewebapp.ui.viewmodel.CartViewModel
 import com.app.truewebapp.ui.viewmodel.DeliverySettingsViewModel
@@ -37,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 // Import statements: Android framework, Jetpack libraries, app classes, and coroutines
 
 class CartActivity : AppCompatActivity(), ProductAdapterListener {
@@ -240,7 +240,10 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
         binding.textItems.text = "$totalQuantity Units"
         binding.textSKU.text = "${cartItems.size} SKUs"
 
-        val totalAmount = cartItems.sumOf { it.price * it.quantity }
+        // Calculate total amount with volume discount pricing
+        val totalAmount = cartItems.sumOf { item ->
+            calculateItemPrice(item)
+        }
         var deliveryFee = 0.0
         var minOrder = minOrderValue?.toDoubleOrNull() ?: 0.0
 
@@ -251,7 +254,7 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
             binding.textDelivery.text = "Spend £%.2f more for FREE delivery".format(amountLeft)
             binding.textDelivery.setTextColor(ContextCompat.getColor(this, R.color.textGrey))
         } else {
-            binding.textDelivery.text = "FREE DELIVERY"
+            binding.textDelivery.text = "Free Delivery"
             binding.textDelivery.setTextColor(ContextCompat.getColor(this, R.color.colorGreen))
         }
 
@@ -259,6 +262,32 @@ class CartActivity : AppCompatActivity(), ProductAdapterListener {
         binding.textTotal.text = "£%.2f".format(finalTotal)
 
         Log.d("CartFragment", "Total: £$totalAmount, Delivery: £$deliveryFee, Final: £$finalTotal")
+    }
+    
+    // Calculate item price considering volume discounts
+    private fun calculateItemPrice(item: CartItemEntity): Double {
+        return when (item.dealType) {
+            "volume_discount" -> {
+                val dealQty = item.dealQuantity ?: 0
+                val dealPrice = item.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && item.quantity >= dealQty) {
+                    // Calculate complete deal sets
+                    val completeSets = item.quantity / dealQty
+                    // Calculate remaining items after complete sets
+                    val remainingItems = item.quantity % dealQty
+                    // Total = (complete sets * deal price) + (remaining items * item price)
+                    (completeSets * dealPrice) + (remainingItems * item.price)
+                } else {
+                    // No deal applied, use regular pricing
+                    item.price * item.quantity
+                }
+            }
+            else -> {
+                // For buy_x_get_y or no deal, use regular pricing
+                item.price * item.quantity
+            }
+        }
     }
 
     // Setup checkout button click

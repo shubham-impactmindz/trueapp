@@ -138,6 +138,7 @@ class NonScrollingBannerTopSellerAdapter(
         holder.btnAddMore.setOnClickListener {
             val newQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0) + 1 // Increase qty
             cartViewModel.addOrUpdateCart(toEntity(product, newQty)) // Update DB
+            listener.onUpdateCart(newQty, product.mvariant_id) // Notify listener to check for deals
             holder.btnAddMore.performHapticFeedback(
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
@@ -148,7 +149,9 @@ class NonScrollingBannerTopSellerAdapter(
         holder.btnMinus.setOnClickListener {
             val currentQty = (holder.textNoOfItems.text.toString().toIntOrNull() ?: 0) // Get current qty
             if (currentQty > 1) {
-                cartViewModel.addOrUpdateCart(toEntity(product, currentQty - 1)) // Reduce qty
+                val newQty = currentQty - 1
+                cartViewModel.addOrUpdateCart(toEntity(product, newQty)) // Reduce qty
+                listener.onUpdateCart(newQty, product.mvariant_id) // Notify listener
             } else {
                 cartViewModel.deleteCartByVariant(product.mvariant_id) // Remove from DB
                 listener.onUpdateCart(0, product.mvariant_id) // Notify listener
@@ -173,7 +176,12 @@ class NonScrollingBannerTopSellerAdapter(
             isWishlisted = product.user_info_wishlist,
             cdnURL = cdnURL,
             quantity = qty,
-            taxable = product.taxable
+            taxable = product.taxable,
+            dealType = product.deal_type,
+            dealBuyQuantity = product.deal_buy_quantity,
+            dealGetQuantity = product.deal_get_quantity,
+            dealQuantity = product.deal_quantity,
+            dealPrice = product.deal_price
         )
     }
 

@@ -63,6 +63,7 @@ class CheckOutActivity : AppCompatActivity() {
     private var isWalletSelected = false // Whether wallet payment option is selected
     private var couponBottomSheet: BottomSheetDialog? = null // Bottom sheet for coupons
     private lateinit var addAddressLauncher: ActivityResultLauncher<Intent>
+    private var hasShownWalletDialog = false // Flag to track if wallet dialog has been shown
 
     // Lazy initialization of Cart DAO from Room database
     private val cartDao by lazy { CartDatabase.getInstance(this).cartDao() }
@@ -120,8 +121,24 @@ class CheckOutActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         // Wallet toggle button
         binding.walletToggle.setOnCheckedChangeListener { _, isChecked ->
+            val wasSelected = isWalletSelected
             isWalletSelected = isChecked
+            
+            // Reset dialog flag when wallet is toggled off
+            if (!isChecked) {
+                hasShownWalletDialog = false
+            }
+            
             updateTotalPayment()
+            
+            // Show dialog only when wallet is toggled ON (not when already selected)
+            if (isChecked && !wasSelected && walletBalanceAmount > 0) {
+                val paymentDetails = calculatePaymentDetails()
+                if (paymentDetails.walletDeduction > 0 && !hasShownWalletDialog) {
+                    showWalletAppliedDialog(paymentDetails.walletDeduction)
+                    hasShownWalletDialog = true
+                }
+            }
         }
 
         // Payment button
@@ -348,13 +365,13 @@ class CheckOutActivity : AppCompatActivity() {
         binding.tvVat.text = formatCurrency(paymentDetails.vat)
         binding.tvDelivery.text = if (paymentDetails.deliveryFee > 0)
             formatCurrency(paymentDetails.deliveryFee) else "FREE"
-        binding.tvCouponDiscount.text = formatCurrency(paymentDetails.couponDiscount)
+        binding.tvCouponDiscount.text = "- £${"%.2f".format(paymentDetails.couponDiscount)}"
 
         // Update wallet deduction display
         if (isWalletSelected && paymentDetails.walletDeduction > 0) {
-            binding.tvWalletDiscount.text = "-${formatCurrency(paymentDetails.walletDeduction)}"
+            binding.tvWalletDiscount.text = "- ${formatCurrency(paymentDetails.walletDeduction)}"
         } else {
-            binding.tvWalletDiscount.text = formatCurrency(0.0)
+            binding.tvWalletDiscount.text = "- £0.0"
         }
 
         // Final total payable
@@ -370,35 +387,38 @@ class CheckOutActivity : AppCompatActivity() {
             if (walletBalanceAmount > 0) {
                 if (walletBalanceAmount >= paymentDetails.originalTotal) {
                     // Wallet covers full amount
-                    binding.walletDeductionMessage.text = "Your wallet balance will cover the full order amount"
-                    binding.remainingAmountMessage.visibility = View.GONE
                     binding.textPlaceOrder.visibility = View.VISIBLE
                     binding.textPayment.visibility = View.GONE
                 } else {
                     // Partial wallet coverage
-                    binding.walletDeductionMessage.text =
-                        "${formatCurrency(paymentDetails.walletDeduction)} will be deducted from your wallet"
-                    binding.remainingAmountMessage.text =
-                        "Remaining amount to pay: ${formatCurrency(paymentDetails.finalAmount)}"
-                    binding.remainingAmountMessage.visibility = View.VISIBLE
                     binding.textPlaceOrder.visibility = View.GONE
                     binding.textPayment.visibility = View.VISIBLE
                 }
-                binding.walletDeductionMessage.visibility = View.VISIBLE
             } else {
                 // Wallet balance is 0
-                binding.walletDeductionMessage.text = "Wallet balance is £0.00"
-                binding.walletDeductionMessage.visibility = View.VISIBLE
-                binding.remainingAmountMessage.visibility = View.GONE
                 binding.textPlaceOrder.visibility = View.GONE
                 binding.textPayment.visibility = View.VISIBLE
             }
         } else {
-            // Wallet not selected → hide wallet-related UI
-            binding.walletDeductionMessage.visibility = View.GONE
-            binding.remainingAmountMessage.visibility = View.GONE
+            // Wallet not selected
             binding.textPlaceOrder.visibility = View.GONE
             binding.textPayment.visibility = View.VISIBLE
+        }
+    }
+    
+    // Show wallet applied dialog popup
+    private fun showWalletAppliedDialog(walletDeduction: Double) {
+        // Update message with actual wallet deduction amount
+        binding.tvWalletDialogMessage.text = "Your wallet balance of ${formatCurrency(walletDeduction)} has been applied to your order."
+        
+        // Show dialog background and container
+        binding.walletDialogBackground.visibility = View.VISIBLE
+        binding.walletDialogContainer.visibility = View.VISIBLE
+        
+        // OK button click listener
+        binding.btnWalletDialogOk.setOnClickListener {
+            binding.walletDialogBackground.visibility = View.GONE
+            binding.walletDialogContainer.visibility = View.GONE
         }
     }
 
@@ -433,7 +453,7 @@ class CheckOutActivity : AppCompatActivity() {
 
         // Loop through cart items and calculate totals
         cartItems.forEach { item ->
-            val itemTotal = item.price * item.quantity
+            val itemTotal = calculateItemPrice(item)
             subtotalAmount += itemTotal
 
             // Apply VAT (20%) if taxable
@@ -450,6 +470,32 @@ class CheckOutActivity : AppCompatActivity() {
 
         // Update full payment breakdown
         updateTotalPayment()
+    }
+    
+    // Calculate item price considering volume discounts
+    private fun calculateItemPrice(item: CartItemEntity): Double {
+        return when (item.dealType) {
+            "volume_discount" -> {
+                val dealQty = item.dealQuantity ?: 0
+                val dealPrice = item.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && item.quantity >= dealQty) {
+                    // Calculate complete deal sets
+                    val completeSets = item.quantity / dealQty
+                    // Calculate remaining items after complete sets
+                    val remainingItems = item.quantity % dealQty
+                    // Total = (complete sets * deal price) + (remaining items * item price)
+                    (completeSets * dealPrice) + (remainingItems * item.price)
+                } else {
+                    // No deal applied, use regular pricing
+                    item.price * item.quantity
+                }
+            }
+            else -> {
+                // For buy_x_get_y or no deal, use regular pricing
+                item.price * item.quantity
+            }
+        }
     }
 
     // Observe delivery methods API response
@@ -690,7 +736,7 @@ class CheckOutActivity : AppCompatActivity() {
     private fun removeCoupon() {
         appliedCoupon = null
         binding.couponInput.text = ""
-        binding.tvCouponDiscount.text = formatCurrency(0.0)
+        binding.tvCouponDiscount.text = "- £0.0"
         updateTotalPayment()
         showApplyCouponUI()
     }

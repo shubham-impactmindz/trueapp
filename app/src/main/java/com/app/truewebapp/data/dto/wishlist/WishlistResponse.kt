@@ -7,9 +7,9 @@ data class WishlistResponse(
 )
 
 data class Item(
-    val user_id: String,
-    val mproduct_id: String,
+    val mvariant_id: String,
     val updated_at: String,
     val created_at: String,
     val wishlist_id: Int,
 )
+//@WishlistResponse.kt has been updated and i think we need to update the logic in @ShopFragment.kt @DashboardFragment.kt and in @CartFragment.kt please fix

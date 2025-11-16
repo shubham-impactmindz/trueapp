@@ -58,6 +58,7 @@ class PaymentActivity : AppCompatActivity() {
     private var stripeClientSecret: String? = null
     private var hasBankDetails = false
     private var hasStripeConfig = false
+    private var isPaymentSheetInitialized = false
 
     // Lazy initialization of Cart DAO for database operations
     private val cartDao by lazy { CartDatabase.getInstance(this).cartDao() }
@@ -98,6 +99,10 @@ class PaymentActivity : AppCompatActivity() {
         // Initially disable payment button until Stripe config is ready
         binding.completePaymentButton.isEnabled = false
 
+        // Initialize PaymentSheet early (before activity is RESUMED)
+        // This must be done before STARTED state for Activity Result API registration
+        initializePaymentSheet()
+
         // Observe bank details API response
         observeBankDetails()
 
@@ -107,19 +112,54 @@ class PaymentActivity : AppCompatActivity() {
         // Observe order placement API response
         observeOrderPlace()
     }
+    
+    // Initialize PaymentSheet early to avoid lifecycle issues
+    private fun initializePaymentSheet() {
+        try {
+            // Initialize PaymentSheet with a callback - it will be configured later with publishable key
+            paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
+            isPaymentSheetInitialized = true
+            Log.d("StripePayment", "PaymentSheet initialized early")
+        } catch (e: Exception) {
+            Log.e("StripePayment", "Failed to initialize PaymentSheet early", e)
+            isPaymentSheetInitialized = false
+        }
+    }
 
     // Setup toggle between bank transfer and card payment
     private fun setupPaymentMethodSelection() {
         // Show bank layout when "Pay by Bank" is checked
         binding.payByBank.setOnCheckedChangeListener { _, isChecked ->
-            binding.bankPaymentLayout.visibility = if (isChecked) View.VISIBLE else View.GONE
-            binding.cardPaymentLayout.visibility = if (isChecked) View.GONE else View.VISIBLE
+            if (isChecked) {
+                // Bank is selected - show bank layout, hide card layout
+                binding.bankPaymentLayout.visibility = View.VISIBLE
+                binding.cardPaymentLayout.visibility = View.GONE
+                // Show bank payment button, hide card payment button
+                binding.authorizePaymentButton.visibility = View.VISIBLE
+                binding.completePaymentButton.visibility = View.GONE
+                // Hide card input fields when bank is selected
+                binding.cardholderNameLayout.visibility = View.GONE
+                binding.cardNumberLayout.visibility = View.GONE
+                binding.expiresLayout.visibility = View.GONE
+                binding.cvvLayout.visibility = View.GONE
+            }
         }
 
         // Show card layout when "Pay by Card" is checked
         binding.payByCard.setOnCheckedChangeListener { _, isChecked ->
-            binding.bankPaymentLayout.visibility = if (isChecked) View.GONE else View.VISIBLE
-            binding.cardPaymentLayout.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) {
+                // Card is selected - show card layout, hide bank layout
+                binding.cardPaymentLayout.visibility = View.VISIBLE
+                binding.bankPaymentLayout.visibility = View.GONE
+                // Show card input fields and payment button
+                binding.cardholderNameLayout.visibility = View.VISIBLE
+                binding.cardNumberLayout.visibility = View.VISIBLE
+                binding.expiresLayout.visibility = View.VISIBLE
+                binding.cvvLayout.visibility = View.VISIBLE
+                binding.completePaymentButton.visibility = View.VISIBLE
+                // Hide bank payment button
+                binding.authorizePaymentButton.visibility = View.GONE
+            }
         }
     }
 
@@ -149,8 +189,16 @@ class PaymentActivity : AppCompatActivity() {
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
-            if (hasStripeConfig && stripeClientSecret != null && stripePublishableKey != null && paymentSheet != null) {
-                presentPaymentSheet()
+            if (hasStripeConfig && stripePublishableKey != null && paymentSheet != null) {
+                // If we don't have a client secret, we need to create a PaymentIntent first
+                // For now, we'll try to present the sheet - backend should provide client_secret
+                if (stripeClientSecret != null) {
+                    presentPaymentSheet()
+                } else {
+                    Toast.makeText(this, "Payment intent not ready. Please wait...", Toast.LENGTH_SHORT).show()
+                    // Retry fetching Stripe config to get client_secret
+                    stripeConfigViewModel.stripeConfig(token)
+                }
             } else {
                 Toast.makeText(this, "Payment configuration not ready. Please wait...", Toast.LENGTH_SHORT).show()
                 // Retry fetching Stripe config
@@ -186,11 +234,29 @@ class PaymentActivity : AppCompatActivity() {
         binding.authorizePaymentButton.text = "Proceed Payment - $formattedAmount"
         binding.completePaymentButton.text = "Proceed Payment - $formattedAmount"
 
-        // Hide manual card input fields since we're using Stripe PaymentSheet
-        binding.cardholderNameLayout.visibility = View.GONE
-        binding.cardNumberLayout.visibility = View.GONE
-        binding.expiresLayout.visibility = View.GONE
-        binding.cvvLayout.visibility = View.GONE
+        // Initially set payment layout visibility based on default selection
+        // Default is "Pay by Bank" (checked in XML), so show bank layout initially
+        if (binding.payByBank.isChecked) {
+            binding.bankPaymentLayout.visibility = View.VISIBLE
+            binding.cardPaymentLayout.visibility = View.GONE
+            binding.authorizePaymentButton.visibility = View.VISIBLE
+            binding.completePaymentButton.visibility = View.GONE
+            // Hide card input fields when bank is selected
+            binding.cardholderNameLayout.visibility = View.GONE
+            binding.cardNumberLayout.visibility = View.GONE
+            binding.expiresLayout.visibility = View.GONE
+            binding.cvvLayout.visibility = View.GONE
+        } else if (binding.payByCard.isChecked) {
+            binding.cardPaymentLayout.visibility = View.VISIBLE
+            binding.bankPaymentLayout.visibility = View.GONE
+            binding.completePaymentButton.visibility = View.VISIBLE
+            binding.authorizePaymentButton.visibility = View.GONE
+            // Show card input fields when card is selected
+            binding.cardholderNameLayout.visibility = View.VISIBLE
+            binding.cardNumberLayout.visibility = View.VISIBLE
+            binding.expiresLayout.visibility = View.VISIBLE
+            binding.cvvLayout.visibility = View.VISIBLE
+        }
 
         // If wallet deduction is applied, update wallet section
         if (useWallet && walletDeduction > 0) {
@@ -297,14 +363,23 @@ class PaymentActivity : AppCompatActivity() {
         // Observe API response for Stripe config
         stripeConfigViewModel.stripeConfigResponse.observe(this) { response ->
             hasStripeConfig = response?.status == true && 
-                             response.stripe_config != null && 
-                             !response.stripe_config.publishable_key.isNullOrEmpty() &&
-                             !response.stripe_config.client_secret.isNullOrEmpty()
+                             response.data != null && 
+                             !response.data.publishable_key.isNullOrEmpty()
             
             if (hasStripeConfig) {
-                response?.stripe_config?.let { config ->
+                response?.data?.let { config ->
                     stripePublishableKey = config.publishable_key
+                    // Use client_secret if provided by backend
+                    // Note: client_secret is the PaymentIntent client secret from Stripe
+                    // If not provided, backend should create PaymentIntent and return it
                     stripeClientSecret = config.client_secret
+                    
+                    // Log configuration for debugging
+                    Log.d("StripePayment", "Stripe Config received:")
+                    Log.d("StripePayment", "  Provider: ${config.provider}")
+                    Log.d("StripePayment", "  Test Mode: ${config.test_mode}")
+                    Log.d("StripePayment", "  Publishable Key: ${config.publishable_key?.take(20)}...")
+                    Log.d("StripePayment", "  Client Secret: ${if (config.client_secret != null) "Provided" else "Not provided - backend needs to create PaymentIntent"}")
                     
                     // Initialize Stripe with publishable key
                     stripePublishableKey?.let { key ->
@@ -312,25 +387,36 @@ class PaymentActivity : AppCompatActivity() {
                             // Initialize PaymentConfiguration (safe to call multiple times)
                             PaymentConfiguration.init(applicationContext, key)
                             
-                            // Initialize PaymentSheet after PaymentConfiguration is set
-                            // Create new instance to ensure it's properly initialized
-                            paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
-                            
-                            Log.d("StripePayment", "Stripe PaymentSheet initialized successfully")
-                            Log.d("StripePayment", "Publishable Key: ${key.take(20)}...")
-                            Log.d("StripePayment", "Client Secret: ${config.client_secret?.take(20) ?: "null"}...")
+                            // PaymentSheet was already initialized in onCreate, just log success
+                            if (isPaymentSheetInitialized && paymentSheet != null) {
+                                Log.d("StripePayment", "Stripe PaymentSheet configured successfully")
+                                Log.d("StripePayment", "Publishable Key: ${key.take(20)}...")
+                                Log.d("StripePayment", "Secret Key: ${config.secret_key?.take(20) ?: "null"}...")
+                                Log.d("StripePayment", "Test Mode: ${config.test_mode}")
+                            } else {
+                                // Fallback: try to initialize if not already done
+                                try {
+                                    paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
+                                    isPaymentSheetInitialized = true
+                                    Log.d("StripePayment", "PaymentSheet initialized in fallback")
+                                } catch (e: Exception) {
+                                    Log.e("StripePayment", "Failed to initialize PaymentSheet in fallback", e)
+                                    hasStripeConfig = false
+                                    paymentSheet = null
+                                    Toast.makeText(this, "Failed to initialize payment system: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         } catch (e: Exception) {
-                            Log.e("StripePayment", "Failed to initialize Stripe", e)
+                            Log.e("StripePayment", "Failed to configure Stripe", e)
                             hasStripeConfig = false
-                            paymentSheet = null
-                            Toast.makeText(this, "Failed to initialize payment system: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this, "Failed to configure payment system: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             } else {
-                paymentSheet = null
                 stripePublishableKey = null
                 stripeClientSecret = null
+                // Don't set paymentSheet to null here as it's already initialized
             }
             updatePaymentMethodVisibility()
         }
@@ -343,9 +429,9 @@ class PaymentActivity : AppCompatActivity() {
         // Observe API error
         stripeConfigViewModel.apiError.observe(this) { error ->
             hasStripeConfig = false
-            paymentSheet = null
             stripePublishableKey = null
             stripeClientSecret = null
+            // Don't set paymentSheet to null - keep it initialized for potential retry
             Log.e("StripePayment", "Stripe config API error: $error")
             Toast.makeText(this, "Failed to load payment configuration: $error", Toast.LENGTH_SHORT).show()
             updatePaymentMethodVisibility()
@@ -354,9 +440,9 @@ class PaymentActivity : AppCompatActivity() {
         // Observe network failure
         stripeConfigViewModel.onFailure.observe(this) { throwable ->
             hasStripeConfig = false
-            paymentSheet = null
             stripePublishableKey = null
             stripeClientSecret = null
+            // Don't set paymentSheet to null - keep it initialized for potential retry
             Log.e("StripePayment", "Stripe config network failure", throwable)
             Toast.makeText(this, "Network error. Please check your connection.", Toast.LENGTH_SHORT).show()
             updatePaymentMethodVisibility()
@@ -369,12 +455,21 @@ class PaymentActivity : AppCompatActivity() {
         if (hasBankDetails) {
             binding.payByBank.visibility = View.VISIBLE
             // If bank is available and card is not, select bank by default
-            if (!hasStripeConfig && !binding.payByBank.isChecked) {
+            if (!hasStripeConfig) {
                 binding.payByBank.isChecked = true
+                // Show bank layout and button
+                binding.bankPaymentLayout.visibility = View.VISIBLE
+                binding.cardPaymentLayout.visibility = View.GONE
+                binding.authorizePaymentButton.visibility = View.VISIBLE
+                binding.completePaymentButton.visibility = View.GONE
             }
         } else {
             binding.payByBank.visibility = View.GONE
             binding.bankPaymentLayout.visibility = View.GONE
+            // If bank is not available and bank was selected, switch to card if available
+            if (binding.payByBank.isChecked && hasStripeConfig) {
+                binding.payByCard.isChecked = true
+            }
         }
         
         // Show/hide Pay by Card option
@@ -382,17 +477,39 @@ class PaymentActivity : AppCompatActivity() {
             binding.payByCard.visibility = View.VISIBLE
             binding.completePaymentButton.isEnabled = true
             // If card is available and bank is not, select card by default
-            if (!hasBankDetails && !binding.payByCard.isChecked) {
+            if (!hasBankDetails) {
                 binding.payByCard.isChecked = true
+                // Show card layout, input fields, and button
+                binding.cardPaymentLayout.visibility = View.VISIBLE
+                binding.bankPaymentLayout.visibility = View.GONE
+                binding.cardholderNameLayout.visibility = View.VISIBLE
+                binding.cardNumberLayout.visibility = View.VISIBLE
+                binding.expiresLayout.visibility = View.VISIBLE
+                binding.cvvLayout.visibility = View.VISIBLE
+                binding.completePaymentButton.visibility = View.VISIBLE
+                binding.authorizePaymentButton.visibility = View.GONE
             }
         } else {
             binding.payByCard.visibility = View.GONE
             binding.cardPaymentLayout.visibility = View.GONE
             binding.completePaymentButton.isEnabled = false
+            // Hide card input fields when card option is not available
+            binding.cardholderNameLayout.visibility = View.GONE
+            binding.cardNumberLayout.visibility = View.GONE
+            binding.expiresLayout.visibility = View.GONE
+            binding.cvvLayout.visibility = View.GONE
+            // If card is not available and card was selected, switch to bank if available
+            if (binding.payByCard.isChecked && hasBankDetails) {
+                binding.payByBank.isChecked = true
+            }
         }
         
         // If neither option is available, show error
         if (!hasBankDetails && !hasStripeConfig) {
+            binding.bankPaymentLayout.visibility = View.GONE
+            binding.cardPaymentLayout.visibility = View.GONE
+            binding.authorizePaymentButton.visibility = View.GONE
+            binding.completePaymentButton.visibility = View.GONE
             Toast.makeText(this, "No payment methods available", Toast.LENGTH_LONG).show()
         }
     }
@@ -460,23 +577,39 @@ class PaymentActivity : AppCompatActivity() {
     private fun observeOrderPlace() {
         orderPlaceViewModel.orderPlaceResponse.observe(this) { response ->
             response?.takeIf { it.status }?.let {
+                // Hide loading overlay and background on success
+                binding.loadingOverlayBackground.visibility = View.GONE
+                binding.loadingOverlay.visibility = View.GONE
                 // If success, clear cart and navigate to success screen
                 clearCartAndNavigateToSuccess()
             } ?: run {
+                // Hide loading overlay and background on failure
+                binding.loadingOverlayBackground.visibility = View.GONE
+                binding.loadingOverlay.visibility = View.GONE
                 // Handle failure case
             }
         }
 
         // Observe loading state during API call
         orderPlaceViewModel.isLoading.observe(this) { isLoading ->
+            // Show/hide loading overlay and background
+            if (isLoading) {
+                binding.loadingOverlayBackground.visibility = View.VISIBLE
+                binding.loadingOverlay.visibility = View.VISIBLE
+            } else {
+                binding.loadingOverlayBackground.visibility = View.GONE
+                binding.loadingOverlay.visibility = View.GONE
+            }
             // Disable/Enable button depending on loading
-//            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.authorizePaymentButton.isEnabled = !isLoading
             binding.completePaymentButton.isEnabled = !isLoading && hasStripeConfig
         }
 
         // Observe API error
         orderPlaceViewModel.apiError.observe(this) { error ->
+            // Hide loading overlay and background on error
+            binding.loadingOverlayBackground.visibility = View.GONE
+            binding.loadingOverlay.visibility = View.GONE
             // Handle API error
             Log.e("OrderPlace", "Order placement API error: $error")
             Toast.makeText(this, "Order failed: $error", Toast.LENGTH_SHORT).show()
@@ -486,6 +619,9 @@ class PaymentActivity : AppCompatActivity() {
 
         // Observe failure case
         orderPlaceViewModel.onFailure.observe(this) { throwable ->
+            // Hide loading overlay and background on failure
+            binding.loadingOverlayBackground.visibility = View.GONE
+            binding.loadingOverlay.visibility = View.GONE
             // Handle throwable error
             Log.e("OrderPlace", "Order placement failed", throwable)
             Toast.makeText(this, "Order failed: ${throwable.message}", Toast.LENGTH_SHORT).show()

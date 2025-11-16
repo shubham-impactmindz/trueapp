@@ -203,6 +203,7 @@ class ProductsAdapter(
                 )
                 quantity = 1
                 updateCartAsync(product, quantity)
+                listener.onUpdateCart(quantity, product.mvariant_id) // Notify listener to check for deals
                 holder.textNoOfItems.text = quantity.toString()
                 holder.btnAdd.visibility = View.GONE
                 holder.llCartSign.visibility = View.VISIBLE
@@ -217,6 +218,7 @@ class ProductsAdapter(
                 )
                 it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                 updateCartAsync(product, quantity)
+                listener.onUpdateCart(quantity, product.mvariant_id) // Notify listener to check for deals
                 holder.textNoOfItems.text = quantity.toString()
             }
 
@@ -229,6 +231,7 @@ class ProductsAdapter(
                 )
                 if (quantity > 0) {
                     updateCartAsync(product, quantity)
+                    listener.onUpdateCart(quantity, product.mvariant_id) // Notify listener to check for deals
                     holder.textNoOfItems.text = quantity.toString()
                 } else {
                     deleteCartItemAsync(product)

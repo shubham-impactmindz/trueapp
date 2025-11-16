@@ -62,23 +62,28 @@ class CartAdapter(
                     .joinToString(" ") { word -> word.replaceFirstChar(Char::uppercaseChar) }
             } // Join the two option strings with a space
 
-// Compose full title with options in brackets, only if options exist
-        val fullTitle = if (optionText.isNotEmpty()) {
+        // Compose full title with options in brackets, only if options exist
+        var fullTitle = if (optionText.isNotEmpty()) {
             "${item.title} ($optionText)"
         } else {
             item.title ?: ""
         }
+        
+        // Add "(Free)" to title for free items
+        if (item.isFreeItem && !fullTitle.contains("(Free)")) {
+            fullTitle = "$fullTitle (Free)"
+        }
 
-// Safely set the text using Html.fromHtml
+        // Safely set the text using Html.fromHtml
         holder.textTitle.text = Html.fromHtml(fullTitle, Html.FROM_HTML_MODE_LEGACY).toString()
 
         holder.textNoOfItems.text = item.quantity.toString()
 
         // Handle free items vs paid items
         if (item.isFreeItem) {
-            // For free items, show "FREE" instead of price
+            // For free items, show "FREE" instead of price in secondary color
             holder.finalPrice.text = "FREE"
-            holder.finalPrice.setTextColor(context.getColor(R.color.colorGreen))
+            holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
             holder.comparePrice.visibility = View.GONE
         } else {
             // Calculate total price for the item (price per unit * quantity)
@@ -139,14 +144,14 @@ class CartAdapter(
             listener.onUpdateWishlist(item.variantId.toString())
         }
 
-        // Disable controls for free items
+        // Hide controls for free items
         if (item.isFreeItem) {
-            holder.btnAddMore.isEnabled = false
-            holder.btnMinus.isEnabled = false
+            holder.btnAddMore.visibility = View.GONE
+            holder.btnMinus.visibility = View.GONE
             holder.linearDelete.visibility = View.GONE
-            holder.btnAddMore.alpha = 0.5f
-            holder.btnMinus.alpha = 0.5f
         } else {
+            holder.btnAddMore.visibility = View.VISIBLE
+            holder.btnMinus.visibility = View.VISIBLE
             holder.btnAddMore.isEnabled = true
             holder.btnMinus.isEnabled = true
             holder.linearDelete.visibility = View.VISIBLE
@@ -223,8 +228,9 @@ class CartAdapter(
                 if (index != -1) {
                     cartItemList[index] = item.copy(quantity = quantity)
                     notifyItemChanged(index)
-                    listener.onUpdateCart(quantity, item.variantId)
                 }
+                // Notify listener to check for deals
+                listener.onUpdateCart(quantity, item.variantId)
             }
         }
     }

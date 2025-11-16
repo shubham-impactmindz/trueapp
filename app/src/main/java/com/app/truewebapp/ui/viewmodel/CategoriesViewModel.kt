@@ -9,7 +9,7 @@ class CategoriesViewModel : BaseViewModel() {
 
     var categoriesModel= MutableLiveData<CategoriesResponse>()
 
-    fun categories(request: String, token: String, filters: String) {
+    fun categories(request: String, token: String, filters: String, wishlist: Boolean? = null) {
         isLoading.value = true
         CategoryRepository.categories({
             categoriesModel.value = it
@@ -20,6 +20,6 @@ class CategoriesViewModel : BaseViewModel() {
         }, {
             onFailure.value = it
             isLoading.value = false
-        },request,token,filters)
+        },request,token,filters,wishlist)
     }
 }

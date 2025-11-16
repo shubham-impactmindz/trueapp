@@ -17,8 +17,9 @@ object CategoryRepository {
          request: String,
          token: String,
          filters: String,
+         wishlist: Boolean? = null,
     ) {
-        webService.fetchCategories(request,token,filters)
+        webService.fetchCategories(request,token,filters,wishlist)
             .enqueue(object : Callback<CategoriesResponse> {
                 override fun onResponse(
                     call: Call<CategoriesResponse>,

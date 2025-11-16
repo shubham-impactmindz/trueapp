@@ -76,6 +76,7 @@ interface WebService {
         @Query("search") search: String? = null,
         @Header("Authorization") token: String,
         @Query("mbrand_id") filters: String? = null,
+        @Query("wishlist") wishlist: Boolean? = null,
     ): Call<CategoriesResponse>
 
 

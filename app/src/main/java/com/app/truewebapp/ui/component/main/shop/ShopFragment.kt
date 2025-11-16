@@ -20,7 +20,6 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -28,6 +27,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import com.app.truewebapp.R
@@ -59,7 +60,7 @@ import kotlinx.coroutines.launch
 class ShopFragment : Fragment(), ProductAdapterListener {
 
     // View binding object for accessing views in fragment_shop.xml
-    private lateinit var binding: FragmentShopBinding
+    lateinit var binding: FragmentShopBinding
 
     // ViewModels for categories, banners, wishlist, and brands
     lateinit var categoriesViewModel: CategoriesViewModel
@@ -119,15 +120,15 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // Launch coroutines tied to fragment lifecycle
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            // Collect cart item count and update badge
+            // Collect cart items and update badge (including free items)
             launch {
-                cartDao.getCartItemCount().collect { totalCount ->
-                    val actualCount = totalCount ?: 0
-                    if (actualCount == 0) {
+                cartDao.getAllItems().collect { cartItems ->
+                    val totalCount = calculateTotalCount(cartItems)
+                    if (totalCount == 0) {
                         binding.tvCartBadge.visibility = View.GONE
                     } else {
                         binding.tvCartBadge.visibility = View.VISIBLE
-                        binding.tvCartBadge.text = actualCount.toString()
+                        binding.tvCartBadge.text = totalCount.toString()
                     }
                 }
             }
@@ -238,7 +239,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             if (applyFilter) toggleFilterOverlay()
             filters = if (filtersType == "Favourites") selectedIds else ""
             applyFilter = true
-            categoriesViewModel.categories(search, token, filters)
+            val wishlistParam = if (filtersType == "Favourites") true else null
+            categoriesViewModel.categories(search, token, filters, wishlistParam)
         }
 
         // Swipe refresh reloads data
@@ -291,7 +293,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 )
 
                 // Trigger API call to fetch filtered categories based on search input
-                categoriesViewModel.categories(search, token, filters)
+                val wishlistParam = if (applyFilter && filtersType == "Favourites") true else null
+                categoriesViewModel.categories(search, token, filters, wishlistParam)
             }
 
             // Not used but must be overridden: before text changes
@@ -370,9 +373,10 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // Preserve current filter state when refreshing
         val currentFilters = if (applyFilter) filters else ""
+        val wishlistParam = if (applyFilter && filtersType == "Favourites") true else null
         
         // Trigger API calls to fetch initial data with preserved filters
-        categoriesViewModel.categories(search, token, currentFilters)
+        categoriesViewModel.categories(search, token, currentFilters, wishlistParam)
         bannersViewModel.banners(token)
         brandsViewModel.brands(token, preferences?.getString("userId", "")) // Pass stored userId if available
     }
@@ -489,6 +493,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 if (it.status) {
                     // Update wishlist in adapter if response is successful
                     updateWishlistInAdapter(variantId)
+                    // Refresh brands API to get updated wishlist state
+                    val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+                    brandsViewModel.brands(token, preferences?.getString("userId", ""))
                 } else {
                     // Show error message if operation failed
                     Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
@@ -728,25 +735,245 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 shopCatVH.getSubCategoryRecycler().scrollToPosition(subCatIndex)
 
                 shopCatVH.getSubCategoryRecycler().postDelayed({
-                    // Find subcategory ViewHolder
+                    // Try to find subcategory ViewHolder
                     val subCatVH = shopCatVH.getSubCategoryRecycler()
                         .findViewHolderForAdapterPosition(subCatIndex) as? SubCategoryAdapter.SubCategoryViewHolder
-                        ?: return@postDelayed
-
-                    // Find product index inside product adapter
-                    val productAdapter = subCatVH.getProductAdapter()
-                    val productIndex = productAdapter?.getProductIndex(productid) ?: -1
-                    if (productIndex == -1) return@postDelayed
-
-                    Log.e("TAG", "proceedScrollTo: "+productIndex)
-                    // Scroll product RecyclerView to product
-                    subCatVH.getProductRecycler().post {
-                        (subCatVH.getProductRecycler().layoutManager as? LinearLayoutManager)
-                            ?.scrollToPositionWithOffset(productIndex, 100)
+                    
+                    // If not found, retry with delay
+                    if (subCatVH == null) {
+                        shopCatVH.getSubCategoryRecycler().postDelayed({
+                            val retrySubCatVH = shopCatVH.getSubCategoryRecycler()
+                                .findViewHolderForAdapterPosition(subCatIndex) as? SubCategoryAdapter.SubCategoryViewHolder
+                            
+                            if (retrySubCatVH == null) {
+                                Log.e("TAG", "SubCategory ViewHolder not found after retry")
+                                return@postDelayed
+                            }
+                            
+                            proceedWithProductScroll(retrySubCatVH, productid, mainCatIndex, shopCatIndex, subCatIndex, mainCatVH, shopCatVH)
+                        }, 200)
+                        return@postDelayed
                     }
-                }, 300)
+                    
+                    proceedWithProductScroll(subCatVH, productid, mainCatIndex, shopCatIndex, subCatIndex, mainCatVH, shopCatVH)
+                }, 600)
             }, 350)
         }, 400)
+    }
+    
+    // Helper function to proceed with product scrolling
+    private fun proceedWithProductScroll(
+        subCatVH: SubCategoryAdapter.SubCategoryViewHolder,
+        productid: String,
+        mainCatIndex: Int,
+        shopCatIndex: Int,
+        subCatIndex: Int,
+        mainCatVH: ShopMainCategoryAdapter.MainCategoryViewHolder,
+        shopCatVH: ShopCategoryAdapter.CategoryViewHolder
+    ) {
+
+        // Find product index inside product adapter
+        val productAdapter = subCatVH.getProductAdapter()
+        val productIndex = productAdapter?.getProductIndex(productid) ?: -1
+        if (productIndex == -1) {
+            Log.e("TAG", "Product not found: productid=$productid")
+            return
+        }
+
+        Log.e("TAG", "proceedScrollTo: productIndex=$productIndex, productid=$productid, totalProducts=${productAdapter?.itemCount}")
+        
+        // Get the product RecyclerView
+        val productRecycler = subCatVH.getProductRecycler()
+        val layoutManager = productRecycler.layoutManager
+        
+        if (layoutManager == null) {
+            Log.e("TAG", "LayoutManager is null for product RecyclerView")
+            return
+        }
+        
+        // Wait for RecyclerView to be fully laid out using ViewTreeObserver
+        if (productRecycler.isLaidOut && productRecycler.height > 0) {
+            Log.e("TAG", "RecyclerView is laid out, scrolling immediately")
+            scrollToProductInRecyclerView(
+                productRecycler, 
+                layoutManager, 
+                productIndex,
+                mainCatIndex,
+                shopCatIndex,
+                subCatIndex,
+                mainCatVH,
+                shopCatVH
+            )
+        } else {
+            Log.e("TAG", "RecyclerView not laid out yet, waiting...")
+            // Wait for RecyclerView to be laid out
+            productRecycler.viewTreeObserver.addOnGlobalLayoutListener(object : android.view.ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    if (productRecycler.isLaidOut && productRecycler.height > 0) {
+                        productRecycler.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        Log.e("TAG", "RecyclerView is now laid out, scrolling")
+                        scrollToProductInRecyclerView(
+                            productRecycler, 
+                            layoutManager, 
+                            productIndex,
+                            mainCatIndex,
+                            shopCatIndex,
+                            subCatIndex,
+                            mainCatVH,
+                            shopCatVH
+                        )
+                    }
+                }
+            })
+        }
+    }
+
+    // Helper function to scroll to product in RecyclerView
+    private fun scrollToProductInRecyclerView(
+        productRecycler: RecyclerView,
+        layoutManager: RecyclerView.LayoutManager?,
+        productIndex: Int,
+        mainCatIndex: Int,
+        shopCatIndex: Int,
+        subCatIndex: Int,
+        mainCatVH: ShopMainCategoryAdapter.MainCategoryViewHolder,
+        shopCatVH: ShopCategoryAdapter.CategoryViewHolder
+    ) {
+        if (layoutManager == null) {
+            Log.e("TAG", "LayoutManager is null")
+            return
+        }
+        
+        Log.e("TAG", "scrollToProductInRecyclerView: productIndex=$productIndex, layoutManager=${layoutManager.javaClass.simpleName}")
+        
+        // First, ensure all parent RecyclerViews are scrolled to correct positions
+        binding.shopMainCategoryRecycler.post {
+            binding.shopMainCategoryRecycler.smoothScrollToPosition(mainCatIndex)
+        }
+        
+        mainCatVH.getCategoryRecycler().postDelayed({
+            mainCatVH.getCategoryRecycler().smoothScrollToPosition(shopCatIndex)
+        }, 200)
+        
+        shopCatVH.getSubCategoryRecycler().postDelayed({
+            shopCatVH.getSubCategoryRecycler().smoothScrollToPosition(subCatIndex)
+        }, 300)
+        
+        // Find the NestedScrollView parent and scroll it to bring the product RecyclerView into view
+        productRecycler.postDelayed({
+            // Use binding to get NestedScrollView
+            val nestedScrollView = binding.scrollView
+            
+            // Scroll NestedScrollView to bring product RecyclerView into view
+            productRecycler.post {
+                // Get the location of the product RecyclerView relative to its parent
+                val location = IntArray(2)
+                productRecycler.getLocationInWindow(location)
+                
+                // Get NestedScrollView location
+                val scrollViewLocation = IntArray(2)
+                nestedScrollView.getLocationInWindow(scrollViewLocation)
+                
+                // Calculate scroll position (relative to NestedScrollView)
+                val scrollY = location[1] - scrollViewLocation[1] - 200 // Add padding from top
+                
+                Log.e("TAG", "Scrolling NestedScrollView to Y=$scrollY (productRecycler Y=${location[1]}, scrollView Y=${scrollViewLocation[1]})")
+                nestedScrollView.smoothScrollTo(0, maxOf(0, scrollY))
+            }
+            
+            // Wait for RecyclerView to be fully measured and laid out, then scroll to product
+            productRecycler.postDelayed({
+                Log.e("TAG", "Starting scroll to productIndex=$productIndex, RecyclerView height=${productRecycler.height}, width=${productRecycler.width}")
+                
+                // Ensure RecyclerView is visible and has size
+                if (productRecycler.height == 0 || productRecycler.width == 0) {
+                    Log.e("TAG", "RecyclerView has no size, waiting more...")
+                    productRecycler.postDelayed({
+                        performScrollToProduct(productRecycler, layoutManager, productIndex)
+                    }, 300)
+                    return@postDelayed
+                }
+                
+                performScrollToProduct(productRecycler, layoutManager, productIndex)
+            }, 800) // Wait for NestedScrollView to scroll first
+        }, 400)
+    }
+    
+    // Separate function to perform the actual scroll
+    private fun performScrollToProduct(
+        productRecycler: RecyclerView,
+        layoutManager: RecyclerView.LayoutManager,
+        productIndex: Int
+    ) {
+        Log.e("TAG", "performScrollToProduct: productIndex=$productIndex, layoutManager=${layoutManager.javaClass.simpleName}")
+        
+        when (layoutManager) {
+            is GridLayoutManager -> {
+                Log.e("TAG", "GridLayoutManager: scrolling to productIndex=$productIndex, spanCount=${layoutManager.spanCount}, itemCount=${productRecycler.adapter?.itemCount}")
+                
+                // First, try direct scroll
+                layoutManager.scrollToPosition(productIndex)
+                
+                // Then use smooth scroll
+                val smoothScroller = object : LinearSmoothScroller(productRecycler.context) {
+                    override fun getVerticalSnapPreference(): Int {
+                        return SNAP_TO_START
+                    }
+                }
+                smoothScroller.targetPosition = productIndex
+                layoutManager.startSmoothScroll(smoothScroller)
+                
+                // Verify after smooth scroll completes
+                productRecycler.postDelayed({
+                    val firstVisible = layoutManager.findFirstVisibleItemPosition()
+                    val lastVisible = layoutManager.findLastVisibleItemPosition()
+                    Log.e("TAG", "After smooth scroll: firstVisible=$firstVisible, lastVisible=$lastVisible, productIndex=$productIndex")
+                    
+                    if (productIndex < firstVisible || productIndex > lastVisible) {
+                        Log.e("TAG", "Product not visible, forcing scroll again")
+                        layoutManager.scrollToPosition(productIndex)
+                        
+                        // One more attempt
+                        productRecycler.postDelayed({
+                            val firstVisibleAfter = layoutManager.findFirstVisibleItemPosition()
+                            val lastVisibleAfter = layoutManager.findLastVisibleItemPosition()
+                            Log.e("TAG", "Final check: firstVisible=$firstVisibleAfter, lastVisible=$lastVisibleAfter")
+                            if (productIndex < firstVisibleAfter || productIndex > lastVisibleAfter) {
+                                Log.e("TAG", "Still not visible, using RecyclerView.scrollToPosition")
+                                productRecycler.scrollToPosition(productIndex)
+                            }
+                        }, 300)
+                    } else {
+                        Log.e("TAG", "✓ Product is visible at position $productIndex")
+                    }
+                }, 1000) // Wait longer for smooth scroll to complete
+            }
+            is LinearLayoutManager -> {
+                Log.e("TAG", "LinearLayoutManager: scrolling to position $productIndex")
+                
+                // Use LinearSmoothScroller for LinearLayoutManager
+                val smoothScroller = object : LinearSmoothScroller(productRecycler.context) {
+                    override fun getVerticalSnapPreference(): Int {
+                        return SNAP_TO_START
+                    }
+                }
+                smoothScroller.targetPosition = productIndex
+                layoutManager.startSmoothScroll(smoothScroller)
+                
+                // Fallback verification
+                productRecycler.postDelayed({
+                    val firstVisible = layoutManager.findFirstVisibleItemPosition()
+                    val lastVisible = layoutManager.findLastVisibleItemPosition()
+                    if (productIndex < firstVisible || productIndex > lastVisible) {
+                        layoutManager.scrollToPositionWithOffset(productIndex, 0)
+                    }
+                }, 1000)
+            }
+            else -> {
+                Log.e("TAG", "Unknown layout manager, using scrollToPosition")
+                productRecycler.scrollToPosition(productIndex)
+            }
+        }
     }
 
     // Function to stop banner auto-scrolling
@@ -846,17 +1073,17 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val dao = context?.let { CartDatabase.getInstance(it).cartDao() } ?: return
 
         lifecycleScope.launch {
-            // Collect cart item count from DB
+            // Collect cart items and update badge (including free items)
             launch {
-                dao.getCartItemCount().collect { totalCount ->
-                    val actualCount = totalCount ?: 0
-                    if (actualCount == 0) {
+                dao.getAllItems().collect { cartItems ->
+                    val totalCount = calculateTotalCount(cartItems)
+                    if (totalCount == 0) {
                         binding.tvCartBadge.visibility = View.GONE
                     } else {
                         binding.tvCartBadge.visibility = View.VISIBLE
-                        binding.tvCartBadge.text = actualCount.toString()
+                        binding.tvCartBadge.text = totalCount.toString()
                     }
-                    cartUpdateListener?.onCartItemsUpdated(actualCount)
+                    cartUpdateListener?.onCartItemsUpdated(totalCount)
                 }
             }
 
@@ -876,10 +1103,58 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
     }
 
+    // Calculate total count including free items
+    private fun calculateTotalCount(cartItems: List<CartItemEntity>): Int {
+        // Calculate paid quantity
+        val paidQuantity = cartItems.sumOf { it.quantity }
+        
+        // Calculate free items for each cart item with deals
+        var freeQuantity = 0
+        cartItems.forEach { item ->
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    freeQuantity += (item.quantity / buyQty) * getQty
+                }
+            }
+        }
+        
+        return paidQuantity + freeQuantity
+    }
+
     // Function to calculate and update total cart amount
     private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
-        val totalAmount = cartItems.sumOf { it.price * it.quantity }
+        val totalAmount = cartItems.sumOf { item ->
+            calculateItemPrice(item)
+        }
         binding.tvTotalAmount.text = "£%.2f".format(totalAmount)
+    }
+    
+    // Calculate item price considering volume discounts
+    private fun calculateItemPrice(item: CartItemEntity): Double {
+        return when (item.dealType) {
+            "volume_discount" -> {
+                val dealQty = item.dealQuantity ?: 0
+                val dealPrice = item.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && item.quantity >= dealQty) {
+                    // Calculate complete deal sets
+                    val completeSets = item.quantity / dealQty
+                    // Calculate remaining items after complete sets
+                    val remainingItems = item.quantity % dealQty
+                    // Total = (complete sets * deal price) + (remaining items * item price)
+                    (completeSets * dealPrice) + (remainingItems * item.price)
+                } else {
+                    // No deal applied, use regular pricing
+                    item.price * item.quantity
+                }
+            }
+            else -> {
+                // For buy_x_get_y or no deal, use regular pricing
+                item.price * item.quantity
+            }
+        }
     }
     
     // Check if any deals are triggered and show popup
@@ -896,13 +1171,26 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Calculate deal application
         val dealResult = calculateDealApplication(updatedProduct, cartItem.quantity)
         
-        // Show popup if deal is triggered and not already shown for this quantity
+        // Show popup only when a new deal threshold is crossed
         if (dealResult.isTriggered) {
-            val lastShownQuantity = shownDeals[updatedProductId] ?: 0
-            if (cartItem.quantity > lastShownQuantity) {
-                showDealAppliedDialog(dealResult)
-                shownDeals[updatedProductId] = cartItem.quantity
+            val threshold = getDealThreshold(updatedProduct)
+            if (threshold > 0) {
+                // Check if current quantity has crossed a new threshold
+                val currentThreshold = (cartItem.quantity / threshold) * threshold
+                val lastShownThreshold = shownDeals[updatedProductId] ?: 0
+                
+                // Show popup only when crossing a new threshold
+                if (currentThreshold > lastShownThreshold && currentThreshold >= threshold) {
+                    // Recalculate deal with threshold quantity for accurate free items
+                    val thresholdDealResult = calculateDealApplication(updatedProduct, currentThreshold)
+                    showDealAppliedDialog(thresholdDealResult)
+                    shownDeals[updatedProductId] = currentThreshold
+                }
             }
+        } else {
+            // If deal is no longer triggered (quantity dropped below threshold), reset shownDeals
+            // This allows popup to show again when user adds items back
+            shownDeals.remove(updatedProductId)
         }
     }
     
@@ -920,6 +1208,15 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             }
         }
         return null
+    }
+    
+    // Get the deal threshold (minimum quantity needed to trigger deal)
+    private fun getDealThreshold(product: Product): Int {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> product.deal_buy_quantity ?: 0
+            "volume_discount" -> product.deal_quantity ?: 0
+            else -> 0
+        }
     }
     
     // Calculate if deal is triggered and how many free items
@@ -954,36 +1251,29 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     
     // Show deal applied dialog
     private fun showDealAppliedDialog(dealResult: DealResult) {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_deal_applied, null)
-        val tvDealDescription = dialogView.findViewById<TextView>(R.id.tvDealDescription)
-        val tvHeading = dialogView.findViewById<TextView>(R.id.tvHeading)
-        val btnOk = dialogView.findViewById<View>(R.id.btnOk)
+        // Set title with emojis
+        binding.tvDealDialogTitle.text = "🎉 Deal Applied! 🎉"
         
-        // Set heading with emoji on both sides
-        tvHeading?.text = "🎉 Deals Applied 🎉"
-        
-        // Set description text based on deal type
+        // Set description text based on deal type - matching screenshot format
         val descriptionText = if (dealResult.isVolumeDiscount) {
-            "Volume discount applied!\n${dealResult.dealName} deal activated"
+            "Special deal: ${dealResult.dealName}"
         } else {
-            "You got ${dealResult.freeItems} free items!\n${dealResult.dealName} applied"
+            // Format: "You got X free item! Buy Y Get Z Free deal applied."
+            val itemText = if (dealResult.freeItems == 1) "item" else "items"
+            "You got ${dealResult.freeItems} free $itemText! ${dealResult.dealName} deal applied."
         }
         
-        tvDealDescription.text = descriptionText
+        binding.tvDealDialogMessage.text = descriptionText
         
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
+        // Show dialog background and container
+        binding.dealDialogBackground.visibility = View.VISIBLE
+        binding.dealDialogContainer.visibility = View.VISIBLE
         
-        // Set dialog background to transparent for custom styling
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        
-        btnOk.setOnClickListener {
-            dialog.dismiss()
+        // OK button click listener
+        binding.btnDealDialogOk.setOnClickListener {
+            binding.dealDialogBackground.visibility = View.GONE
+            binding.dealDialogContainer.visibility = View.GONE
         }
-        
-        dialog.show()
     }
     
     // Data class to hold deal calculation results

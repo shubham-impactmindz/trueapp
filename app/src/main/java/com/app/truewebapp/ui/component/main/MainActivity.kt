@@ -19,9 +19,11 @@ import com.app.truewebapp.R
 import com.app.truewebapp.databinding.ActivityMainBinding
 import com.app.truewebapp.ui.component.main.cart.CartUpdateListener
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
+import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.component.main.dashboard.TabSwitcher
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.ArrayDeque
 
@@ -177,11 +179,33 @@ class MainActivity : AppCompatActivity(), TabSwitcher, CartUpdateListener {
 
         // Collect cart count in a coroutine
         lifecycleScope.launch {
-            dao.getCartItemCount().collect { totalCount ->
+            dao.getAllItems().collect { cartItems ->
+                // Calculate total count including free items
+                val totalCount = calculateTotalCount(cartItems)
                 // Update cart badge with current count
                 updateCartBadge(totalCount)
             }
         }
+    }
+    
+    // Calculate total count including free items
+    private fun calculateTotalCount(cartItems: List<CartItemEntity>): Int {
+        // Calculate paid quantity
+        val paidQuantity = cartItems.sumOf { it.quantity }
+        
+        // Calculate free items for each cart item with deals
+        var freeQuantity = 0
+        cartItems.forEach { item ->
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    freeQuantity += (item.quantity / buyQty) * getQty
+                }
+            }
+        }
+        
+        return paidQuantity + freeQuantity
     }
 
     // Updates the cart tab badge with item count

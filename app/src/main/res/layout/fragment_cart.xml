@@ -215,4 +215,72 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- Deal Applied Dialog Background (blocks interaction) -->
+    <View
+        android:id="@+id/dealDialogBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Deal Applied Dialog (centered) -->
+    <LinearLayout
+        android:id="@+id/dealDialogContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_loading_overlay"
+        android:padding="@dimen/padding16"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation20"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvDealDialogTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🎉 Deal Applied! 🎉"
+            android:textColor="@color/white"
+            android:textSize="@dimen/mainHeadingTextSize"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/margin10" />
+
+        <TextView
+            android:id="@+id/tvDealDialogMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="You got 6 free item! Buy 7 Get 3 Free deal applied."
+            android:textColor="@color/white"
+            android:textSize="@dimen/baseTextSize"
+            android:fontFamily="@font/roboto_regular"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/margin20" />
+
+        <TextView
+            android:id="@+id/btnDealDialogOk"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height40"
+            android:text="OK"
+            android:textColor="@color/white"
+            android:textSize="@dimen/buttonTextSize"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center"
+            android:background="@drawable/bg_circle_grey_round"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

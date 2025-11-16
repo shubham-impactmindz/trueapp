@@ -1,10 +1,11 @@
 package com.app.truewebapp.ui.component.main.cart
 
 // Import statements for required Android and Kotlin libraries
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log // Added for debugging purposes
+import android.util.Log
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -34,7 +35,8 @@ import com.app.truewebapp.ui.viewmodel.WalletBalanceViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest // Used for collecting Flow emissions
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -66,6 +68,12 @@ class CartFragment : Fragment(), ProductAdapterListener {
     private lateinit var deliverySettingsViewModel: DeliverySettingsViewModel
     private lateinit var walletBalanceViewModel: WalletBalanceViewModel
     private lateinit var cartViewModel: CartViewModel
+    
+    // Track shown deals to prevent duplicate popups
+    private val shownDeals = mutableMapOf<Int, Int>() // variantId to threshold when deal was shown
+    
+    // Cart update listener for notifying parent activity
+    private var cartUpdateListener: CartUpdateListener? = null
 
     // Minimum order value required for free delivery
     private var minOrderValue: String? = null
@@ -82,7 +90,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
         return binding.root
     }
 
-    // Called when the fragment’s view hierarchy has been created
+    // Called when the fragment's view hierarchy has been created
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initializeViewModels()              // Initialize ViewModels
@@ -92,6 +100,20 @@ class CartFragment : Fragment(), ProductAdapterListener {
         observeDeliverySettingsViewModel()  // Observe delivery settings updates
         observeCart()                       // Observe cart-related API calls
         observeWalletBalance()              // Observe wallet balance API
+    }
+    
+    // Called when fragment is attached to activity
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is CartUpdateListener) {
+            cartUpdateListener = context
+        }
+    }
+    
+    // Called when fragment is detached from activity
+    override fun onDetach() {
+        super.onDetach()
+        cartUpdateListener = null
     }
 
     // Initialize required ViewModels and fetch token from SharedPreferences
@@ -177,6 +199,10 @@ class CartFragment : Fragment(), ProductAdapterListener {
                     binding.textEmptyCart.visibility = View.GONE
                     binding.imageCart.visibility = View.GONE
                     updateTotalAmount(cartItems) // Update price details (use original items for total calculation)
+                    
+                    // Calculate total count including free items and notify listener
+                    val totalCount = calculateTotalCount(cartItems)
+                    cartUpdateListener?.onCartItemsUpdated(totalCount)
                 } else {
                     binding.cartListRecycler.visibility = View.GONE
                     binding.linearCartDetail.visibility = View.GONE
@@ -184,9 +210,30 @@ class CartFragment : Fragment(), ProductAdapterListener {
                     binding.imageCart.visibility = View.VISIBLE
                     binding.textItems.text = "0 Units"
                     binding.textTotal.text = "£0.00" // Reset price
+                    cartUpdateListener?.onCartItemsUpdated(0)
                 }
             }
         }
+    }
+    
+    // Calculate total count including free items
+    private fun calculateTotalCount(cartItems: List<CartItemEntity>): Int {
+        // Calculate paid quantity
+        val paidQuantity = cartItems.sumOf { it.quantity }
+        
+        // Calculate free items for each cart item with deals
+        var freeQuantity = 0
+        cartItems.forEach { item ->
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    freeQuantity += (item.quantity / buyQty) * getQty
+                }
+            }
+        }
+        
+        return paidQuantity + freeQuantity
     }
     
     // Convert CartItemEntity to CartDisplayItem and add free items
@@ -255,10 +302,28 @@ class CartFragment : Fragment(), ProductAdapterListener {
 
     // Calculate total cart value, apply delivery conditions, and update UI
     private fun updateTotalAmount(cartItems: List<CartItemEntity>) {
-        val totalQuantity = cartItems.sumOf { it.quantity }
+        // Calculate total quantity including free items
+        val paidQuantity = cartItems.sumOf { it.quantity }
+        var freeQuantity = 0
+        
+        // Calculate free items for each cart item with deals
+        cartItems.forEach { item ->
+            if (item.dealType == "buy_x_get_y") {
+                val buyQty = item.dealBuyQuantity ?: 0
+                val getQty = item.dealGetQuantity ?: 0
+                if (buyQty > 0 && getQty > 0 && item.quantity >= buyQty) {
+                    freeQuantity += (item.quantity / buyQty) * getQty
+                }
+            }
+        }
+        
+        val totalQuantity = paidQuantity + freeQuantity
         binding.textItems.text = "$totalQuantity Units"
 
-        val totalAmount = cartItems.sumOf { it.price * it.quantity }
+        // Calculate total amount with volume discount pricing
+        val totalAmount = cartItems.sumOf { item ->
+            calculateItemPrice(item)
+        }
         var deliveryFee = 0.0
         val minOrder = minOrderValue?.toDoubleOrNull() ?: 0.0
         val minOrderPlaceValue = minOrderPlace?.toDoubleOrNull() ?: 0.0
@@ -274,7 +339,7 @@ class CartFragment : Fragment(), ProductAdapterListener {
             binding.textDelivery.text = "Spend £%.2f more for FREE delivery".format(amountLeft)
             binding.textDelivery.setTextColor(ContextCompat.getColor(requireContext(), R.color.textGrey))
         } else {
-            binding.textDelivery.text = "FREE DELIVERY"
+            binding.textDelivery.text = "Free Delivery"
             binding.textDelivery.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorGreen))
         }
 
@@ -416,5 +481,155 @@ class CartFragment : Fragment(), ProductAdapterListener {
     // Triggered when cart items are updated in the adapter
     override fun onUpdateCart(totalItems: Int, productId: Int) {
         Log.d("CartFragment", "Cart item updated via adapter: ProductId $productId, Quantity $totalItems")
+        // Check for deal applications when cart is updated
+        checkAndShowDealPopup(productId)
+    }
+    
+    // Check if any deals are triggered and show popup
+    private fun checkAndShowDealPopup(updatedProductId: Int) {
+        lifecycleScope.launch {
+            // Add small delay to ensure database update is complete
+            kotlinx.coroutines.delay(100)
+            
+            val cartItems = withContext(Dispatchers.IO) {
+                cartDao?.getAllItems()?.first() ?: emptyList()
+            }
+            
+            // Find the cart item that was just updated
+            val cartItem = cartItems.find { it.variantId == updatedProductId } ?: return@launch
+            
+            // Check if this product has a deal
+            if (cartItem.dealType.isNullOrEmpty()) {
+                // Reset shownDeals if deal no longer applies
+                if (cartItem.dealType == null) {
+                    shownDeals.remove(updatedProductId)
+                }
+                return@launch
+            }
+            
+            // Calculate deal application
+            val dealResult = calculateDealApplication(cartItem, cartItem.quantity)
+            
+            // Show popup only when a new deal threshold is crossed
+            if (dealResult.isTriggered) {
+                val threshold = getDealThreshold(cartItem)
+                if (threshold > 0) {
+                    // Check if current quantity has crossed a new threshold
+                    val currentThreshold = (cartItem.quantity / threshold) * threshold
+                    val lastShownThreshold = shownDeals[updatedProductId] ?: 0
+                    
+                    // Show popup only when crossing a new threshold
+                    if (currentThreshold > lastShownThreshold && currentThreshold >= threshold) {
+                        // Recalculate deal with threshold quantity for accurate free items
+                        val thresholdDealResult = calculateDealApplication(cartItem, currentThreshold)
+                        showDealAppliedDialog(thresholdDealResult)
+                        shownDeals[updatedProductId] = currentThreshold
+                    }
+                }
+            } else {
+                // If deal is no longer triggered (quantity dropped below threshold), reset shownDeals
+                shownDeals.remove(updatedProductId)
+            }
+        }
+    }
+    
+    // Get the deal threshold (minimum quantity needed to trigger deal)
+    private fun getDealThreshold(cartItem: CartItemEntity): Int {
+        return when (cartItem.dealType) {
+            "buy_x_get_y" -> cartItem.dealBuyQuantity ?: 0
+            "volume_discount" -> cartItem.dealQuantity ?: 0
+            else -> 0
+        }
+    }
+    
+    // Calculate if deal is triggered and how many free items
+    private fun calculateDealApplication(cartItem: CartItemEntity, quantity: Int): DealResult {
+        return when (cartItem.dealType) {
+            "buy_x_get_y" -> {
+                val buyQty = cartItem.dealBuyQuantity ?: 0
+                val getQty = cartItem.dealGetQuantity ?: 0
+                
+                if (buyQty > 0 && getQty > 0 && quantity >= buyQty) {
+                    val freeItems = (quantity / buyQty) * getQty
+                    val dealName = "Buy $buyQty Get $getQty Free"
+                    DealResult(true, freeItems, dealName)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            "volume_discount" -> {
+                val dealQty = cartItem.dealQuantity ?: 0
+                val dealPrice = cartItem.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && quantity >= dealQty) {
+                    val dealName = "Any $dealQty for £%.2f".format(dealPrice)
+                    DealResult(true, 0, dealName, isVolumeDiscount = true)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            else -> DealResult(false, 0, "")
+        }
+    }
+    
+    // Show deal applied dialog
+    private fun showDealAppliedDialog(dealResult: DealResult) {
+        // Set title with emojis
+        binding.tvDealDialogTitle.text = "🎉 Deal Applied! 🎉"
+        
+        // Set description text based on deal type - matching screenshot format
+        val descriptionText = if (dealResult.isVolumeDiscount) {
+            "Volume discount applied!\n${dealResult.dealName} deal activated"
+        } else {
+            // Format: "You got X free item! Buy Y Get Z Free deal applied."
+            val itemText = if (dealResult.freeItems == 1) "item" else "items"
+            "You got ${dealResult.freeItems} free $itemText! ${dealResult.dealName} deal applied."
+        }
+        
+        binding.tvDealDialogMessage.text = descriptionText
+        
+        // Show dialog background and container
+        binding.dealDialogBackground.visibility = View.VISIBLE
+        binding.dealDialogContainer.visibility = View.VISIBLE
+        
+        // OK button click listener
+        binding.btnDealDialogOk.setOnClickListener {
+            binding.dealDialogBackground.visibility = View.GONE
+            binding.dealDialogContainer.visibility = View.GONE
+        }
+    }
+    
+    // Data class to hold deal calculation results
+    private data class DealResult(
+        val isTriggered: Boolean,
+        val freeItems: Int,
+        val dealName: String,
+        val isVolumeDiscount: Boolean = false
+    )
+    
+    // Calculate item price considering volume discounts
+    private fun calculateItemPrice(item: CartItemEntity): Double {
+        return when (item.dealType) {
+            "volume_discount" -> {
+                val dealQty = item.dealQuantity ?: 0
+                val dealPrice = item.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && item.quantity >= dealQty) {
+                    // Calculate complete deal sets
+                    val completeSets = item.quantity / dealQty
+                    // Calculate remaining items after complete sets
+                    val remainingItems = item.quantity % dealQty
+                    // Total = (complete sets * deal price) + (remaining items * item price)
+                    (completeSets * dealPrice) + (remainingItems * item.price)
+                } else {
+                    // No deal applied, use regular pricing
+                    item.price * item.quantity
+                }
+            }
+            else -> {
+                // For buy_x_get_y or no deal, use regular pricing
+                item.price * item.quantity
+            }
+        }
     }
 }

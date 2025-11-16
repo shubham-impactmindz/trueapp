@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
@@ -51,6 +52,10 @@ import com.app.truewebapp.ui.viewmodel.ProductBannersViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * DashboardFragment
@@ -122,6 +127,9 @@ class DashboardFragment : Fragment(),
 
     // Lazy initialization of Cart DAO
     private val cartDao by lazy { CartDatabase.getInstance(requireContext()).cartDao() }
+    
+    // Track shown deals to prevent duplicate popups
+    private val shownDeals = mutableMapOf<Int, Int>() // variantId to quantity when deal was shown
 
     /**
      * Called when fragment is attached to its parent context.
@@ -587,6 +595,9 @@ class DashboardFragment : Fragment(),
                 binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     updateWishlistInAdapter(variantId)
+                    // Refresh brands API to get updated wishlist state
+                    val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+                    brandsViewModel.brands(token, preferences?.getString("userId", ""))
                 } else {
 
                 }
@@ -699,6 +710,8 @@ class DashboardFragment : Fragment(),
      */
     override fun onUpdateCart(totalItems: Int, productId: Int) {
         updateCartBadge(totalItems)
+        // Check for deal applications when cart is updated
+        checkAndShowDealPopup(productId)
     }
 
     /**
@@ -720,6 +733,143 @@ class DashboardFragment : Fragment(),
             // Optional UI badge update logic
         }
     }
+    
+    // Check if any deals are triggered and show popup
+    private fun checkAndShowDealPopup(updatedProductId: Int) {
+        lifecycleScope.launch {
+            // Add small delay to ensure database update is complete
+            kotlinx.coroutines.delay(100)
+            
+            val cartItems = withContext(Dispatchers.IO) {
+                cartDao.getAllItems().first()
+            }
+            
+            // Find the product that was just updated
+            val updatedProduct = findProductByVariantId(updatedProductId) ?: return@launch
+            
+            // Check if this product has a deal
+            if (updatedProduct.deal_type.isNullOrEmpty()) return@launch
+            
+            // Find the cart item for this product
+            val cartItem = cartItems.find { it.variantId == updatedProductId } ?: return@launch
+            
+            // Calculate deal application
+            val dealResult = calculateDealApplication(updatedProduct, cartItem.quantity)
+            
+            // Show popup only when a new deal threshold is crossed
+            if (dealResult.isTriggered) {
+                val threshold = getDealThreshold(updatedProduct)
+                if (threshold > 0) {
+                    // Check if current quantity has crossed a new threshold
+                    val currentThreshold = (cartItem.quantity / threshold) * threshold
+                    val lastShownThreshold = shownDeals[updatedProductId] ?: 0
+                    
+                    // Show popup only when crossing a new threshold
+                    if (currentThreshold > lastShownThreshold && currentThreshold >= threshold) {
+                        // Recalculate deal with threshold quantity for accurate free items
+                        val thresholdDealResult = calculateDealApplication(updatedProduct, currentThreshold)
+                        showDealAppliedDialog(thresholdDealResult)
+                        shownDeals[updatedProductId] = currentThreshold
+                    }
+                }
+            } else {
+                // If deal is no longer triggered (quantity dropped below threshold), reset shownDeals
+                // This allows popup to show again when user adds items back
+                shownDeals.remove(updatedProductId)
+            }
+        }
+    }
+    
+    // Find product by variant ID in the current product lists
+    private fun findProductByVariantId(variantId: Int): com.app.truewebapp.data.dto.dashboard_banners.Product? {
+        // Check in new products
+        originalCategoryList.forEach { productBanner ->
+            if (productBanner.mvariant_id == variantId) {
+                return productBanner.product
+            }
+        }
+        // Check in top sellers
+        originalTopSellerList.forEach { productBanner ->
+            if (productBanner.mvariant_id == variantId) {
+                return productBanner.product
+            }
+        }
+        return null
+    }
+    
+    // Get the deal threshold (minimum quantity needed to trigger deal)
+    private fun getDealThreshold(product: com.app.truewebapp.data.dto.dashboard_banners.Product): Int {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> product.deal_buy_quantity ?: 0
+            "volume_discount" -> product.deal_quantity ?: 0
+            else -> 0
+        }
+    }
+    
+    // Calculate if deal is triggered and how many free items
+    private fun calculateDealApplication(product: com.app.truewebapp.data.dto.dashboard_banners.Product, quantity: Int): DealResult {
+        return when (product.deal_type) {
+            "buy_x_get_y" -> {
+                val buyQty = product.deal_buy_quantity ?: 0
+                val getQty = product.deal_get_quantity ?: 0
+                
+                if (buyQty > 0 && getQty > 0 && quantity >= buyQty) {
+                    val freeItems = (quantity / buyQty) * getQty
+                    val dealName = "Buy $buyQty Get $getQty Free"
+                    DealResult(true, freeItems, dealName)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            "volume_discount" -> {
+                val dealQty = product.deal_quantity ?: 0
+                val dealPrice = product.deal_price ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && quantity >= dealQty) {
+                    val dealName = "Any $dealQty for £%.2f".format(dealPrice)
+                    DealResult(true, 0, dealName, isVolumeDiscount = true)
+                } else {
+                    DealResult(false, 0, "")
+                }
+            }
+            else -> DealResult(false, 0, "")
+        }
+    }
+    
+    // Show deal applied dialog
+    private fun showDealAppliedDialog(dealResult: DealResult) {
+        // Set title with emojis
+        binding.tvDealDialogTitle.text = "🎉 Deal Applied! 🎉"
+        
+        // Set description text based on deal type - matching screenshot format
+        val descriptionText = if (dealResult.isVolumeDiscount) {
+            "Special deal: ${dealResult.dealName}"
+        } else {
+            // Format: "You got X free item! Buy Y Get Z Free deal applied."
+            val itemText = if (dealResult.freeItems == 1) "item" else "items"
+            "You got ${dealResult.freeItems} free $itemText! ${dealResult.dealName} deal applied."
+        }
+        
+        binding.tvDealDialogMessage.text = descriptionText
+        
+        // Show dialog background and container
+        binding.dealDialogBackground.visibility = View.VISIBLE
+        binding.dealDialogContainer.visibility = View.VISIBLE
+        
+        // OK button click listener
+        binding.btnDealDialogOk.setOnClickListener {
+            binding.dealDialogBackground.visibility = View.GONE
+            binding.dealDialogContainer.visibility = View.GONE
+        }
+    }
+    
+    // Data class to hold deal calculation results
+    private data class DealResult(
+        val isTriggered: Boolean,
+        val freeItems: Int,
+        val dealName: String,
+        val isVolumeDiscount: Boolean = false
+    )
 
     /**
      * Lifecycle cleanup → removes callbacks for auto-scroll runnable.
@@ -727,6 +877,7 @@ class DashboardFragment : Fragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         autoScrollRunnable?.let { handler.removeCallbacks(it) }
+        shownDeals.clear() // Clear deal tracking
     }
 
     /**
@@ -798,19 +949,17 @@ class DashboardFragment : Fragment(),
                 // Find ShopFragment
                 val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
 
-                // Collect all selected brand IDs into a comma-separated string
-                val selectedIds = originalBrandsList
-                    .map { it.mbrand_id }
-                    .joinToString(",")
-
                 // Set filter state in ShopFragment to preserve on refresh
                 shopFragment?.let { fragment ->
-                    fragment.filters = selectedIds
+                    fragment.filters = ""
                     fragment.filtersType = "Favourites"
                     fragment.applyFilter = true
                     
-                    // Call categories API with brand filters applied
-                    fragment.categoriesViewModel.categories("", token, selectedIds)
+                    // Set radio button to Favourites
+                    fragment.binding.radioFavourites.isChecked = true
+                    
+                    // Call categories API with wishlist=true parameter
+                    fragment.categoriesViewModel.categories("", token, "", true)
                 }
 
             }, 500) // Delay 500ms for stability

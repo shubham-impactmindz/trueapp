@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import com.airbnb.lottie.LottieAnimationView
 import com.app.truewebapp.R
 import com.app.truewebapp.databinding.ActivityOrderSuccessBinding
 import com.app.truewebapp.ui.component.main.MainActivity
@@ -43,7 +42,13 @@ class OrderSuccessActivity : AppCompatActivity() {
         // Initialize sound for sound effects
         initializeSound()
 
-        // Setup animation listener to play sound when animation starts
+        // Play sound immediately when payment confirmation screen appears (only once)
+        // Use post to ensure MediaPlayer is ready
+        binding.root.post {
+            playSoundEffect()
+        }
+
+        // Setup animation listener
         setupAnimationListener()
         
         // Make the view focusable to enable sound effects
@@ -79,8 +84,8 @@ class OrderSuccessActivity : AppCompatActivity() {
      */
     private fun initializeSound() {
         try {
-            // Load sound file from assets folder
-            val assetFileDescriptor = assets.openFd("sound.mp3")
+            // Load sound file from assets/sound/sound.mp3
+            val assetFileDescriptor = assets.openFd("sound/sound.mp3")
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(assetFileDescriptor.fileDescriptor, assetFileDescriptor.startOffset, assetFileDescriptor.length)
                 setAudioAttributes(
@@ -90,36 +95,30 @@ class OrderSuccessActivity : AppCompatActivity() {
                         .build()
                 )
                 prepare()
-                // Reset to beginning when playback completes
-                setOnCompletionListener {
-                    it.seekTo(0)
-                }
             }
             assetFileDescriptor.close()
+            Log.d("OrderSuccess", "Sound initialized successfully")
         } catch (e: IOException) {
-            Log.e("OrderSuccess", "Error loading sound from assets", e)
+            Log.e("OrderSuccess", "Error loading sound from assets: ${e.message}", e)
             e.printStackTrace()
         } catch (e: Exception) {
-            Log.e("OrderSuccess", "Error initializing MediaPlayer", e)
+            Log.e("OrderSuccess", "Error initializing MediaPlayer: ${e.message}", e)
             e.printStackTrace()
         }
     }
 
     /**
-     * Setup animation listener to play sound when animation starts
+     * Setup animation listener (sound is already played in onCreate)
      */
     private fun setupAnimationListener() {
-        // Play sound when animation starts
+        // Animation listener for any future animation-related logic
         binding.lottieCheckmark.addAnimatorListener(object : Animator.AnimatorListener {
             override fun onAnimationStart(animation: Animator) {
-                if (!hasPlayedSound) {
-                    playSoundEffect()
-                    hasPlayedSound = true
-                }
+                // Sound is already played in onCreate
             }
 
             override fun onAnimationEnd(animation: Animator) {
-                // Optional: Play sound when animation ends
+                // Animation ended
             }
 
             override fun onAnimationCancel(animation: Animator) {
@@ -127,40 +126,47 @@ class OrderSuccessActivity : AppCompatActivity() {
             }
 
             override fun onAnimationRepeat(animation: Animator) {
-                // Play sound on each repeat if loop is enabled
-                playSoundEffect()
+                // Animation repeat
             }
         })
     }
 
     /**
      * Play sound effect from assets folder and haptic feedback
+     * Plays only once when payment confirmation screen appears
      */
     private fun playSoundEffect() {
+        if (hasPlayedSound) {
+            return // Already played, don't play again
+        }
+        
         try {
             // Check if device is not in silent mode
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-                // Play sound from assets folder
-                mediaPlayer?.let { player ->
-                    if (player.isPlaying) {
-                        // If already playing, reset to beginning
-                        player.seekTo(0)
-                    } else {
-                        // Start playing from beginning
-                        player.start()
-                    }
+            val canPlaySound = audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL
+            
+            // Play sound from assets folder (only once)
+            mediaPlayer?.let { player ->
+                if (canPlaySound && !player.isPlaying) {
+                    // Reset to beginning and start playing
+                    player.seekTo(0)
+                    player.start()
+                    hasPlayedSound = true
+                    Log.d("OrderSuccess", "Sound started playing")
+                } else if (!canPlaySound) {
+                    Log.d("OrderSuccess", "Device is in silent mode, skipping sound")
                 }
+            } ?: run {
+                Log.e("OrderSuccess", "MediaPlayer is null, cannot play sound")
             }
             
-            // Use haptic feedback with sound enabled
-            // The soundEffectsEnabled="true" in XML will make this play sound
+            // Use haptic feedback
             binding.lottieCheckmark.performHapticFeedback(
                 HapticFeedbackConstants.CONFIRM,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
         } catch (e: Exception) {
-            Log.e("OrderSuccess", "Error playing sound effect", e)
+            Log.e("OrderSuccess", "Error playing sound effect: ${e.message}", e)
             e.printStackTrace()
             // Fallback: Just use haptic feedback
             binding.lottieCheckmark.performHapticFeedback(
