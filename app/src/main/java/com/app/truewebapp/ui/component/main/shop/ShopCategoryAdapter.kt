@@ -167,7 +167,7 @@ class ShopCategoryAdapter(
      */
     private fun handleCategoryClick(catId: String) {
         val wasExpanded = expandedMap[catId] ?: false
-        expandedMap.clear() // Only one category expanded at a time
+        // Toggle the clicked category without clearing others (allow multiple expanded)
         expandedMap[catId] = !wasExpanded
         notifyDataSetChanged()
     }
@@ -181,7 +181,7 @@ class ShopCategoryAdapter(
      * Expands the given category by ID.
      */
     fun expandCategory(categoryId: String) {
-        expandedMap.clear()
+        // Expand without clearing others (allow multiple expanded)
         expandedMap[categoryId] = true
         notifyDataSetChanged()
     }

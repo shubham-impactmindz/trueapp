@@ -478,10 +478,11 @@
                 android:gravity="center"/>
 
             <TextView
+                android:id="@+id/tracking"
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/height40"
-                android:text="Cancel Order"
+                android:text="Track Order"
                 android:textSize="@dimen/buttonTextSize"
                 android:fontFamily="@font/roboto_bold"
                 android:textColor="@color/white"
@@ -490,6 +491,45 @@
                 android:layout_marginLeft="@dimen/margin10"
                 android:layout_marginRight="@dimen/margin10"
                 android:gravity="center"/>
+
+            <LinearLayout
+                android:id="@+id/trackingNumberLayout"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/margin10"
+                android:layout_marginLeft="@dimen/margin10"
+                android:layout_marginRight="@dimen/margin10"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tracking Number - "
+                    android:textSize="16sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/roboto_regular"/>
+
+                <TextView
+                    android:id="@+id/tvTrackingNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:fontFamily="@font/roboto_bold"/>
+
+                <ImageView
+                    android:id="@+id/btnCopyTrackingNumber"
+                    android:layout_width="@dimen/imageWidth24"
+                    android:layout_height="@dimen/imageHeight24"
+                    android:layout_marginStart="@dimen/margin5"
+                    android:src="@drawable/ic_copy"
+                    android:contentDescription="Copy tracking number"/>
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"

@@ -946,22 +946,9 @@ class DashboardFragment : Fragment(),
 
             // Delay to ensure Shop tab is fully loaded before accessing it
             Handler(Looper.getMainLooper()).postDelayed({
-                // Find ShopFragment
+                // Find ShopFragment and call the public method to set Favourites filter
                 val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
-
-                // Set filter state in ShopFragment to preserve on refresh
-                shopFragment?.let { fragment ->
-                    fragment.filters = ""
-                    fragment.filtersType = "Favourites"
-                    fragment.applyFilter = true
-                    
-                    // Set radio button to Favourites
-                    fragment.binding.radioFavourites.isChecked = true
-                    
-                    // Call categories API with wishlist=true parameter
-                    fragment.categoriesViewModel.categories("", token, "", true)
-                }
-
+                shopFragment?.setFavouritesFilter()
             }, 500) // Delay 500ms for stability
         }
     }

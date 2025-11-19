@@ -163,7 +163,7 @@
                 android:id="@+id/tvCountdownLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Days : Hours : Minutes"
+                android:text="Days : Hours : Mins : Secs"
                 android:textSize="13sp"
                 android:textColor="@android:color/white"
                 android:fontFamily="@font/roboto_medium"

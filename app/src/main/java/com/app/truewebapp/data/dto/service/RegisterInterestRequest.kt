@@ -8,3 +8,5 @@ data class RegisterInterestRequest(
     val note: String
 )
 
+
+

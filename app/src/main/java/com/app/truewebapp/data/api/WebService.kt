@@ -26,6 +26,9 @@ import com.app.truewebapp.data.dto.delivery.DeliveryMethodsResponse
 import com.app.truewebapp.data.dto.delivery.DeliverySettingsResponse
 import com.app.truewebapp.data.dto.login.LoginRequest
 import com.app.truewebapp.data.dto.login.LoginResponse
+import com.app.truewebapp.data.dto.order.GenerateInvoiceRequest
+import com.app.truewebapp.data.dto.order.GenerateInvoiceResponse
+import com.app.truewebapp.data.dto.order.OrderDetailResponse
 import com.app.truewebapp.data.dto.order.OrderPlaceResponse
 import com.app.truewebapp.data.dto.order.OrderRequest
 import com.app.truewebapp.data.dto.order.OrdersResponse
@@ -229,6 +232,12 @@ interface WebService {
         @Header("Authorization") token: String,
     ): Call<OrdersResponse>
 
+    @GET("/api/orders/{order_id}")
+    fun fetchOrderDetail(
+        @Header("Authorization") token: String,
+        @retrofit2.http.Path("order_id") orderId: Int
+    ): Call<OrderDetailResponse>
+
     @GET("/api/user-profile")
     fun fetchUserProfile(
         @Header("Authorization") token: String
@@ -256,4 +265,10 @@ interface WebService {
         @Header("Authorization") token: String,
         @Body registerInterestRequest: RegisterInterestRequest
     ): Call<RegisterInterestResponse>
+
+    @POST("/api/order/generate-invoice")
+    fun generateInvoice(
+        @Header("Authorization") token: String,
+        @Body generateInvoiceRequest: GenerateInvoiceRequest
+    ): Call<GenerateInvoiceResponse>
 }

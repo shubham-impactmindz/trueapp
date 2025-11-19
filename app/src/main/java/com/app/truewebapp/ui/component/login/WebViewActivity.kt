@@ -45,11 +45,9 @@ class WebViewActivity : AppCompatActivity() {
             insets
         }
 
-        // Get the "title" passed from Intent extras
+        // Get the "title" and "url" passed from Intent extras
         val title = intent.getStringExtra("title") ?: ""
-
-        // Decide which type of page to load: "terms" or "privacy"
-        val type = if (title.equals("Terms and Conditions", ignoreCase = true)) "terms" else "privacy"
+        val directUrl = intent.getStringExtra("url")
 
         // Set the header text to show the page title
         binding.tvHeader.text = title
@@ -61,8 +59,15 @@ class WebViewActivity : AppCompatActivity() {
         binding.shimmerLayout.visibility = View.VISIBLE
         binding.webView.visibility = View.GONE
 
+        // If direct URL is provided, load it directly; otherwise fetch from API
+        if (!directUrl.isNullOrEmpty()) {
+            loadUrlIntoWebView(directUrl)
+        } else {
+            // Decide which type of page to load: "terms" or "privacy"
+            val type = if (title.equals("Terms and Conditions", ignoreCase = true)) "terms" else "privacy"
         // Fetch HTML content from API and load it into WebView
         fetchHtmlContentAndLoad(type)
+        }
 
         // Handle back button click from custom toolbar
         binding.backLayout.setOnClickListener {
@@ -137,6 +142,30 @@ class WebViewActivity : AppCompatActivity() {
                 }
             }
         }.start() // Start the background thread
+    }
+
+    // Function to load a direct URL into WebView
+    private fun loadUrlIntoWebView(url: String) {
+        // Enable JavaScript support in WebView
+        binding.webView.settings.javaScriptEnabled = true
+        binding.webView.settings.domStorageEnabled = true
+        binding.webView.settings.loadWithOverviewMode = true
+        binding.webView.settings.useWideViewPort = true
+
+        // Set WebViewClient to handle page load events
+        binding.webView.webViewClient = object : WebViewClient() {
+            // Callback triggered when page finishes loading
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // Stop shimmer animation once content is loaded
+                binding.shimmerLayout.stopShimmer()
+                binding.shimmerLayout.visibility = View.GONE
+                binding.webView.visibility = View.VISIBLE
+            }
+        }
+
+        // Load the URL
+        binding.webView.loadUrl(url)
     }
 
     // Function to load HTML string into WebView

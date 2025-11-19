@@ -21,6 +21,7 @@ import com.app.truewebapp.ui.component.main.cart.CartUpdateListener
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartDatabase
 import com.app.truewebapp.ui.component.main.cart.cartdatabase.CartItemEntity
 import com.app.truewebapp.ui.component.main.dashboard.TabSwitcher
+import com.app.truewebapp.ui.component.main.shop.ShopFragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.collect
@@ -123,6 +124,11 @@ class MainActivity : AppCompatActivity(), TabSwitcher, CartUpdateListener {
                     HapticFeedbackConstants.VIRTUAL_KEY,
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
                 )
+                
+                // If Browse tab (position 1) is selected, refresh ShopFragment
+                if (position == 1) {
+                    refreshShopFragment()
+                }
             }
 
             // Called when a tab is unselected (not used here)
@@ -135,6 +141,11 @@ class MainActivity : AppCompatActivity(), TabSwitcher, CartUpdateListener {
                     HapticFeedbackConstants.VIRTUAL_KEY,
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
                 )
+                
+                // If Browse tab (position 1) is reselected, refresh ShopFragment
+                if (tab?.position == 1) {
+                    refreshShopFragment()
+                }
             }
         })
 
@@ -261,5 +272,19 @@ class MainActivity : AppCompatActivity(), TabSwitcher, CartUpdateListener {
     // Implementation of CartUpdateListener: update cart badge count
     override fun onCartItemsUpdated(count: Int) {
         updateCartBadge(count)
+    }
+    
+    /**
+     * Refresh ShopFragment when Browse tab is clicked
+     * This method finds the ShopFragment and calls its refresh method
+     */
+    private fun refreshShopFragment() {
+        // ViewPager2 may need a small delay to ensure fragment is available
+        // Use postDelayed to ensure the fragment is created and attached
+        binding.viewPager.postDelayed({
+            // Find ShopFragment from fragment manager
+            val fragment = supportFragmentManager.fragments.find { it is ShopFragment } as? ShopFragment
+            fragment?.refreshOnTabClick()
+        }, 50) // Small delay to ensure fragment is ready
     }
 }

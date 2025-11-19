@@ -22,8 +22,8 @@ class ShopMainCategoryAdapter(
     private val cdnURL: String // CDN base URL for loading images
 ) : RecyclerView.Adapter<ShopMainCategoryAdapter.MainCategoryViewHolder>() {
 
-    // Holds the index of the currently expanded main category (-1 means none is expanded)
-    private var expandedMainCategoryIndex: Int = -1
+    // Holds the set of expanded main category indices (allows multiple to be expanded)
+    private val expandedMainCategoryIndices = mutableSetOf<Int>()
 
     // Mutable list of main categories (copied from constructor input)
     private var mainCategories: MutableList<MainCategories> = mainCategories.toMutableList()
@@ -90,7 +90,7 @@ class ShopMainCategoryAdapter(
                     HapticFeedbackConstants.VIRTUAL_KEY,
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore global settings for feedback
                 )
-                val wasExpanded = expandedMainCategoryIndex == position
+                val wasExpanded = expandedMainCategoryIndices.contains(position)
                 toggleExpand(position) // Toggle expansion
                 if (!wasExpanded) scrollToPosition() // Scroll into view if newly expanded
             }
@@ -139,7 +139,7 @@ class ShopMainCategoryAdapter(
     // Binds data to ViewHolder at the given position
     override fun onBindViewHolder(holder: MainCategoryViewHolder, position: Int) {
         val category = mainCategories[position]
-        val isExpanded = expandedMainCategoryIndex == position
+        val isExpanded = expandedMainCategoryIndices.contains(position)
         holder.bind(position, category, isExpanded) { clickedPosition ->
             handleCategoryClick(clickedPosition)
         }
@@ -147,15 +147,13 @@ class ShopMainCategoryAdapter(
 
     // Handles expand/collapse logic for main categories
     private fun handleCategoryClick(clickedPosition: Int) {
-        val previousExpanded = expandedMainCategoryIndex
-        if (expandedMainCategoryIndex == clickedPosition) {
+        if (expandedMainCategoryIndices.contains(clickedPosition)) {
             // Collapse if already expanded
-            expandedMainCategoryIndex = -1
+            expandedMainCategoryIndices.remove(clickedPosition)
             notifyItemChanged(clickedPosition)
         } else {
-            // Expand the clicked category and collapse the previously expanded one
-            expandedMainCategoryIndex = clickedPosition
-            if (previousExpanded != -1) notifyItemChanged(previousExpanded)
+            // Expand the clicked category (don't collapse others)
+            expandedMainCategoryIndices.add(clickedPosition)
             notifyItemChanged(clickedPosition)
         }
     }
@@ -165,46 +163,56 @@ class ShopMainCategoryAdapter(
 
     // Expands a specific main category by index
     fun expandCategory(position: Int) {
-        if (expandedMainCategoryIndex != position) {
-            val previousIndex = expandedMainCategoryIndex
-            expandedMainCategoryIndex = position
-            if (previousIndex != -1) notifyItemChanged(previousIndex)
+        if (!expandedMainCategoryIndices.contains(position)) {
+            expandedMainCategoryIndices.add(position)
             notifyItemChanged(position)
         }
     }
 
-    // Collapses any currently expanded category
-    fun collapseCategory() {
-        if (expandedMainCategoryIndex != -1) {
-            val prevIndex = expandedMainCategoryIndex
-            expandedMainCategoryIndex = -1
-            notifyItemChanged(prevIndex)
+    // Collapses a specific category by index
+    fun collapseCategory(position: Int? = null) {
+        if (position != null) {
+            // Collapse specific category
+            if (expandedMainCategoryIndices.remove(position)) {
+                notifyItemChanged(position)
+            }
+        } else {
+            // Collapse all categories (for backward compatibility)
+            val indicesToCollapse = expandedMainCategoryIndices.toList()
+            expandedMainCategoryIndices.clear()
+            indicesToCollapse.forEach { notifyItemChanged(it) }
         }
     }
 
-    // Returns index of currently expanded category (-1 if none)
-    fun getExpandedCategoryIndex(): Int = expandedMainCategoryIndex
+    // Returns index of currently expanded category (-1 if none) - for backward compatibility
+    fun getExpandedCategoryIndex(): Int = expandedMainCategoryIndices.firstOrNull() ?: -1
 
     // Updates categories list while preserving expansion state
     fun updateCategoriesPreserveExpansion(newList: List<MainCategories>) {
-        // Get currently expanded category ID
-        val currentExpandedCategoryId =
-            if (expandedMainCategoryIndex != -1)
-                mainCategories.getOrNull(expandedMainCategoryIndex)?.main_mcat_id
-            else null
+        // Get currently expanded category IDs
+        val currentExpandedCategoryIds = expandedMainCategoryIndices.mapNotNull { index ->
+            mainCategories.getOrNull(index)?.main_mcat_id
+        }.toSet()
 
         // Replace old list with new categories
         mainCategories.clear()
         mainCategories.addAll(newList)
 
-        // Find new index of the previously expanded category
-        val newExpandedIndex = mainCategories.indexOfFirst { it.main_mcat_id == currentExpandedCategoryId }
-        if (newExpandedIndex != expandedMainCategoryIndex) {
-            val oldExpandedIndex = expandedMainCategoryIndex
-            expandedMainCategoryIndex = newExpandedIndex
-            if (oldExpandedIndex != -1) notifyItemChanged(oldExpandedIndex)
-            if (expandedMainCategoryIndex != -1) notifyItemChanged(expandedMainCategoryIndex)
+        // Find new indices of the previously expanded categories
+        val newExpandedIndices = mutableSetOf<Int>()
+        mainCategories.forEachIndexed { index, category ->
+            if (currentExpandedCategoryIds.contains(category.main_mcat_id)) {
+                newExpandedIndices.add(index)
+            }
         }
+
+        // Update expanded indices
+        val oldIndices = expandedMainCategoryIndices.toSet()
+        expandedMainCategoryIndices.clear()
+        expandedMainCategoryIndices.addAll(newExpandedIndices)
+
+        // Notify changes for all affected items
+        (oldIndices + newExpandedIndices).forEach { notifyItemChanged(it) }
 
         // Update adapters for each category
         mainCategories.forEachIndexed { index, mainCategory ->

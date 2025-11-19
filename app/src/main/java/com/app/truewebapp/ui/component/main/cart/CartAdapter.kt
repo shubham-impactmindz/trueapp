@@ -62,7 +62,7 @@ class CartAdapter(
                     .joinToString(" ") { word -> word.replaceFirstChar(Char::uppercaseChar) }
             } // Join the two option strings with a space
 
-        // Compose full title with options in brackets, only if options exist
+// Compose full title with options in brackets, only if options exist
         var fullTitle = if (optionText.isNotEmpty()) {
             "${item.title} ($optionText)"
         } else {
@@ -74,7 +74,7 @@ class CartAdapter(
             fullTitle = "$fullTitle (Free)"
         }
 
-        // Safely set the text using Html.fromHtml
+// Safely set the text using Html.fromHtml
         holder.textTitle.text = Html.fromHtml(fullTitle, Html.FROM_HTML_MODE_LEGACY).toString()
 
         holder.textNoOfItems.text = item.quantity.toString()
@@ -86,16 +86,18 @@ class CartAdapter(
             holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
             holder.comparePrice.visibility = View.GONE
         } else {
-            // Calculate total price for the item (price per unit * quantity)
-            holder.finalPrice.text = "£%.2f".format(item.price)
+            // Calculate total price for the item (considering volume discounts)
+            val totalPrice = calculateItemTotalPrice(item)
+            holder.finalPrice.text = "£%.2f".format(totalPrice)
 
-            // Compare price logic
+            // Compare price logic - show total compare price
             if (item.comparePrice != 0.0) {
+                val totalComparePrice = item.comparePrice * item.quantity
                 holder.comparePrice.visibility = View.VISIBLE
                 holder.comparePrice.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
                 holder.comparePrice.setTextColor(context.getColor(R.color.black))
                 holder.finalPrice.setTextColor(context.getColor(R.color.colorSecondary))
-                holder.comparePrice.text = "£%.2f".format(item.comparePrice) // Display original compare price
+                holder.comparePrice.text = "£%.2f".format(totalComparePrice)
             } else {
                 holder.comparePrice.visibility = View.GONE
                 holder.finalPrice.setTextColor(context.getColor(R.color.black))
@@ -248,6 +250,34 @@ class CartAdapter(
                     notifyItemRemoved(index)
                     listener.onUpdateCart(0, variantId)
                 }
+            }
+        }
+    }
+
+    /**
+     * Calculate total price for an item considering volume discounts
+     */
+    private fun calculateItemTotalPrice(item: CartDisplayItem): Double {
+        return when (item.dealType) {
+            "volume_discount" -> {
+                val dealQty = item.dealQuantity ?: 0
+                val dealPrice = item.dealPrice ?: 0.0
+                
+                if (dealQty > 0 && dealPrice > 0 && item.quantity >= dealQty) {
+                    // Calculate complete deal sets
+                    val completeSets = item.quantity / dealQty
+                    // Calculate remaining items after complete sets
+                    val remainingItems = item.quantity % dealQty
+                    // Total = (complete sets * deal price) + (remaining items * item price)
+                    (completeSets * dealPrice) + (remainingItems * item.price)
+                } else {
+                    // No deal applied, use regular pricing
+                    item.price * item.quantity
+                }
+            }
+            else -> {
+                // For buy_x_get_y or no deal, use regular pricing
+                item.price * item.quantity
             }
         }
     }

@@ -154,14 +154,15 @@ class SubCategoryAdapter(
                             // Start countdown if valid
                             countdownTimer = object : CountDownTimer(diffMillis, 1000) {
                                 override fun onTick(millisUntilFinished: Long) {
-                                    // Convert time difference into days, hours, and minutes
+                                    // Convert time difference into days, hours, minutes, and seconds
                                     val seconds = millisUntilFinished / 1000
                                     val days = seconds / (24 * 3600)
                                     val hours = (seconds % (24 * 3600)) / 3600
                                     val minutes = (seconds % 3600) / 60
+                                    val secs = (seconds % 60).toInt()
 
-                                    // Display formatted countdown
-                                    tvCountdownTimer.text = String.format("%02d : %02d : %02d", days, hours, minutes)
+                                    // Display formatted countdown with seconds
+                                    tvCountdownTimer.text = String.format("%02d : %02d : %02d : %02d", days, hours, minutes, secs)
                                 }
 
                                 override fun onFinish() {

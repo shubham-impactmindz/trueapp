@@ -94,6 +94,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     
     // Track shown deals to prevent duplicate popups
     private val shownDeals = mutableMapOf<Int, Int>() // variantId to quantity when deal was shown
+    
+    // Flag to prevent reset when Favourites filter is set from DashboardFragment
+    private var isSettingFavouritesFromDashboard = false
 
     /**
      * Inflate the fragment layout using view binding
@@ -231,14 +234,26 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 HapticFeedbackConstants.VIRTUAL_KEY,
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
+            
+            // Get selected brand IDs
             val selectedIds = brandsViewModel.brandsResponse.value?.mbrands
                 ?.filter { it.isSelected }
                 ?.map { it.mbrand_id }
                 ?.joinToString(",").orEmpty()
 
-            if (applyFilter) toggleFilterOverlay()
+            // Update filter state
             filters = if (filtersType == "Favourites") selectedIds else ""
             applyFilter = true
+            
+            // Always hide filter overlay after applying
+            if (binding.filterLayout.visibility == View.VISIBLE) {
+                binding.filterLayout.visibility = View.GONE
+                binding.shopMainCategoryRecycler.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
+                binding.shopCategoryLayout.visibility = if (binding.noDataTextView.visibility == View.GONE) View.VISIBLE else View.GONE
+                showBannerView(bannerAdapter?.itemCount ?: 0 > 0)
+            }
+            
+            // Call API with updated filters
             val wishlistParam = if (filtersType == "Favourites") true else null
             categoriesViewModel.categories(search, token, filters, wishlistParam)
         }
@@ -258,11 +273,98 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     override fun onResume() {
         super.onResume() // Always call the parent class's onResume()
 
+        // Don't reset if Favourites filter is being set from DashboardFragment
+        // or if Favourites filter is already applied
+        if (!isSettingFavouritesFromDashboard && !(applyFilter && filtersType == "Favourites")) {
         // Reset to default state when Browse tab is tapped
         resetToDefaultState()
+        }
 
         // Refresh the adapter data when returning to this screen
         adapter?.notifyDataSetChanged()
+    }
+    
+    /**
+     * Public method to refresh the page when Browse tab is clicked
+     * This will reset filters, search, and reload all data
+     */
+    fun refreshOnTabClick() {
+        // Reset all filters and search
+        applyFilter = false
+        filters = ""
+        filtersType = "All"
+        search = ""
+        
+        // Reset UI elements
+        binding.searchInput.text?.clear()
+        binding.radioAllProducts.isChecked = true
+        
+        // Clear deal tracking
+        shownDeals.clear()
+        
+        // Reload all data (categories, banners, brands)
+        loadInitialData()
+        
+        // Refresh adapter if it exists
+        adapter?.notifyDataSetChanged()
+    }
+    
+    /**
+     * Public method to set Favourites filter when navigated from DashboardFragment
+     * This will show only favourite products
+     */
+    fun setFavouritesFilter() {
+        // Set flag to prevent reset in onResume
+        isSettingFavouritesFromDashboard = true
+        
+        // Reset search
+        search = ""
+        binding.searchInput.text?.clear()
+        
+        // Set filter state for Favourites
+        filters = ""
+        filtersType = "Favourites"
+        applyFilter = true
+        
+        // Ensure filter overlay is hidden
+        binding.filterLayout.visibility = View.GONE
+        binding.shopMainCategoryRecycler.visibility = View.VISIBLE
+        binding.shopCategoryLayout.visibility = View.VISIBLE
+        showBannerView(bannerAdapter?.itemCount ?: 0 > 0)
+        
+        // Set radio button to Favourites
+        binding.radioFavourites.isChecked = true
+        
+        // Update brands to show wishlist selection - ensure brands are loaded first
+        val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+        brandsViewModel.brands(token, preferences?.getString("userId", ""))
+        
+        // Wait for brands to load, then update UI
+        Handler(Looper.getMainLooper()).postDelayed({
+            brandsViewModel.brandsResponse.value?.let { brandsResponse ->
+                val mbrands = brandsResponse.mbrands ?: return@let
+                val wishlistIds = (brandsResponse.wishlistbrand ?: emptyList()).map { it.mbrand_id }
+                mbrands.forEach { brand ->
+                    brand.isSelected = wishlistIds.contains(brand.mbrand_id)
+                }
+                val brandsAdapter = BrandsAdapter(
+                    mbrands,
+                    brandsResponse.cdnURL,
+                    "Favourites",
+                    brandsResponse
+                )
+                binding.brandsRecyclerView.layoutManager = GridLayoutManager(context, 5)
+                binding.brandsRecyclerView.adapter = brandsAdapter
+            }
+        }, 300)
+        
+        // Call categories API with wishlist=true parameter to show only favourites
+        categoriesViewModel.categories("", token, "", true)
+        
+        // Reset flag after a longer delay to ensure onResume doesn't interfere
+        Handler(Looper.getMainLooper()).postDelayed({
+            isSettingFavouritesFromDashboard = false
+        }, 2000)
     }
 
     // Called when the Fragment is no longer in the foreground
@@ -372,8 +474,21 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
 
         // Preserve current filter state when refreshing
-        val currentFilters = if (applyFilter) filters else ""
-        val wishlistParam = if (applyFilter && filtersType == "Favourites") true else null
+        // Don't reset if Favourites filter is being set from DashboardFragment
+        val currentFilters = if (isSettingFavouritesFromDashboard || (applyFilter && filtersType == "Favourites")) {
+            ""
+        } else if (applyFilter) {
+            filters
+        } else {
+            ""
+        }
+        val wishlistParam = if (isSettingFavouritesFromDashboard || (applyFilter && filtersType == "Favourites")) {
+            true
+        } else if (applyFilter && filtersType == "Favourites") {
+            true
+        } else {
+            null
+        }
         
         // Trigger API calls to fetch initial data with preserved filters
         categoriesViewModel.categories(search, token, currentFilters, wishlistParam)
@@ -680,18 +795,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }
         if (mainCatIndex == -1) return // Return if not found
 
-        // Check if currently expanded category is the same
-        val currentlyExpandedIndex = adapter?.getExpandedCategoryIndex()
-        if (currentlyExpandedIndex != mainCatIndex) {
-            // Collapse current and expand new after delay
-            adapter?.collapseCategory()
-            binding.shopMainCategoryRecycler.postDelayed({
-                proceedScrollTo(mainCatIndex, catid, subcatid, productid)
-            }, 350)
-        } else {
-            // Directly proceed if already expanded
+        // Expand the category (don't collapse others - allow multiple expanded)
+        // Directly proceed to scroll - no need to collapse previous
             proceedScrollTo(mainCatIndex, catid, subcatid, productid)
-        }
     }
 
     // Function that handles expanding categories/subcategories and scrolling to the product
@@ -772,9 +878,9 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         shopCatVH: ShopCategoryAdapter.CategoryViewHolder
     ) {
 
-        // Find product index inside product adapter
-        val productAdapter = subCatVH.getProductAdapter()
-        val productIndex = productAdapter?.getProductIndex(productid) ?: -1
+                    // Find product index inside product adapter
+                    val productAdapter = subCatVH.getProductAdapter()
+                    val productIndex = productAdapter?.getProductIndex(productid) ?: -1
         if (productIndex == -1) {
             Log.e("TAG", "Product not found: productid=$productid")
             return
@@ -857,7 +963,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         
         shopCatVH.getSubCategoryRecycler().postDelayed({
             shopCatVH.getSubCategoryRecycler().smoothScrollToPosition(subCatIndex)
-        }, 300)
+                }, 300)
         
         // Find the NestedScrollView parent and scroll it to bring the product RecyclerView into view
         productRecycler.postDelayed({
@@ -1286,6 +1392,12 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     // Reset fragment to default state (show all categories)
     private fun resetToDefaultState() {
+        // Don't reset if Favourites filter is being set from DashboardFragment
+        // or if Favourites filter is already applied
+        if (isSettingFavouritesFromDashboard || (applyFilter && filtersType == "Favourites")) {
+            return
+        }
+        
         // Only reset if filters are currently applied
         if (applyFilter) {
             // Reset filter variables

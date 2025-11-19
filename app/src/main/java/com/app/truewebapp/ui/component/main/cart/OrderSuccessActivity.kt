@@ -146,11 +146,11 @@ class OrderSuccessActivity : AppCompatActivity() {
             val canPlaySound = audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL
             
             // Play sound from assets folder (only once)
-            mediaPlayer?.let { player ->
+                mediaPlayer?.let { player ->
                 if (canPlaySound && !player.isPlaying) {
                     // Reset to beginning and start playing
-                    player.seekTo(0)
-                    player.start()
+                        player.seekTo(0)
+                        player.start()
                     hasPlayedSound = true
                     Log.d("OrderSuccess", "Sound started playing")
                 } else if (!canPlaySound) {

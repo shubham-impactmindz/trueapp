@@ -127,38 +127,96 @@ class PaymentActivity : AppCompatActivity() {
     }
 
     // Setup toggle between bank transfer and card payment
+    // Replace your setupPaymentMethodSelection() method with this:
     private fun setupPaymentMethodSelection() {
-        // Show bank layout when "Pay by Bank" is checked
-        binding.payByBank.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // Bank is selected - show bank layout, hide card layout
+        // Set initial state
+        updatePaymentMethodUI(binding.paymentMethodRadioGroup.checkedRadioButtonId)
+
+        // Listener: Update UI when selection changes
+        binding.paymentMethodRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            Log.d("PaymentDebug", "RadioGroup selection changed: $checkedId")
+            updatePaymentMethodUI(checkedId)
+
+            // Force single selection by clearing any potential double selection
+            binding.root.post {
+                val bankChecked = binding.payByBank.isChecked
+                val cardChecked = binding.payByCard.isChecked
+
+                if (bankChecked && cardChecked) {
+                    Log.w("PaymentDebug", "Both radio buttons checked - fixing selection")
+                    // If both are checked, clear and re-check the intended one
+                    group.clearCheck()
+                    binding.root.postDelayed({
+                        group.check(checkedId)
+                    }, 50)
+                }
+            }
+        }
+
+        // Add individual click listeners as backup
+        binding.payByCard.setOnClickListener {
+            Log.d("PaymentDebug", "PayByCard clicked directly")
+            if (!binding.payByCard.isChecked) {
+                binding.paymentMethodRadioGroup.check(binding.payByCard.id)
+            }
+            updatePaymentMethodUI(binding.payByCard.id)
+        }
+
+        binding.payByBank.setOnClickListener {
+            Log.d("PaymentDebug", "PayByBank clicked directly")
+            if (!binding.payByBank.isChecked) {
+                binding.paymentMethodRadioGroup.check(binding.payByBank.id)
+            }
+            updatePaymentMethodUI(binding.payByBank.id)
+        }
+    }
+
+    // Update your updatePaymentMethodUI method to be more defensive:
+    private fun updatePaymentMethodUI(checkedId: Int) {
+        Log.d("PaymentDebug", "Updating UI for checkedId: $checkedId")
+
+        when (checkedId) {
+            binding.payByBank.id -> {
+                Log.d("PaymentDebug", "Showing bank layout, hiding card layout")
+                // Ensure bank is checked and card is unchecked
+                binding.payByBank.isChecked = true
+                binding.payByCard.isChecked = false
+
+                // Show bank UI, hide card UI
                 binding.bankPaymentLayout.visibility = View.VISIBLE
                 binding.cardPaymentLayout.visibility = View.GONE
-                // Show bank payment button, hide card payment button
                 binding.authorizePaymentButton.visibility = View.VISIBLE
                 binding.completePaymentButton.visibility = View.GONE
-                // Hide card input fields when bank is selected
+
+                // Hide card input fields
                 binding.cardholderNameLayout.visibility = View.GONE
                 binding.cardNumberLayout.visibility = View.GONE
                 binding.expiresLayout.visibility = View.GONE
                 binding.cvvLayout.visibility = View.GONE
             }
-        }
+            binding.payByCard.id -> {
+                Log.d("PaymentDebug", "Showing card layout, hiding bank layout")
+                // Ensure card is checked and bank is unchecked
+                binding.payByCard.isChecked = true
+                binding.payByBank.isChecked = false
 
-        // Show card layout when "Pay by Card" is checked
-        binding.payByCard.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // Card is selected - show card layout, hide bank layout
+                // Show card UI, hide bank UI
                 binding.cardPaymentLayout.visibility = View.VISIBLE
                 binding.bankPaymentLayout.visibility = View.GONE
-                // Show card input fields and payment button
                 binding.cardholderNameLayout.visibility = View.VISIBLE
                 binding.cardNumberLayout.visibility = View.VISIBLE
                 binding.expiresLayout.visibility = View.VISIBLE
                 binding.cvvLayout.visibility = View.VISIBLE
                 binding.completePaymentButton.visibility = View.VISIBLE
-                // Hide bank payment button
                 binding.authorizePaymentButton.visibility = View.GONE
+            }
+            else -> {
+                Log.d("PaymentDebug", "No selection - hiding both layouts")
+                // Nothing selected: hide both
+                binding.bankPaymentLayout.visibility = View.GONE
+                binding.cardPaymentLayout.visibility = View.GONE
+                binding.authorizePaymentButton.visibility = View.GONE
+                binding.completePaymentButton.visibility = View.GONE
             }
         }
     }
@@ -448,7 +506,7 @@ class PaymentActivity : AppCompatActivity() {
             updatePaymentMethodVisibility()
         }
     }
-    
+
     // Update payment method visibility based on API responses
     private fun updatePaymentMethodVisibility() {
         // Show/hide Pay by Bank option
@@ -471,7 +529,7 @@ class PaymentActivity : AppCompatActivity() {
                 binding.payByCard.isChecked = true
             }
         }
-        
+
         // Show/hide Pay by Card option
         if (hasStripeConfig) {
             binding.payByCard.visibility = View.VISIBLE
@@ -503,7 +561,7 @@ class PaymentActivity : AppCompatActivity() {
                 binding.payByBank.isChecked = true
             }
         }
-        
+
         // If neither option is available, show error
         if (!hasBankDetails && !hasStripeConfig) {
             binding.bankPaymentLayout.visibility = View.GONE
