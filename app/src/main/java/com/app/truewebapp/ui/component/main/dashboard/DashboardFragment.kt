@@ -100,7 +100,10 @@ class DashboardFragment : Fragment(),
     private var autoScrollRunnable: Runnable? = null
 
     // Delay for auto-scroll (3 seconds)
-    private val AUTO_SCROLL_DELAY: Long = 3000
+    private val AUTO_SCROLL_DELAY: Long = 2000
+    
+    // Store original banner count for infinite scroll calculation
+    private var originalBannerCount: Int = 0
 
     // ViewModels for handling business logic and API calls
     private lateinit var productBannersViewModel: ProductBannersViewModel
@@ -242,12 +245,28 @@ class DashboardFragment : Fragment(),
             autoScrollRunnable = object : Runnable {
                 override fun run() {
                     val itemCount = bannerAdapter?.itemCount ?: 0
-                    if (itemCount > 1) {
-                        // Move to next item or loop back
-                        val nextItem = (binding.viewPager.currentItem + 1) % itemCount
-                        binding.viewPager.setCurrentItem(nextItem, true)
+                    if (itemCount > 1 && originalBannerCount > 0) {
+                        val currentItem = binding.viewPager.currentItem
+                        val nextItem = currentItem + 1
+                        
+                        // Check if we're near the end (within last 5% of items)
+                        // This ensures we jump to middle before reaching the actual end
+                        // This creates seamless infinite forward scrolling
+                        val jumpThreshold = (itemCount * 0.95).toInt()
+                        
+                        if (nextItem >= jumpThreshold) {
+                            // Jump to middle position without animation for seamless infinite loop
+                            // Calculate middle position aligned to original banner count
+                            val middlePosition = (itemCount / 2) - ((itemCount / 2) % originalBannerCount)
+                            binding.viewPager.post {
+                                binding.viewPager.setCurrentItem(middlePosition, false)
+                            }
+                        } else {
+                            // Move to next item with smooth forward animation
+                            binding.viewPager.setCurrentItem(nextItem, true)
+                        }
                     }
-                    // Re-post runnable to create looping auto-scroll
+                    // Re-post runnable to create infinite looping auto-scroll (forward only)
                     handler.postDelayed(this, AUTO_SCROLL_DELAY)
                 }
             }
@@ -349,12 +368,33 @@ class DashboardFragment : Fragment(),
                         // Show banners in ViewPager2
                         binding.shimmerLayoutBigBanner.visibility = View.GONE
                         binding.viewPager.visibility = View.VISIBLE
-                        bannerAdapter = DashboardBannerAdapter(this, it.bigSliders, it.cdnURL)
+                        
+                        // Store original banner count for infinite scroll calculations
+                        originalBannerCount = it.bigSliders.size
+                        
+                        // Create infinite list by duplicating banners multiple times (for infinite forward scrolling)
+                        // Use a large multiplier to create enough items for smooth infinite scrolling
+                        val bigSlidersList = it.bigSliders
+                        val infiniteBanners = if (bigSlidersList.isNotEmpty()) {
+                            (0 until 1000).flatMap { bigSlidersList }
+                        } else {
+                            bigSlidersList
+                        }
+                        
+                        bannerAdapter = DashboardBannerAdapter(this, infiniteBanners, it.cdnURL)
                         binding.viewPager.adapter = bannerAdapter
 
                         // Configure ViewPager2 scrolling
                         binding.viewPager.offscreenPageLimit = 3
-                        binding.viewPager.setCurrentItem(0, false)
+                        
+                        // Start at middle position for infinite forward scrolling
+                        // This ensures we have enough room to scroll forward before needing to jump
+                        val startPosition = if (originalBannerCount > 0) {
+                            (infiniteBanners.size / 2) - ((infiniteBanners.size / 2) % originalBannerCount)
+                        } else {
+                            0
+                        }
+                        binding.viewPager.setCurrentItem(startPosition, false)
 
                         // Apply page transformer for scaling effect
                         val pageTransformer = CompositePageTransformer().apply {

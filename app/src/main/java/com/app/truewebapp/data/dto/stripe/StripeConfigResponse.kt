@@ -11,6 +11,6 @@ data class StripeConfig(
     val test_mode: Boolean?,
     val publishable_key: String?,
     val secret_key: String?,
-    val client_secret: String? = null // PaymentIntent client secret (if provided by backend)
+    val client_secret: String? // PaymentIntent client secret (optional, can be provided by backend)
 )
 

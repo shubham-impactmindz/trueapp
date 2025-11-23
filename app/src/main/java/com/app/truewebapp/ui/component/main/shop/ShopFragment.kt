@@ -47,6 +47,7 @@ import com.app.truewebapp.ui.viewmodel.BrandsViewModel
 import com.app.truewebapp.ui.viewmodel.CategoriesViewModel
 import com.app.truewebapp.ui.viewmodel.WishlistViewModel
 import com.app.truewebapp.utils.ApiFailureTypes
+import com.app.truewebapp.utils.CategoriesLocalStorage
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -71,6 +72,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     // RecyclerView adapters
     private var adapter: ShopMainCategoryAdapter? = null
     private var bannerAdapter: BannerAdapter? = null
+    private var originalBannerCount: Int = 0 // Store original banner count for infinite scroll calculation
 
     // Interfaces for tab switching and cart updates
     private var tabSwitcher: TabSwitcher? = null
@@ -80,7 +82,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private var originalCategoryList: List<MainCategories> = listOf() // Stores original categories
     private val handler = Handler(Looper.getMainLooper())             // Handler for auto-scroll
     private var autoScrollRunnable: Runnable? = null                  // Runnable for auto-scroll
-    private val AUTO_SCROLL_DELAY: Long = 3000                        // Auto-scroll delay in ms
+    private val AUTO_SCROLL_DELAY: Long = 2000                        // Auto-scroll delay in ms (2 seconds)
     private var search = ""                                           // Search query
     private var token = ""                                            // Auth token
     private var variantId = ""                                        // Product variant ID
@@ -97,6 +99,12 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     
     // Flag to prevent reset when Favourites filter is set from DashboardFragment
     private var isSettingFavouritesFromDashboard = false
+    
+    // Flag to track if we're refreshing (force API call)
+    private var isRefreshing = false
+    
+    // Flag to track if we're showing cached data (to avoid showing loading indicators)
+    private var isShowingCachedData = false
 
     /**
      * Inflate the fragment layout using view binding
@@ -253,17 +261,19 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 showBannerView(bannerAdapter?.itemCount ?: 0 > 0)
             }
             
-            // Call API with updated filters
+            // Call API with updated filters (always call API when filters are applied)
+            isRefreshing = true // Force API call for filtered data
             val wishlistParam = if (filtersType == "Favourites") true else null
             categoriesViewModel.categories(search, token, filters, wishlistParam)
         }
 
-        // Swipe refresh reloads data
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            stopAutoScroll()
-            // Don't reset applyFilter - preserve current filter state
-            loadInitialData()
-        }
+        // Swipe refresh disabled for now
+        // binding.swipeRefreshLayout.setOnRefreshListener {
+        //     stopAutoScroll()
+        //     // Don't reset applyFilter - preserve current filter state
+        //     isRefreshing = true // Force API call on refresh
+        //     loadInitialData()
+        // }
 
         setupSearchView()
         setupRadioGroup()
@@ -282,6 +292,11 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // Refresh the adapter data when returning to this screen
         adapter?.notifyDataSetChanged()
+        
+        // Restart auto-scroll if banners are loaded
+        if (bannerAdapter != null && bannerAdapter?.itemCount ?: 0 > 1) {
+            startAutoScroll()
+        }
     }
     
     /**
@@ -302,8 +317,17 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Clear deal tracking
         shownDeals.clear()
         
-        // Reload all data (categories, banners, brands)
-        loadInitialData()
+        // Step 1: Load from local storage first for immediate display
+        if (CategoriesLocalStorage.hasCategoriesData(requireContext())) {
+            isShowingCachedData = true
+            loadCategoriesFromLocalStorage()
+        } else {
+            isShowingCachedData = false
+        }
+        
+        // Step 2: Always call API in background to fetch fresh data and update cache
+        val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
+        categoriesViewModel.categories("", token, "", null)
         
         // Refresh adapter if it exists
         adapter?.notifyDataSetChanged()
@@ -317,6 +341,11 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Set flag to prevent reset in onResume
         isSettingFavouritesFromDashboard = true
         
+        // Show loading indicator when favourites filter is applied
+        isShowingCachedData = false // Ensure loader shows
+        binding.shimmerLayoutMainCategory.visibility = View.VISIBLE
+        binding.shopMainCategoryRecycler.visibility = View.GONE
+        
         // Reset search
         search = ""
         binding.searchInput.text?.clear()
@@ -328,7 +357,6 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         
         // Ensure filter overlay is hidden
         binding.filterLayout.visibility = View.GONE
-        binding.shopMainCategoryRecycler.visibility = View.VISIBLE
         binding.shopCategoryLayout.visibility = View.VISIBLE
         showBannerView(bannerAdapter?.itemCount ?: 0 > 0)
         
@@ -359,6 +387,7 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         }, 300)
         
         // Call categories API with wishlist=true parameter to show only favourites
+        isRefreshing = true // Force API call for favourites
         categoriesViewModel.categories("", token, "", true)
         
         // Reset flag after a longer delay to ensure onResume doesn't interfere
@@ -395,6 +424,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 )
 
                 // Trigger API call to fetch filtered categories based on search input
+                // Always call API when search is performed (filtered data)
+                isRefreshing = true
                 val wishlistParam = if (applyFilter && filtersType == "Favourites") true else null
                 categoriesViewModel.categories(search, token, filters, wishlistParam)
             }
@@ -490,10 +521,61 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             null
         }
         
-        // Trigger API calls to fetch initial data with preserved filters
+        // Step 1: Load from cache first (if available) for immediate display
+        // This provides instant UI feedback while API call is in progress
+        // Only load from cache if we're not refreshing and it's base categories (no filters/search)
+        if (CategoriesLocalStorage.hasCategoriesData(requireContext()) && !isRefreshing && 
+            search.isEmpty() && !applyFilter && filtersType == "All") {
+            isShowingCachedData = true
+            loadCategoriesFromLocalStorage()
+        } else {
+            isShowingCachedData = false
+        }
+        
+        // Step 2: Always call API in background to fetch fresh data
+        // This ensures new categories are fetched and displayed, and cache is updated
+        // API will update the UI when response arrives, overwriting cached data
         categoriesViewModel.categories(search, token, currentFilters, wishlistParam)
+        
+        // Always call banners and brands API (they might need fresh data)
         bannersViewModel.banners(token)
         brandsViewModel.brands(token, preferences?.getString("userId", "")) // Pass stored userId if available
+    }
+    
+    // Load categories from local storage
+    private fun loadCategoriesFromLocalStorage() {
+        context?.let { ctx ->
+            val savedResponse = CategoriesLocalStorage.loadCategories(ctx)
+            if (savedResponse != null) {
+                // Update UI with saved data
+                if (savedResponse.status && savedResponse.main_categories.isNotEmpty()) {
+                    cdnUrl = savedResponse.cdnURL
+                    originalCategoryList = savedResponse.main_categories
+                    setupShopUI(originalCategoryList, savedResponse.cdnURL)
+                    binding.shimmerLayoutMainCategory.visibility = View.GONE
+                    showNoDataView(false)
+                } else {
+                    showNoDataView(true)
+                }
+            } else {
+                // No local data, call API
+                val currentFilters = if (isSettingFavouritesFromDashboard || (applyFilter && filtersType == "Favourites")) {
+                    ""
+                } else if (applyFilter) {
+                    filters
+                } else {
+                    ""
+                }
+                val wishlistParam = if (isSettingFavouritesFromDashboard || (applyFilter && filtersType == "Favourites")) {
+                    true
+                } else if (applyFilter && filtersType == "Favourites") {
+                    true
+                } else {
+                    null
+                }
+                categoriesViewModel.categories(search, token, currentFilters, wishlistParam)
+            }
+        }
     }
 
     // Attach observers for ViewModels to handle LiveData changes
@@ -510,17 +592,28 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Observe categories response
         categoriesViewModel.categoriesModel.observe(viewLifecycleOwner) { response ->
             response?.let {
-                // Stop pull-to-refresh loader
-                binding.swipeRefreshLayout.isRefreshing = false
+                // Reset refresh flag
+                isRefreshing = false
+                // Reset cached data flag since we now have fresh API data
+                isShowingCachedData = false
+                
                 if (it.status) {
-                    // Hide shimmer loader
+                    // Save to local storage only when there are no filters/search applied
+                    // This ensures we store the base categories data
+                    if (search.isEmpty() && !applyFilter && filtersType == "All") {
+                        context?.let { ctx ->
+                            CategoriesLocalStorage.saveCategories(ctx, it)
+                        }
+                    }
+                    
+                    // Hide shimmer loader (if it was showing)
                     binding.shimmerLayoutMainCategory.visibility = View.GONE
 
                     // If no categories found, show "no data" UI
                     if (it.main_categories.isEmpty()) {
                         showNoDataView(true)
                     } else {
-                        // Categories found → update UI
+                        // Categories found → update UI with fresh API data
                         cdnUrl = it.cdnURL
                         binding.shimmerLayoutMainCategory.visibility = View.GONE
                         showNoDataView(false)
@@ -534,9 +627,12 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Observe loading state
         categoriesViewModel.isLoading.observe(viewLifecycleOwner) {
             if (it == true) {
-                // Show shimmer loader while loading data
-                binding.shimmerLayoutMainCategory.visibility = View.VISIBLE
-                binding.shopMainCategoryRecycler.visibility = View.GONE
+                // Only show shimmer loader if we're not showing cached data
+                // This prevents loading indicators from appearing when we have cached data
+                if (!isShowingCachedData) {
+                    binding.shimmerLayoutMainCategory.visibility = View.VISIBLE
+                    binding.shopMainCategoryRecycler.visibility = View.GONE
+                }
             }
         }
 
@@ -557,7 +653,6 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private fun observeBanners() {
         bannersViewModel.bannersModel.observe(viewLifecycleOwner) { response ->
             response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     // Hide shimmer loader
                     binding.shimmerLayoutBanner.visibility = View.GONE
@@ -638,7 +733,6 @@ class ShopFragment : Fragment(), ProductAdapterListener {
     private fun observeBrands() {
         brandsViewModel.brandsResponse.observe(viewLifecycleOwner) { response ->
             response?.let {
-                binding.swipeRefreshLayout.isRefreshing = false
                 if (it.status) {
                     // Use let block to safely handle nullable mbrands
                     it.mbrands?.let { mbrands ->
@@ -741,8 +835,19 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         // Stop any existing auto-scrolling before setting a new adapter
         stopAutoScroll()
 
-        // Initialize the banner adapter with click listener
-        bannerAdapter = BannerAdapter(browseBanners, cdnURL, object : BannerAdapter.OnBannerClickListener {
+        // Store original banner count for infinite scroll calculations
+        originalBannerCount = browseBanners.size
+        
+        // Create infinite list by duplicating banners multiple times (for infinite forward scrolling)
+        // Use a large multiplier to create enough items for smooth infinite scrolling
+        val infiniteBanners = if (browseBanners.isNotEmpty()) {
+            List(1000) { browseBanners }.flatten() // Create 1000 copies for infinite scrolling
+        } else {
+            browseBanners
+        }
+
+        // Initialize the banner adapter with duplicated list for infinite scrolling
+        bannerAdapter = BannerAdapter(infiniteBanners, cdnURL, object : BannerAdapter.OnBannerClickListener {
             // Handle banner click event
             override fun onBannerClick(mainCatid: String, catid: String, subcatid: String, productid: String) {
                 scrollToProduct(mainCatid, catid, subcatid, productid)
@@ -755,7 +860,15 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
         // Set ViewPager properties
         binding.viewPager.offscreenPageLimit = 3
-        binding.viewPager.setCurrentItem(0, false)
+        
+        // Start at middle position for infinite forward scrolling
+        // This ensures we have enough room to scroll forward before needing to jump
+        val startPosition = if (originalBannerCount > 0) {
+            (infiniteBanners.size / 2) - ((infiniteBanners.size / 2) % originalBannerCount)
+        } else {
+            0
+        }
+        binding.viewPager.setCurrentItem(startPosition, false)
 
         // Add custom page transformer for scaling and margin effect
         val pageTransformer = CompositePageTransformer().apply {
@@ -777,10 +890,29 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         if (autoScrollRunnable == null) {
             autoScrollRunnable = object : Runnable {
                 override fun run() {
-                    // Move to next item cyclically
-                    val nextItem = (binding.viewPager.currentItem + 1) % (bannerAdapter?.itemCount ?: 1)
-                    binding.viewPager.setCurrentItem(nextItem, true)
-                    // Post again after delay
+                    val itemCount = bannerAdapter?.itemCount ?: 0
+                    if (itemCount > 1 && originalBannerCount > 0) {
+                        val currentItem = binding.viewPager.currentItem
+                        val nextItem = currentItem + 1
+                        
+                        // Check if we're near the end (within last 5% of items)
+                        // This ensures we jump to middle before reaching the actual end
+                        // This creates seamless infinite forward scrolling
+                        val jumpThreshold = (itemCount * 0.95).toInt()
+                        
+                        if (nextItem >= jumpThreshold) {
+                            // Jump to middle position without animation for seamless infinite loop
+                            // Calculate middle position aligned to original banner count
+                            val middlePosition = (itemCount / 2) - ((itemCount / 2) % originalBannerCount)
+                            binding.viewPager.post {
+                                binding.viewPager.setCurrentItem(middlePosition, false)
+                            }
+                        } else {
+                            // Move to next item with smooth forward animation
+                            binding.viewPager.setCurrentItem(nextItem, true)
+                        }
+                    }
+                    // Re-post runnable to create infinite looping auto-scroll (forward only)
                     handler.postDelayed(this, AUTO_SCROLL_DELAY)
                 }
             }
@@ -1410,8 +1542,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
             binding.searchInput.text?.clear()
             binding.radioAllProducts.isChecked = true
             
-            // Load all categories without filters
-            categoriesViewModel.categories("", token, "")
+            // Load all categories without filters - use local storage if available
+            loadCategoriesFromLocalStorage()
         }
         
         // Clear deal tracking when resetting

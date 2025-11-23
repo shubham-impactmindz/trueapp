@@ -2,33 +2,35 @@ package com.app.truewebapp.data.repository
 
 import android.util.Log
 import com.app.truewebapp.data.api.ApiHelper
-import com.app.truewebapp.data.dto.stripe.StripeConfigResponse
+import com.app.truewebapp.data.dto.stripe.PaymentIntentRequest
+import com.app.truewebapp.data.dto.stripe.PaymentIntentResponse
 import com.app.truewebapp.httpCodes
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-object StripeConfigRepository {
+object PaymentIntentRepository {
     private val webService = ApiHelper.createService()
     
-    fun stripeConfig(
-        successHandler: (StripeConfigResponse) -> Unit,
+    fun createPaymentIntent(
+        successHandler: (PaymentIntentResponse) -> Unit,
         failureHandler: (String) -> Unit,
         onFailure: (Throwable) -> Unit,
-        token: String
+        token: String,
+        paymentIntentRequest: PaymentIntentRequest
     ) {
-        webService.fetchStripeConfig(token)
-            .enqueue(object : Callback<StripeConfigResponse> {
+        webService.createPaymentIntent(token, paymentIntentRequest)
+            .enqueue(object : Callback<PaymentIntentResponse> {
                 override fun onResponse(
-                    call: Call<StripeConfigResponse>,
-                    response: Response<StripeConfigResponse>
+                    call: Call<PaymentIntentResponse>,
+                    response: Response<PaymentIntentResponse>
                 ) {
                     if (response.isSuccessful && response.body() != null) {
                         response.body()?.let {
                             successHandler(it)
                         }
-                        Log.e("TAG", "onResponse: " + response.body())
+                        Log.d("PaymentIntent", "onResponse: " + response.body())
                     } else {
                         if (response.code() == 400) {
                             try {
@@ -53,15 +55,11 @@ object StripeConfigRepository {
                     }
                 }
 
-                override fun onFailure(call: Call<StripeConfigResponse>, t: Throwable) {
+                override fun onFailure(call: Call<PaymentIntentResponse>, t: Throwable) {
                     onFailure(t)
                 }
             })
     }
 }
-
-
-
-
 
 

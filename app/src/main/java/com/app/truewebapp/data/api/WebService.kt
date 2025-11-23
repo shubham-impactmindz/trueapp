@@ -41,12 +41,14 @@ import com.app.truewebapp.data.dto.register.RegisterResponse
 import com.app.truewebapp.data.dto.register.VerifyRepResponse
 import com.app.truewebapp.data.dto.reset_password.ResetPasswordRequest
 import com.app.truewebapp.data.dto.reset_password.ResetPasswordResponse
+import com.app.truewebapp.data.dto.service.RegisterInterestRequest
+import com.app.truewebapp.data.dto.service.RegisterInterestResponse
+import com.app.truewebapp.data.dto.stripe.PaymentIntentRequest
+import com.app.truewebapp.data.dto.stripe.PaymentIntentResponse
+import com.app.truewebapp.data.dto.stripe.StripeConfigResponse
 import com.app.truewebapp.data.dto.wallet.WalletBalanceResponse
 import com.app.truewebapp.data.dto.wishlist.WishlistRequest
 import com.app.truewebapp.data.dto.wishlist.WishlistResponse
-import com.app.truewebapp.data.dto.service.RegisterInterestRequest
-import com.app.truewebapp.data.dto.service.RegisterInterestResponse
-import com.app.truewebapp.data.dto.stripe.StripeConfigResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -271,4 +273,10 @@ interface WebService {
         @Header("Authorization") token: String,
         @Body generateInvoiceRequest: GenerateInvoiceRequest
     ): Call<GenerateInvoiceResponse>
+
+    @POST("/api/create-payment-intent")
+    fun createPaymentIntent(
+        @Header("Authorization") token: String,
+        @Body paymentIntentRequest: PaymentIntentRequest
+    ): Call<PaymentIntentResponse>
 }

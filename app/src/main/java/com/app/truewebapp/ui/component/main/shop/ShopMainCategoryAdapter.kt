@@ -92,7 +92,8 @@ class ShopMainCategoryAdapter(
                 )
                 val wasExpanded = expandedMainCategoryIndices.contains(position)
                 toggleExpand(position) // Toggle expansion
-                if (!wasExpanded) scrollToPosition() // Scroll into view if newly expanded
+                // Removed auto-scroll to prevent unwanted scrolling when expanding multiple categories
+                // if (!wasExpanded) scrollToPosition() // Scroll into view if newly expanded
             }
         }
 

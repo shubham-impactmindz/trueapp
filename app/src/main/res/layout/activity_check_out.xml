@@ -800,4 +800,53 @@
 
     </LinearLayout>
 
+    <!-- Loading Overlays -->
+    <View
+        android:id="@+id/loadingOverlayBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/loadingOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="90dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_loading_overlay"
+        android:paddingStart="@dimen/padding16"
+        android:paddingEnd="@dimen/padding16"
+        android:paddingTop="@dimen/padding16"
+        android:paddingBottom="@dimen/padding16"
+        android:gravity="center_vertical|center_horizontal"
+        android:visibility="gone"
+        android:elevation="@dimen/elevation20"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ProgressBar
+            android:id="@+id/loadingSpinner"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminateTint="@color/white"
+            android:layout_marginEnd="@dimen/margin10" />
+
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Creating Order..."
+            android:textColor="@color/white"
+            android:textSize="@dimen/headingTextSize"
+            android:fontFamily="@font/roboto_bold" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

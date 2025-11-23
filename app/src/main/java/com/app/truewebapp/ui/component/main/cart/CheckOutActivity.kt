@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.LinearLayout
@@ -265,17 +266,36 @@ class CheckOutActivity : AppCompatActivity() {
             return
         }
 
+        // Show loader for order placement
+        showLoader("Creating Order...")
+
         // Prepare order request object
         val paymentDetails = calculatePaymentDetails()
         val deliveryInstructions = binding.deliveryInstructionsInput.text?.toString()?.trim() ?: ""
+        // Convert amount from pounds to cents
+        val amountInCents = (paymentDetails.finalAmount * 100).toInt()
+        
         val orderRequest = OrderRequest(
-            paymentDetails.walletDeduction.toString(),
-            paymentDetails.couponDiscount.toString(),
-            addressId.toString(),
-            deliveryMethodId.toString(),
-            deliveryInstructions,
-            appliedCoupon?.coupon_id?.toString() ?: "",
-            false
+            user_company_address_id = addressId.toString(),
+            delivery_method_id = deliveryMethodId.toString(),
+            coupon_discount = paymentDetails.couponDiscount.takeIf { it > 0 },
+            wallet_discount = paymentDetails.walletDeduction.takeIf { it > 0 },
+            delivery_instructions = deliveryInstructions.takeIf { it.isNotEmpty() },
+            coupon_id = appliedCoupon?.coupon_id?.toString()?.takeIf { it.isNotEmpty() },
+            pay_by_bank = true,
+            payment_status = "pending", // Will be updated after payment confirmation
+            payment_provider = null, // Will be set after payment
+            payment_reference = null,
+            payment_intent_id = "", // Will be set after payment confirmation
+            payment_method_id = null,
+            customer_id = null,
+            currency = "gbp",
+            amount = amountInCents,
+            status = "pending", // Will be updated after payment confirmation
+            receipt_email = null,
+            description = null,
+            metadata = null,
+            raw_payload = null
         )
 
         // Call API to place order
@@ -780,6 +800,9 @@ class CheckOutActivity : AppCompatActivity() {
     // Observe order placement API response
     private fun observeOrderPlace() {
         orderPlaceViewModel.orderPlaceResponse.observe(this) { response ->
+            // Hide loader when response is received
+            hideLoader()
+            
             // Enable buttons back after response
             binding.textPlaceOrder.isEnabled = true
             binding.textPayment.isEnabled = true
@@ -801,10 +824,48 @@ class CheckOutActivity : AppCompatActivity() {
             }
         }
 
-        // Optional loading observer (could show progress bar if needed)
+        // Observe loading state during API call
         orderPlaceViewModel.isLoading.observe(this) { isLoading ->
-
+            // Keep loader visible with "Creating Order..." message during order placement
+            // Disable/Enable button depending on loading
+            binding.textPlaceOrder.isEnabled = !isLoading
+            binding.textPayment.isEnabled = !isLoading
         }
+        
+        // Observe API error
+        orderPlaceViewModel.apiError.observe(this) { error ->
+            // Hide loading overlay and background on error
+            hideLoader()
+            // Handle API error
+            Log.e("OrderPlace", "Order placement API error: $error")
+            Toast.makeText(this, "Order failed: $error", Toast.LENGTH_SHORT).show()
+            binding.textPlaceOrder.isEnabled = true
+            binding.textPayment.isEnabled = true
+        }
+
+        // Observe failure case
+        orderPlaceViewModel.onFailure.observe(this) { throwable ->
+            // Hide loading overlay and background on failure
+            hideLoader()
+            // Handle throwable error
+            Log.e("OrderPlace", "Order placement failed", throwable)
+            Toast.makeText(this, "Order failed: ${throwable.message}", Toast.LENGTH_SHORT).show()
+            binding.textPlaceOrder.isEnabled = true
+            binding.textPayment.isEnabled = true
+        }
+    }
+
+    // Show loader with custom message
+    private fun showLoader(message: String) {
+        binding.loadingText.text = message
+        binding.loadingOverlayBackground.visibility = View.VISIBLE
+        binding.loadingOverlay.visibility = View.VISIBLE
+    }
+    
+    // Hide loader
+    private fun hideLoader() {
+        binding.loadingOverlayBackground.visibility = View.GONE
+        binding.loadingOverlay.visibility = View.GONE
     }
 
     // Utility function to format currency with pound symbol

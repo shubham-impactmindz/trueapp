@@ -97,9 +97,10 @@ class ShopCategoryAdapter(
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag for ignoring system haptic settings
                 )
                 toggleExpand(category.mcat_id.toString())
-                if (!isExpanded) {
-                    scrollToPosition()
-                }
+                // Removed auto-scroll to prevent unwanted scrolling when expanding multiple categories
+                // if (!isExpanded) {
+                //     scrollToPosition()
+                // }
             }
         }
 

@@ -69,9 +69,6 @@
         android:layout_marginTop="@dimen/margin20"
         android:background="@drawable/border_primary"
         android:elevation="@dimen/elevation10"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/paymentMethodRadioGroup"
         android:padding="@dimen/padding16">
 
         <com.google.android.material.textfield.TextInputLayout
