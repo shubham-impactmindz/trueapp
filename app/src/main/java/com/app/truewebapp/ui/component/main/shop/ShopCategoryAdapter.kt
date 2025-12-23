@@ -60,7 +60,7 @@ class ShopCategoryAdapter(
         ) {
             // Extract and set category name with HTML formatting
             val title = Html.fromHtml(category.mcat_name, Html.FROM_HTML_MODE_LEGACY).toString()
-            tvProduct.text = title
+            tvProduct.text = title.uppercase()
 
             // Apply background style based on category name
             linearCategory.setBackgroundResource(
@@ -70,21 +70,28 @@ class ShopCategoryAdapter(
                     R.drawable.border_solid_light_red
             )
 
-            // Get or create SubCategoryAdapter for this category position
-            val adapter = subCategoryAdapters.getOrPut(position) {
-                SubCategoryAdapter(productAdapterListener, cdnURL).apply {
-                    updateSubCategoriesPreserveExpansion(category.subcategories)
+            // Only create/update adapter if category is expanded (performance optimization)
+            if (isExpanded) {
+                // Get or create SubCategoryAdapter for this category position
+                val adapter = subCategoryAdapters.getOrPut(position) {
+                    SubCategoryAdapter(productAdapterListener, cdnURL).apply {
+                        updateSubCategoriesPreserveExpansion(category.subcategories)
+                    }
                 }
-            }
 
-            // Set RecyclerView adapter and layout manager if not already set
-            if (subCategoryRecyclerView.adapter != adapter) {
-                subCategoryRecyclerView.adapter = adapter
-                subCategoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-                subCategoryRecyclerView.setHasFixedSize(true)
+                // Set RecyclerView adapter and layout manager if not already set
+                if (subCategoryRecyclerView.adapter != adapter) {
+                    subCategoryRecyclerView.adapter = adapter
+                    subCategoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+                    subCategoryRecyclerView.setHasFixedSize(true)
+                } else {
+                    // Update subcategories if adapter already exists
+                    adapter.updateSubCategoriesPreserveExpansion(category.subcategories)
+                }
             } else {
-                // Update subcategories if adapter already exists
-                adapter.updateSubCategoriesPreserveExpansion(category.subcategories)
+                // Remove adapter when collapsed to free memory and improve performance
+                subCategoryRecyclerView.adapter = null
+                subCategoryAdapters.remove(position)
             }
 
             // Update UI based on expanded/collapsed state
@@ -97,10 +104,7 @@ class ShopCategoryAdapter(
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Optional flag for ignoring system haptic settings
                 )
                 toggleExpand(category.mcat_id.toString())
-                // Removed auto-scroll to prevent unwanted scrolling when expanding multiple categories
-                // if (!isExpanded) {
-                //     scrollToPosition()
-                // }
+                // Removed automatic scroll to prevent view jumping to top
             }
         }
 
@@ -144,6 +148,22 @@ class ShopCategoryAdapter(
     }
 
     /**
+     * Called when adapter is attached to RecyclerView
+     */
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        parentRecyclerView = recyclerView
+    }
+    
+    /**
+     * Called when adapter is detached from RecyclerView
+     */
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        parentRecyclerView = null
+    }
+    
+    /**
      * Inflates the layout for category items and creates ViewHolder.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -170,7 +190,69 @@ class ShopCategoryAdapter(
         val wasExpanded = expandedMap[catId] ?: false
         // Toggle the clicked category without clearing others (allow multiple expanded)
         expandedMap[catId] = !wasExpanded
-        notifyDataSetChanged()
+        
+        // Find the position of the clicked category and notify only that item
+        val position = categoryList.indexOfFirst { it.mcat_id.toString() == catId }
+        if (position != -1) {
+            // Preserve scroll position before notifying change
+            val recyclerView = getRecyclerView()
+            val layoutManager = recyclerView?.layoutManager as? LinearLayoutManager
+            
+            // Save current scroll position and the clicked item's view reference
+            val scrollPosition = layoutManager?.findFirstVisibleItemPosition() ?: 0
+            val clickedView = layoutManager?.findViewByPosition(position)
+            val clickedViewTop = clickedView?.top ?: 0
+            
+            // Save the scroll offset of the first visible item
+            val firstVisibleView = layoutManager?.findViewByPosition(scrollPosition)
+            val scrollOffset = firstVisibleView?.top ?: 0
+            
+            // Temporarily disable item animations to prevent scroll jumps
+            val originalAnimator = recyclerView?.itemAnimator
+            recyclerView?.itemAnimator = null
+            
+            notifyItemChanged(position)
+            
+            // Restore scroll position after layout change to prevent jumping
+            recyclerView?.post {
+                // Calculate the new position based on the clicked item's position
+                val newScrollPosition = layoutManager?.findFirstVisibleItemPosition() ?: scrollPosition
+                
+                // Try to maintain the same visual position
+                if (newScrollPosition == scrollPosition) {
+                    // If we're still at the same position, restore the exact offset
+                    layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                } else {
+                    // If position changed, try to maintain relative position to clicked item
+                    val newClickedView = layoutManager?.findViewByPosition(position)
+                    if (newClickedView != null) {
+                        // Calculate how much the clicked item moved
+                        val newClickedViewTop = newClickedView.top
+                        val delta = newClickedViewTop - clickedViewTop
+                        
+                        // Adjust scroll to compensate for the movement
+                        val adjustedOffset = scrollOffset - delta
+                        layoutManager?.scrollToPositionWithOffset(scrollPosition, adjustedOffset)
+                    } else {
+                        // Fallback: just restore the original position
+                        layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                    }
+                }
+                
+                // Restore item animator after a short delay
+                recyclerView?.postDelayed({
+                    recyclerView?.itemAnimator = originalAnimator
+                }, 100)
+            }
+        }
+    }
+    
+    // Reference to parent RecyclerView for scroll preservation
+    private var parentRecyclerView: RecyclerView? = null
+    
+    // Helper method to get the RecyclerView that this adapter is attached to
+    private fun getRecyclerView(): RecyclerView? {
+        return parentRecyclerView
     }
 
     /**
@@ -183,8 +265,13 @@ class ShopCategoryAdapter(
      */
     fun expandCategory(categoryId: String) {
         // Expand without clearing others (allow multiple expanded)
-        expandedMap[categoryId] = true
-        notifyDataSetChanged()
+        if (expandedMap[categoryId] != true) {
+            expandedMap[categoryId] = true
+            val position = categoryList.indexOfFirst { it.mcat_id.toString() == categoryId }
+            if (position != -1) {
+                notifyItemChanged(position)
+            }
+        }
     }
 
     /**
@@ -198,8 +285,13 @@ class ShopCategoryAdapter(
      * Collapses the given category by ID.
      */
     fun collapseCategory(catId: String) {
-        expandedMap[catId] = false
-        notifyDataSetChanged()
+        if (expandedMap[catId] == true) {
+            expandedMap[catId] = false
+            val position = categoryList.indexOfFirst { it.mcat_id.toString() == catId }
+            if (position != -1) {
+                notifyItemChanged(position)
+            }
+        }
     }
 
     /**
@@ -213,26 +305,62 @@ class ShopCategoryAdapter(
      * Updates the list of categories while preserving the currently expanded one.
      */
     fun updateCategoriesPreserveExpansion(newList: List<Category>) {
-        // Save currently expanded category ID
-        val currentExpandedCategoryId = expandedMap.filter { it.value }.keys.firstOrNull()
+        // Save currently expanded category IDs
+        val currentExpandedCategoryIds = expandedMap.filter { it.value }.keys.toSet()
+
+        // Check if the list actually changed
+        val listChanged = categoryList.size != newList.size || 
+                         categoryList.zip(newList).any { (old, new) -> old.mcat_id != new.mcat_id }
+
+        if (!listChanged) {
+            // Only update adapters for expanded categories if list structure is the same
+            currentExpandedCategoryIds.forEach { catId ->
+                val position = categoryList.indexOfFirst { it.mcat_id.toString() == catId }
+                if (position != -1) {
+                    subCategoryAdapters[position]?.updateSubCategoriesPreserveExpansion(categoryList[position].subcategories)
+                }
+            }
+            return
+        }
 
         // Replace old list with new categories
         categoryList.clear()
         categoryList.addAll(newList)
 
-        // Reset expansion map but restore previously expanded category
-        expandedMap.clear()
-        if (currentExpandedCategoryId != null) {
-            expandedMap[currentExpandedCategoryId] = true
+        // Restore previously expanded categories
+        val newExpandedIds = mutableSetOf<String>()
+        categoryList.forEach { category ->
+            val catId = category.mcat_id.toString()
+            if (currentExpandedCategoryIds.contains(catId)) {
+                expandedMap[catId] = true
+                newExpandedIds.add(catId)
+            } else {
+                expandedMap[catId] = false
+            }
         }
 
-        // Update subcategory adapters for all categories
+        // Update subcategory adapters only for expanded categories (performance optimization)
+        newExpandedIds.forEach { catId ->
+            val position = categoryList.indexOfFirst { it.mcat_id.toString() == catId }
+            if (position != -1) {
+                subCategoryAdapters.getOrPut(position) {
+                    SubCategoryAdapter(productAdapterListener, cdnURL)
+                }.updateSubCategoriesPreserveExpansion(categoryList[position].subcategories)
+            }
+        }
+        
+        // Remove adapters for collapsed categories to free memory
+        subCategoryAdapters.keys.removeAll { index ->
+            val catId = categoryList.getOrNull(index)?.mcat_id?.toString()
+            catId !in newExpandedIds
+        }
+
+        // Notify only changed items, not all items
         categoryList.forEachIndexed { index, category ->
-            subCategoryAdapters.getOrPut(index) {
-                SubCategoryAdapter(productAdapterListener, cdnURL)
-            }.updateSubCategoriesPreserveExpansion(category.subcategories)
+            val catId = category.mcat_id.toString()
+            if (expandedMap[catId] != null) {
+                notifyItemChanged(index)
+            }
         }
-
-        notifyDataSetChanged()
     }
 }

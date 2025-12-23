@@ -31,6 +31,9 @@ class ShopMainCategoryAdapter(
     // Map to store sub-adapters for each main category index
     private val shopCategoryAdapters = mutableMapOf<Int, ShopCategoryAdapter>()
 
+    // Reference to the parent RecyclerView that this adapter is attached to
+    private var parentRecyclerView: RecyclerView? = null
+
     // ViewHolder class for each main category item
     inner class MainCategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         // RecyclerView inside each main category for displaying subcategories
@@ -55,7 +58,7 @@ class ShopMainCategoryAdapter(
         ) {
             // Convert HTML-encoded category name to plain text and set it to TextView
             val title = Html.fromHtml(category.main_mcat_name, Html.FROM_HTML_MODE_LEGACY).toString()
-            tvProduct.text = title
+            tvProduct.text = title.uppercase()
 
             // Apply different background based on category title
             linearCategory.setBackgroundResource(
@@ -65,20 +68,27 @@ class ShopMainCategoryAdapter(
                     R.drawable.border_solid_primary
             )
 
-            // Get or create the ShopCategoryAdapter for subcategories
-            val adapter = shopCategoryAdapters.getOrPut(position) {
-                ShopCategoryAdapter(productAdapterListener, category.categories, cdnURL)
-            }
+            // Only create/update adapter if category is expanded (performance optimization)
+            if (isExpanded) {
+                // Get or create the ShopCategoryAdapter for subcategories
+                val adapter = shopCategoryAdapters.getOrPut(position) {
+                    ShopCategoryAdapter(productAdapterListener, category.categories, cdnURL)
+                }
 
-            // If the RecyclerView adapter is not set, attach it and initialize layout manager
-            if (categoryRecyclerView.adapter != adapter) {
-                categoryRecyclerView.adapter = adapter
-                categoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-                categoryRecyclerView.setHasFixedSize(true)
-            }
+                // If the RecyclerView adapter is not set, attach it and initialize layout manager
+                if (categoryRecyclerView.adapter != adapter) {
+                    categoryRecyclerView.adapter = adapter
+                    categoryRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
+                    categoryRecyclerView.setHasFixedSize(true)
+                }
 
-            // Update subcategories while preserving expansion state
-            adapter.updateCategoriesPreserveExpansion(category.categories)
+                // Update subcategories while preserving expansion state
+                adapter.updateCategoriesPreserveExpansion(category.categories)
+            } else {
+                // Remove adapter when collapsed to free memory and improve performance
+                categoryRecyclerView.adapter = null
+                shopCategoryAdapters.remove(position)
+            }
 
             // Update expand/collapse UI based on state
             updateExpansionUI(isExpanded)
@@ -90,10 +100,8 @@ class ShopMainCategoryAdapter(
                     HapticFeedbackConstants.VIRTUAL_KEY,
                     HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING // Ignore global settings for feedback
                 )
-                val wasExpanded = expandedMainCategoryIndices.contains(position)
                 toggleExpand(position) // Toggle expansion
-                // Removed auto-scroll to prevent unwanted scrolling when expanding multiple categories
-                // if (!wasExpanded) scrollToPosition() // Scroll into view if newly expanded
+                // Removed automatic scroll to prevent view jumping to top
             }
         }
 
@@ -136,6 +144,18 @@ class ShopMainCategoryAdapter(
             .inflate(R.layout.item_category, parent, false)
         return MainCategoryViewHolder(view)
     }
+    
+    // Called when adapter is attached to RecyclerView
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        parentRecyclerView = recyclerView
+    }
+    
+    // Called when adapter is detached from RecyclerView
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        parentRecyclerView = null
+    }
 
     // Binds data to ViewHolder at the given position
     override fun onBindViewHolder(holder: MainCategoryViewHolder, position: Int) {
@@ -148,6 +168,23 @@ class ShopMainCategoryAdapter(
 
     // Handles expand/collapse logic for main categories
     private fun handleCategoryClick(clickedPosition: Int) {
+        // Get the RecyclerView reference to preserve scroll position
+        val recyclerView = getRecyclerView()
+        val layoutManager = recyclerView?.layoutManager as? LinearLayoutManager
+        
+        // Save current scroll position and the clicked item's view reference
+        val scrollPosition = layoutManager?.findFirstVisibleItemPosition() ?: 0
+        val clickedView = layoutManager?.findViewByPosition(clickedPosition)
+        val clickedViewTop = clickedView?.top ?: 0
+        
+        // Save the scroll offset of the first visible item
+        val firstVisibleView = layoutManager?.findViewByPosition(scrollPosition)
+        val scrollOffset = firstVisibleView?.top ?: 0
+        
+        // Temporarily disable item animations to prevent scroll jumps
+        val originalAnimator = recyclerView?.itemAnimator
+        recyclerView?.itemAnimator = null
+        
         if (expandedMainCategoryIndices.contains(clickedPosition)) {
             // Collapse if already expanded
             expandedMainCategoryIndices.remove(clickedPosition)
@@ -157,6 +194,44 @@ class ShopMainCategoryAdapter(
             expandedMainCategoryIndices.add(clickedPosition)
             notifyItemChanged(clickedPosition)
         }
+        
+        // Restore scroll position after layout change to prevent jumping
+        recyclerView?.post {
+            // Calculate the new position based on the clicked item's position
+            // This accounts for the height change when expanding/collapsing
+            val newScrollPosition = layoutManager?.findFirstVisibleItemPosition() ?: scrollPosition
+            
+            // Try to maintain the same visual position
+            if (newScrollPosition == scrollPosition) {
+                // If we're still at the same position, restore the exact offset
+                layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+            } else {
+                // If position changed, try to maintain relative position to clicked item
+                val newClickedView = layoutManager?.findViewByPosition(clickedPosition)
+                if (newClickedView != null) {
+                    // Calculate how much the clicked item moved
+                    val newClickedViewTop = newClickedView.top
+                    val delta = newClickedViewTop - clickedViewTop
+                    
+                    // Adjust scroll to compensate for the movement
+                    val adjustedOffset = scrollOffset - delta
+                    layoutManager?.scrollToPositionWithOffset(scrollPosition, adjustedOffset)
+                } else {
+                    // Fallback: just restore the original position
+                    layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                }
+            }
+            
+            // Restore item animator after a short delay
+            recyclerView?.postDelayed({
+                recyclerView?.itemAnimator = originalAnimator
+            }, 100)
+        }
+    }
+    
+    // Helper method to get the RecyclerView that this adapter is attached to
+    private fun getRecyclerView(): RecyclerView? {
+        return parentRecyclerView
     }
 
     // Returns total number of main categories
@@ -195,6 +270,18 @@ class ShopMainCategoryAdapter(
             mainCategories.getOrNull(index)?.main_mcat_id
         }.toSet()
 
+        // Check if the list actually changed
+        val listChanged = mainCategories.size != newList.size || 
+                         mainCategories.zip(newList).any { (old, new) -> old.main_mcat_id != new.main_mcat_id }
+
+        if (!listChanged) {
+            // Only update adapters if list structure is the same
+            mainCategories.forEachIndexed { index, mainCategory ->
+                shopCategoryAdapters[index]?.updateCategoriesPreserveExpansion(mainCategory.categories)
+            }
+            return
+        }
+
         // Replace old list with new categories
         mainCategories.clear()
         mainCategories.addAll(newList)
@@ -212,17 +299,18 @@ class ShopMainCategoryAdapter(
         expandedMainCategoryIndices.clear()
         expandedMainCategoryIndices.addAll(newExpandedIndices)
 
-        // Notify changes for all affected items
+        // Notify changes for all affected items (only changed items, not all)
         (oldIndices + newExpandedIndices).forEach { notifyItemChanged(it) }
 
-        // Update adapters for each category
-        mainCategories.forEachIndexed { index, mainCategory ->
+        // Update adapters for each category (only for expanded ones to improve performance)
+        newExpandedIndices.forEach { index ->
+            val mainCategory = mainCategories.getOrNull(index) ?: return@forEach
             shopCategoryAdapters.getOrPut(index) {
                 ShopCategoryAdapter(productAdapterListener, mainCategory.categories, cdnURL)
             }.updateCategoriesPreserveExpansion(mainCategory.categories)
         }
-
-        // Notify RecyclerView that data has changed
-        notifyDataSetChanged()
+        
+        // Remove adapters for collapsed categories to free memory
+        shopCategoryAdapters.keys.removeAll { it !in newExpandedIndices && it !in oldIndices }
     }
 }

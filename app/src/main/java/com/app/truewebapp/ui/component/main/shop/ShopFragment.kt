@@ -290,8 +290,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         resetToDefaultState()
         }
 
-        // Refresh the adapter data when returning to this screen
-        adapter?.notifyDataSetChanged()
+        // Don't call notifyDataSetChanged() as it causes scroll position to reset
+        // The adapter will update automatically when data changes
         
         // Restart auto-scroll if banners are loaded
         if (bannerAdapter != null && bannerAdapter?.itemCount ?: 0 > 1) {
@@ -329,8 +329,8 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         val preferences = context?.getSharedPreferences(SHARED_PREF_NAME, AppCompatActivity.MODE_PRIVATE)
         categoriesViewModel.categories("", token, "", null)
         
-        // Refresh adapter if it exists
-        adapter?.notifyDataSetChanged()
+        // Don't call notifyDataSetChanged() as it causes scroll position to reset
+        // The adapter will update automatically when data changes
     }
     
     /**
@@ -921,33 +921,69 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     // Function to programmatically scroll to a product in nested RecyclerViews
     fun scrollToProduct(mainCatid: String, catid: String, subcatid: String, productid: String) {
+        // Validate inputs
+        if (mainCatid.isBlank() || catid.isBlank() || subcatid.isBlank() || productid.isBlank()) {
+            Log.e("ShopFragment", "Invalid IDs: mainCatid=$mainCatid, catid=$catid, subcatid=$subcatid, productid=$productid")
+            return
+        }
+        
+        // Check if categories are loaded
+        if (originalCategoryList.isEmpty()) {
+            Log.e("ShopFragment", "Category list is empty, cannot scroll to product")
+            // Retry after a delay if categories might still be loading
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (originalCategoryList.isNotEmpty()) {
+                    scrollToProduct(mainCatid, catid, subcatid, productid)
+                }
+            }, 500)
+            return
+        }
+        
         // Find index of main category matching the given ID
         val mainCatIndex = originalCategoryList.indexOfFirst {
             it.main_mcat_id.toString() == mainCatid
         }
-        if (mainCatIndex == -1) return // Return if not found
+        if (mainCatIndex == -1) {
+            Log.e("ShopFragment", "Main category not found: mainCatid=$mainCatid")
+            return
+        }
 
+        Log.d("ShopFragment", "Scrolling to product: mainCatIndex=$mainCatIndex, catid=$catid, subcatid=$subcatid, productid=$productid")
+        
         // Expand the category (don't collapse others - allow multiple expanded)
         // Directly proceed to scroll - no need to collapse previous
-            proceedScrollTo(mainCatIndex, catid, subcatid, productid)
+        proceedScrollTo(mainCatIndex, catid, subcatid, productid)
     }
 
     // Function that handles expanding categories/subcategories and scrolling to the product
     private fun proceedScrollTo(mainCatIndex: Int, catid: String, subcatid: String, productid: String) {
+        // Validate adapter is ready
+        if (adapter == null) {
+            Log.e("ShopFragment", "Adapter is null, cannot scroll")
+            return
+        }
+        
         // Expand the main category
         adapter?.expandCategory(mainCatIndex)
+        // Use scrollToPosition (not smoothScrollTo) to avoid animation conflicts
         binding.shopMainCategoryRecycler.scrollToPosition(mainCatIndex)
 
         binding.shopMainCategoryRecycler.postDelayed({
             // Find main category ViewHolder
             val mainCatVH = binding.shopMainCategoryRecycler
                 .findViewHolderForAdapterPosition(mainCatIndex) as? ShopMainCategoryAdapter.MainCategoryViewHolder
-                ?: return@postDelayed
+                ?: run {
+                    Log.e("ShopFragment", "Main category ViewHolder not found at index $mainCatIndex")
+                    return@postDelayed
+                }
 
             // Get category adapter and find index of category
             val shopCatAdapter = mainCatVH.getCategoryAdapter()
             val shopCatIndex = shopCatAdapter?.getCategoryIndex(catid) ?: -1
-            if (shopCatIndex == -1) return@postDelayed
+            if (shopCatIndex == -1) {
+                Log.e("ShopFragment", "Category not found: catid=$catid")
+                return@postDelayed
+            }
 
             // Expand selected category
             val categoryId = shopCatAdapter?.getCategoryIdAt(shopCatIndex)
@@ -961,12 +997,18 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                 // Find category ViewHolder
                 val shopCatVH = mainCatVH.getCategoryRecycler()
                     .findViewHolderForAdapterPosition(shopCatIndex) as? ShopCategoryAdapter.CategoryViewHolder
-                    ?: return@postDelayed
+                    ?: run {
+                        Log.e("ShopFragment", "Category ViewHolder not found at index $shopCatIndex")
+                        return@postDelayed
+                    }
 
                 // Get subcategory adapter and find index
                 val subCatAdapter = shopCatVH.getSubCategoryAdapter()
                 val subCatIndex = subCatAdapter?.getSubCategoryIndex(subcatid) ?: -1
-                if (subCatIndex == -1) return@postDelayed
+                if (subCatIndex == -1) {
+                    Log.e("ShopFragment", "Subcategory not found: subcatid=$subcatid")
+                    return@postDelayed
+                }
 
                 // Expand subcategory and scroll to position
                 subCatAdapter?.expandSubCategory(subCatIndex)
@@ -984,19 +1026,19 @@ class ShopFragment : Fragment(), ProductAdapterListener {
                                 .findViewHolderForAdapterPosition(subCatIndex) as? SubCategoryAdapter.SubCategoryViewHolder
                             
                             if (retrySubCatVH == null) {
-                                Log.e("TAG", "SubCategory ViewHolder not found after retry")
+                                Log.e("ShopFragment", "SubCategory ViewHolder not found after retry: subcatid=$subcatid")
                                 return@postDelayed
                             }
                             
                             proceedWithProductScroll(retrySubCatVH, productid, mainCatIndex, shopCatIndex, subCatIndex, mainCatVH, shopCatVH)
-                        }, 200)
+                        }, 300)
                         return@postDelayed
                     }
                     
                     proceedWithProductScroll(subCatVH, productid, mainCatIndex, shopCatIndex, subCatIndex, mainCatVH, shopCatVH)
                 }, 600)
-            }, 350)
-        }, 400)
+            }, 400) // Increased delay for category expansion
+        }, 500) // Increased delay for main category expansion
     }
     
     // Helper function to proceed with product scrolling
@@ -1084,135 +1126,124 @@ class ShopFragment : Fragment(), ProductAdapterListener {
         
         Log.e("TAG", "scrollToProductInRecyclerView: productIndex=$productIndex, layoutManager=${layoutManager.javaClass.simpleName}")
         
-        // First, ensure all parent RecyclerViews are scrolled to correct positions
+        // First, ensure all parent RecyclerViews are scrolled to correct positions (use scrollToPosition to avoid animation conflicts)
         binding.shopMainCategoryRecycler.post {
-            binding.shopMainCategoryRecycler.smoothScrollToPosition(mainCatIndex)
+            binding.shopMainCategoryRecycler.scrollToPosition(mainCatIndex)
         }
         
         mainCatVH.getCategoryRecycler().postDelayed({
-            mainCatVH.getCategoryRecycler().smoothScrollToPosition(shopCatIndex)
+            mainCatVH.getCategoryRecycler().scrollToPosition(shopCatIndex)
         }, 200)
         
         shopCatVH.getSubCategoryRecycler().postDelayed({
-            shopCatVH.getSubCategoryRecycler().smoothScrollToPosition(subCatIndex)
-                }, 300)
+            shopCatVH.getSubCategoryRecycler().scrollToPosition(subCatIndex)
+        }, 300)
         
-        // Find the NestedScrollView parent and scroll it to bring the product RecyclerView into view
+        // Wait for all parent RecyclerViews to be positioned, then scroll product and NestedScrollView together
         productRecycler.postDelayed({
-            // Use binding to get NestedScrollView
-            val nestedScrollView = binding.scrollView
+            Log.e("TAG", "Starting scroll to productIndex=$productIndex, RecyclerView height=${productRecycler.height}, width=${productRecycler.width}")
             
-            // Scroll NestedScrollView to bring product RecyclerView into view
-            productRecycler.post {
-                // Get the location of the product RecyclerView relative to its parent
+            // Ensure RecyclerView is visible and has size
+            if (productRecycler.height == 0 || productRecycler.width == 0) {
+                Log.e("TAG", "RecyclerView has no size, waiting more...")
+                productRecycler.postDelayed({
+                    performScrollToProductWithNestedScroll(productRecycler, layoutManager, productIndex)
+                }, 300)
+                return@postDelayed
+            }
+            
+            performScrollToProductWithNestedScroll(productRecycler, layoutManager, productIndex)
+        }, 600) // Wait for parent RecyclerViews to be positioned
+    }
+    
+    // Combined function to scroll product and NestedScrollView together to prevent conflicts
+    private fun performScrollToProductWithNestedScroll(
+        productRecycler: RecyclerView,
+        layoutManager: RecyclerView.LayoutManager,
+        productIndex: Int
+    ) {
+        Log.e("TAG", "performScrollToProductWithNestedScroll: productIndex=$productIndex")
+        
+        // First scroll the product RecyclerView to the correct position
+        when (layoutManager) {
+            is GridLayoutManager -> {
+                layoutManager.scrollToPositionWithOffset(productIndex, 0)
+            }
+            is LinearLayoutManager -> {
+                layoutManager.scrollToPositionWithOffset(productIndex, 0)
+            }
+            else -> {
+                productRecycler.scrollToPosition(productIndex)
+            }
+        }
+        
+        // Wait for the product to be positioned, then scroll NestedScrollView to bring it into view
+        productRecycler.postDelayed({
+            // Get the location of the product item view (not the RecyclerView)
+            val productView = layoutManager.findViewByPosition(productIndex)
+            
+            if (productView != null) {
+                val nestedScrollView = binding.scrollView
+                
+                // Get the location of the product view
                 val location = IntArray(2)
-                productRecycler.getLocationInWindow(location)
+                productView.getLocationInWindow(location)
                 
                 // Get NestedScrollView location
                 val scrollViewLocation = IntArray(2)
                 nestedScrollView.getLocationInWindow(scrollViewLocation)
                 
-                // Calculate scroll position (relative to NestedScrollView)
-                val scrollY = location[1] - scrollViewLocation[1] - 200 // Add padding from top
+                // Calculate scroll position to center the product view (with some padding from top)
+                val scrollY = location[1] - scrollViewLocation[1] - 150 // Padding from top
                 
-                Log.e("TAG", "Scrolling NestedScrollView to Y=$scrollY (productRecycler Y=${location[1]}, scrollView Y=${scrollViewLocation[1]})")
-                nestedScrollView.smoothScrollTo(0, maxOf(0, scrollY))
-            }
-            
-            // Wait for RecyclerView to be fully measured and laid out, then scroll to product
-            productRecycler.postDelayed({
-                Log.e("TAG", "Starting scroll to productIndex=$productIndex, RecyclerView height=${productRecycler.height}, width=${productRecycler.width}")
+                Log.e("TAG", "Scrolling NestedScrollView to Y=$scrollY (productView Y=${location[1]}, scrollView Y=${scrollViewLocation[1]})")
                 
-                // Ensure RecyclerView is visible and has size
-                if (productRecycler.height == 0 || productRecycler.width == 0) {
-                    Log.e("TAG", "RecyclerView has no size, waiting more...")
-                    productRecycler.postDelayed({
-                        performScrollToProduct(productRecycler, layoutManager, productIndex)
-                    }, 300)
-                    return@postDelayed
-                }
+                // Use scrollTo instead of smoothScrollTo to prevent conflicts
+                nestedScrollView.scrollTo(0, maxOf(0, scrollY))
                 
-                performScrollToProduct(productRecycler, layoutManager, productIndex)
-            }, 800) // Wait for NestedScrollView to scroll first
-        }, 400)
-    }
-    
-    // Separate function to perform the actual scroll
-    private fun performScrollToProduct(
-        productRecycler: RecyclerView,
-        layoutManager: RecyclerView.LayoutManager,
-        productIndex: Int
-    ) {
-        Log.e("TAG", "performScrollToProduct: productIndex=$productIndex, layoutManager=${layoutManager.javaClass.simpleName}")
-        
-        when (layoutManager) {
-            is GridLayoutManager -> {
-                Log.e("TAG", "GridLayoutManager: scrolling to productIndex=$productIndex, spanCount=${layoutManager.spanCount}, itemCount=${productRecycler.adapter?.itemCount}")
-                
-                // First, try direct scroll
-                layoutManager.scrollToPosition(productIndex)
-                
-                // Then use smooth scroll
-                val smoothScroller = object : LinearSmoothScroller(productRecycler.context) {
-                    override fun getVerticalSnapPreference(): Int {
-                        return SNAP_TO_START
-                    }
-                }
-                smoothScroller.targetPosition = productIndex
-                layoutManager.startSmoothScroll(smoothScroller)
-                
-                // Verify after smooth scroll completes
+                // Verify the product is visible after scroll
                 productRecycler.postDelayed({
-                    val firstVisible = layoutManager.findFirstVisibleItemPosition()
-                    val lastVisible = layoutManager.findLastVisibleItemPosition()
-                    Log.e("TAG", "After smooth scroll: firstVisible=$firstVisible, lastVisible=$lastVisible, productIndex=$productIndex")
+                    val firstVisible = when (layoutManager) {
+                        is GridLayoutManager -> layoutManager.findFirstVisibleItemPosition()
+                        is LinearLayoutManager -> layoutManager.findFirstVisibleItemPosition()
+                        else -> -1
+                    }
+                    val lastVisible = when (layoutManager) {
+                        is GridLayoutManager -> layoutManager.findLastVisibleItemPosition()
+                        is LinearLayoutManager -> layoutManager.findLastVisibleItemPosition()
+                        else -> -1
+                    }
                     
                     if (productIndex < firstVisible || productIndex > lastVisible) {
-                        Log.e("TAG", "Product not visible, forcing scroll again")
-                        layoutManager.scrollToPosition(productIndex)
-                        
-                        // One more attempt
-                        productRecycler.postDelayed({
-                            val firstVisibleAfter = layoutManager.findFirstVisibleItemPosition()
-                            val lastVisibleAfter = layoutManager.findLastVisibleItemPosition()
-                            Log.e("TAG", "Final check: firstVisible=$firstVisibleAfter, lastVisible=$lastVisibleAfter")
-                            if (productIndex < firstVisibleAfter || productIndex > lastVisibleAfter) {
-                                Log.e("TAG", "Still not visible, using RecyclerView.scrollToPosition")
-                                productRecycler.scrollToPosition(productIndex)
-                            }
-                        }, 300)
+                        Log.e("TAG", "Product not visible after scroll, adjusting...")
+                        // Fine-tune the scroll position
+                        val productViewAfter = layoutManager.findViewByPosition(productIndex)
+                        if (productViewAfter != null) {
+                            val locationAfter = IntArray(2)
+                            productViewAfter.getLocationInWindow(locationAfter)
+                            val scrollViewLocationAfter = IntArray(2)
+                            nestedScrollView.getLocationInWindow(scrollViewLocationAfter)
+                            val scrollYAfter = locationAfter[1] - scrollViewLocationAfter[1] - 150
+                            nestedScrollView.scrollTo(0, maxOf(0, scrollYAfter))
+                        }
                     } else {
                         Log.e("TAG", "✓ Product is visible at position $productIndex")
                     }
-                }, 1000) // Wait longer for smooth scroll to complete
+                }, 200)
+            } else {
+                Log.e("TAG", "Product view not found at position $productIndex, using RecyclerView location")
+                // Fallback: use RecyclerView location
+                val nestedScrollView = binding.scrollView
+                val location = IntArray(2)
+                productRecycler.getLocationInWindow(location)
+                val scrollViewLocation = IntArray(2)
+                nestedScrollView.getLocationInWindow(scrollViewLocation)
+                val scrollY = location[1] - scrollViewLocation[1] - 150
+                nestedScrollView.scrollTo(0, maxOf(0, scrollY))
             }
-            is LinearLayoutManager -> {
-                Log.e("TAG", "LinearLayoutManager: scrolling to position $productIndex")
-                
-                // Use LinearSmoothScroller for LinearLayoutManager
-                val smoothScroller = object : LinearSmoothScroller(productRecycler.context) {
-                    override fun getVerticalSnapPreference(): Int {
-                        return SNAP_TO_START
-                    }
-                }
-                smoothScroller.targetPosition = productIndex
-                layoutManager.startSmoothScroll(smoothScroller)
-                
-                // Fallback verification
-                productRecycler.postDelayed({
-                    val firstVisible = layoutManager.findFirstVisibleItemPosition()
-                    val lastVisible = layoutManager.findLastVisibleItemPosition()
-                    if (productIndex < firstVisible || productIndex > lastVisible) {
-                        layoutManager.scrollToPositionWithOffset(productIndex, 0)
-                    }
-                }, 1000)
-            }
-            else -> {
-                Log.e("TAG", "Unknown layout manager, using scrollToPosition")
-                productRecycler.scrollToPosition(productIndex)
-            }
-        }
+        }, 100) // Small delay to ensure product is positioned
     }
+    
 
     // Function to stop banner auto-scrolling
     private fun stopAutoScroll() {
@@ -1286,12 +1317,27 @@ class ShopFragment : Fragment(), ProductAdapterListener {
 
     // Function to setup Shop UI with categories
     private fun setupShopUI(categories: List<MainCategories>, cdnUrl: String) {
+        // Save current scroll position to prevent auto-scroll to top
+        val layoutManager = binding.shopMainCategoryRecycler.layoutManager as? LinearLayoutManager
+        val scrollPosition = layoutManager?.findFirstVisibleItemPosition() ?: 0
+        val scrollOffset = layoutManager?.let { 
+            val firstView = it.findViewByPosition(scrollPosition)
+            firstView?.top ?: 0
+        } ?: 0
+        
         if (adapter == null) {
             adapter = ShopMainCategoryAdapter(this, categories, cdnUrl)
             binding.shopMainCategoryRecycler.layoutManager = LinearLayoutManager(context)
             binding.shopMainCategoryRecycler.adapter = adapter
         } else {
             adapter?.updateCategoriesPreserveExpansion(categories)
+            
+            // Restore scroll position after update to prevent auto-scroll to top
+            if (scrollPosition >= 0 && scrollPosition < categories.size) {
+                binding.shopMainCategoryRecycler.post {
+                    layoutManager?.scrollToPositionWithOffset(scrollPosition, scrollOffset)
+                }
+            }
         }
         if (binding.filterLayout.visibility == View.GONE) {
             binding.shopMainCategoryRecycler.visibility = View.VISIBLE

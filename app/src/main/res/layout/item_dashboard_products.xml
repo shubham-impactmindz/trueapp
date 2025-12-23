@@ -177,7 +177,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
-                android:textSize="@dimen/smallTextSize"
+                android:textSize="13sp"
                 android:layout_marginTop="2sp"
                 android:maxLines="2"
                 android:fontFamily="@font/roboto_regular"
@@ -197,7 +197,7 @@
                 android:scrollHorizontally="false"
                 android:singleLine="false"
                 android:text="Cheetos Crunchy Flamin' Hot 8oz (226g)"
-                android:textSize="@dimen/smallTextSize"
+                android:textSize="13sp"
                 android:fontFamily="@font/roboto_regular"
                 android:textColor="@color/black"/>
 
@@ -229,7 +229,7 @@
                         android:gravity="end"
                         android:text="@string/wallet_balance"
                         android:textColor="@color/black"
-                        android:textSize="@dimen/baseTextSize" />
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/comparePrice"
@@ -237,7 +237,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="end"
                         android:text="£3.50"
-                        android:textSize="11sp"
+                        android:textSize="13sp"
                         android:layout_marginStart="@dimen/margin5"
                         android:fontFamily="@font/roboto_regular"
                         android:textColor="@color/textGrey" />

@@ -1003,17 +1003,19 @@ class DashboardFragment : Fragment(),
         msubcat_id: String,
         mproduct_id: String
     ) {
+        // Validate IDs are not empty
+        if (main_mcat_id.isBlank() || mcat_id.isBlank() || msubcat_id.isBlank() || mproduct_id.isBlank()) {
+            Log.e("DashboardFragment", "Invalid IDs: main_mcat_id=$main_mcat_id, mcat_id=$mcat_id, msubcat_id=$msubcat_id, mproduct_id=$mproduct_id")
+            return
+        }
+        
         // Switch to Shop tab
         tabSwitcher?.switchToShopTab()
 
-        // Delay to ensure Shop tab UI is ready
+        // Delay to ensure Shop tab UI is ready, then retry if needed
         Handler(Looper.getMainLooper()).postDelayed({
-            // Find ShopFragment
-            val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
-            // Scroll to the specific product
-            shopFragment?.scrollToProduct(main_mcat_id, mcat_id, msubcat_id, mproduct_id)
-
-        }, 1000) // Delay 1000ms for Big Banner
+            scrollToProductWithRetry(main_mcat_id, mcat_id, msubcat_id, mproduct_id, 0)
+        }, 1200) // Increased delay for Big Banner
     }
 
     /**
@@ -1025,12 +1027,17 @@ class DashboardFragment : Fragment(),
         msubcat_id: String,
         mproduct_id: String
     ) {
+        // Validate IDs are not empty
+        if (main_mcat_id.isBlank() || mcat_id.isBlank() || msubcat_id.isBlank() || mproduct_id.isBlank()) {
+            Log.e("DashboardFragment", "Invalid IDs: main_mcat_id=$main_mcat_id, mcat_id=$mcat_id, msubcat_id=$msubcat_id, mproduct_id=$mproduct_id")
+            return
+        }
+        
         tabSwitcher?.switchToShopTab()
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
-            shopFragment?.scrollToProduct(main_mcat_id, mcat_id, msubcat_id, mproduct_id)
-        }, 500) // Delay 500ms for stability
+            scrollToProductWithRetry(main_mcat_id, mcat_id, msubcat_id, mproduct_id, 0)
+        }, 800) // Increased delay for Small Banner
     }
 
     /**
@@ -1042,12 +1049,17 @@ class DashboardFragment : Fragment(),
         msubcat_id: String,
         mproduct_id: String
     ) {
+        // Validate IDs are not empty
+        if (main_mcat_id.isBlank() || mcat_id.isBlank() || msubcat_id.isBlank() || mproduct_id.isBlank()) {
+            Log.e("DashboardFragment", "Invalid IDs: main_mcat_id=$main_mcat_id, mcat_id=$mcat_id, msubcat_id=$msubcat_id, mproduct_id=$mproduct_id")
+            return
+        }
+        
         tabSwitcher?.switchToShopTab()
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
-            shopFragment?.scrollToProduct(main_mcat_id, mcat_id, msubcat_id, mproduct_id)
-        }, 500)
+            scrollToProductWithRetry(main_mcat_id, mcat_id, msubcat_id, mproduct_id, 0)
+        }, 800) // Increased delay for Round Banner
     }
 
     /**
@@ -1082,6 +1094,37 @@ class DashboardFragment : Fragment(),
             val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
             shopFragment?.scrollToProduct(main_mcat_id, mcat_id, msubcat_id, mproduct_id)
         }, 500)
+    }
+
+    /**
+     * Helper function to scroll to product with retry logic.
+     * Retries if ShopFragment is not ready yet.
+     */
+    private fun scrollToProductWithRetry(
+        main_mcat_id: String,
+        mcat_id: String,
+        msubcat_id: String,
+        mproduct_id: String,
+        retryCount: Int
+    ) {
+        val shopFragment = parentFragmentManager.findFragmentByTag("f1") as? ShopFragment
+        
+        if (shopFragment == null || !shopFragment.isAdded || shopFragment.view == null) {
+            // Fragment not ready, retry up to 3 times
+            if (retryCount < 3) {
+                Log.d("DashboardFragment", "ShopFragment not ready, retrying... (attempt ${retryCount + 1})")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    scrollToProductWithRetry(main_mcat_id, mcat_id, msubcat_id, mproduct_id, retryCount + 1)
+                }, 500)
+            } else {
+                Log.e("DashboardFragment", "Failed to scroll: ShopFragment not ready after ${retryCount + 1} attempts")
+            }
+            return
+        }
+        
+        // Fragment is ready, scroll to product
+        Log.d("DashboardFragment", "Scrolling to product: main_mcat_id=$main_mcat_id, mcat_id=$mcat_id, msubcat_id=$msubcat_id, mproduct_id=$mproduct_id")
+        shopFragment.scrollToProduct(main_mcat_id, mcat_id, msubcat_id, mproduct_id)
     }
 
     /**

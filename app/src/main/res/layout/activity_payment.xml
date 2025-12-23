@@ -140,7 +140,6 @@
             android:elevation="@dimen/elevation10"
             android:visibility="gone"
             android:padding="@dimen/padding16"
-            android:layout_marginTop="@dimen/margin5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/paymentMethodContainer">
@@ -268,6 +267,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="@dimen/padding10"
+            android:layout_marginTop="@dimen/margin10"
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
@@ -299,7 +299,7 @@
         android:id="@+id/bankPaymentLayout"
         android:layout_width="0sp"
         android:layout_height="wrap_content"
-        android:background="@drawable/border_primary"
+        android:background="@drawable/bg_payment_selected"
         android:orientation="vertical"
         android:elevation="@dimen/elevation10"
         android:visibility="gone"

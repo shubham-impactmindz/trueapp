@@ -54,9 +54,9 @@
     <string name="what_is_the_wallet">What is the wallet?</string>
     <string name="wallet_answer">The wallet contains credit you aquired from your previous purchases on this platform.</string>
     <string name="how_much_credit_do_i_get">How much credit do I get?</string>
-    <string name="credit_answer">Every product has a wallet indicator which states how much credit you will be awarded for every unit of that product purchased.</string>
+    <string name="credit_answer">You will receive £1 wallet credit when you pay by bank transfer at checkout. We may also offer additional credit depending on your transaction history with us. For more details about your wallet credit limit, please contact our customer support team.</string>
     <string name="how_do_i_use_my_credit">How do I use my credit?</string>
-    <string name="use_credit_answer">Your wallet credit will be automatically applied on your next purchase as a discount from the order total.</string>
+    <string name="use_credit_answer">Your wallet credit will be automatically added to your wallet, and you can use your wallet balance toward your next purchase as a discount on the order total.</string>
     <string name="platform_question">Do I get credit if I don\'t use the platform?</string>
     <string name="platform_answer">No. Credit is only added to your wallet when you purchase through this platform.</string>
     <string name="are_you_sure_you_want_to_logout">Are you sure you want to logout?</string>

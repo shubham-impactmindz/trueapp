@@ -182,6 +182,14 @@ class PaymentActivity : AppCompatActivity() {
                 binding.payByCardRadio.setImageResource(R.drawable.radio_button_selected)
                 binding.payByBankRadio.setImageResource(R.drawable.radio_button_unselected)
                 
+                // Set greyish background: card details section (selected) and bank option (unselected)
+                binding.cardPaymentLayout.setBackgroundResource(R.drawable.bg_payment_selected)
+                binding.payByBankLayout.setBackgroundResource(R.drawable.bg_payment_selected)
+                
+                // Remove greyish background from card option and bank details section
+                binding.payByCardLayout.setBackgroundResource(android.R.color.transparent)
+                binding.bankPaymentLayout.setBackgroundResource(R.drawable.border_primary)
+                
                 // Show card UI, hide bank UI
                 binding.cardPaymentLayout.visibility = View.VISIBLE
                 binding.bankPaymentLayout.visibility = View.GONE
@@ -196,6 +204,14 @@ class PaymentActivity : AppCompatActivity() {
                 // Update radio button indicators
                 binding.payByBankRadio.setImageResource(R.drawable.radio_button_selected)
                 binding.payByCardRadio.setImageResource(R.drawable.radio_button_unselected)
+                
+                // Set greyish background: bank details section (selected) and card option (unselected)
+                binding.bankPaymentLayout.setBackgroundResource(R.drawable.bg_payment_selected)
+                binding.payByCardLayout.setBackgroundResource(R.drawable.bg_payment_selected)
+                
+                // Remove greyish background from bank option and card details section
+                binding.payByBankLayout.setBackgroundResource(android.R.color.transparent)
+                binding.cardPaymentLayout.setBackgroundResource(R.drawable.border_primary)
                 
                 // Show bank UI, hide card UI
                 binding.bankPaymentLayout.visibility = View.VISIBLE
